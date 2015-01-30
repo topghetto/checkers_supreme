@@ -46,16 +46,18 @@ public class CheckersGame extends Activity{
 		// All the squares of the checkers board will be stored in here.
 		squaresOfBoard = new ImageView[8][8];
 		
-		
-		
+		// ---- Initially Populates the Checkersboard and Adds the Events to the Squares ---- \\ 
+		// For each row of the checkersboard...
 		for(int x = 0;x<8;x++)
 		{
+			final int loopX = x;
 			// Grabs the LayoutInflater, and stores it in a readily available variable
 			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			// Used to determine what checkers' will go where
 				
 			for(int y = 0;y<8;y++)
 			{		
+				final int loopY = y;
 				// Inflates the 'View' with the layout of the given XML.
 				inflateSquare = inflater.inflate(R.layout.gridview_item, checkersBoardGL, false);
 				// Store the ImageView specified in the parsed XML layout, into a runtime ImageView for further modification.
@@ -76,22 +78,22 @@ public class CheckersGame extends Activity{
 					// in an integer due to the specification of this method - This 0 is not even used.
 					addSquares(0, x, y, imageOfSquare, checkersBoardGL, inflateSquare);
 				}
+				
+				// This will add events to the 32 (dark brown) squares of the checkersboard because these are the only usuable squares on the board.
+				// The other 32 sqaures are just for design.
+				if(x % 2 == 0 && y % 2 == 1){
+					// This will add the event to the square, that could be empty or occupying the checkers piece. 
+					squaresOfBoard[loopX][loopY].setOnClickListener(new MakeMove(squaresOfBoard, loopX, loopY));
+					
+				}else if(x % 2 == 1 && y % 2 == 0){
+					// This will add the event to the square, that could be empty or occupying the checkers piece. 
+					squaresOfBoard[loopX][loopY].setOnClickListener(new MakeMove(squaresOfBoard, loopX, loopY));
+				}			
 			}
 		}
 		
-		// I am going to try and add the event
-		squaresOfBoard[0][1].setOnClickListener(new View.OnClickListener(){
-				public void onClick(View v)
-				{
-					// Do something... I hope... Well, that worked :)
-					Log.i("From the checkers' piece: ","You like to press my buttons, don't ya");
-					// Yes!!! It changed the image of the first light brown checkers piece... It is safe to go on ahead now :)
-					squaresOfBoard[0][1].setImageResource(R.drawable.ic_launcher);
-				}
-			});
-		
-		
-	}
+		// Now, we can add the code moving the pieces, and shit.
+	}	
 	public void populateBoard()
 	{
 		// I need to copy the code 'onCreate' into here, and make modifications to it so, it can be method-friendly.
@@ -99,38 +101,76 @@ public class CheckersGame extends Activity{
 	
 	public void addSquares(int resourceId, int passX, int passY, ImageView passImage, GridLayout passGridLayout, View passGridSquare)
 	{
-		if(passX % 2 == 0 && passY % 2 == 1)
+		// Using non-final variables in inner classes are not permitted but, I got rid of my inner class so, it does not have to be final anymore. 
+		final int x = passX, y = passY;
+		
+		if(x % 2 == 0 && y % 2 == 1)
 		{
-			// Then rows 0, 2, 4, 8
+			// Prints on rows 0, 2, 4, 8, and columns 1, 3, 5, 7
 			
 			// This method used causes latency so, use the 'setImageDrawable()' method instead.
 			passImage.setImageResource(resourceId);
 			// Adds the square to the checkers board :)
 			passGridLayout.addView(passGridSquare);
 			// I NEED TO CONFIRM IF THIS ARRAY WILL ALLOW ME TO MODIFY THE IMAGEVIEWS THROUGH THIS!
-			squaresOfBoard[passX][passY] = passImage;
-			
-		}else if(passX % 2 == 1 && passY % 2 == 0){
-			// Then rows 1, 3, 5, 7
+			squaresOfBoard[x][y] = passImage;
+					
+		}else if(x % 2 == 1 && y % 2 == 0){
+			// Prints on rows 1, 3, 5, 7, and columns 0, 2, 4, 8
 			
 			// This method used causes latency so, use the 'setImageDrawable()' method instead.
 			passImage.setImageResource(resourceId);
 			// Adds the square to the checkers board :)
 			passGridLayout.addView(passGridSquare);
 			// I NEED TO CONFIRM IF THIS ARRAY WILL ALLOW ME TO MODIFY THE IMAGEVIEWS THROUGH THIS!
-			squaresOfBoard[passX][passY] = passImage;
-		}
-		else
+			squaresOfBoard[x][y] = passImage;
+			
+			
+		}else
 		{
 			// Adds an empty square to the checkers board :)
 			passGridLayout.addView(passGridSquare);
 			// I NEED TO CONFIRM IF THIS ARRAY WILL ALLOW ME TO MODIFY THE IMAGEVIEWS THROUGH THIS!
-			squaresOfBoard[passX][passY] = passImage;
+			squaresOfBoard[x][y] = passImage;
 		}
 	}
-	public void movePiece()
+}
+
+class MakeMove implements View.OnClickListener
+{
+	// Member Variables
+	public int row, column;
+	public ImageView[][] squaresOfBoard;
+	
+	// Constructor
+	public MakeMove(ImageView[][] passSquares, int passX, int passY)
 	{
-		
+		squaresOfBoard = passSquares;
+		row = passX;
+		column = passY;
 	}
 	
+	public void onClick(View v)
+	{
+		// Yes!!! It changed the image of the first light brown checkers piece... It is safe to go on ahead now :)
+		squaresOfBoard[row][column].setImageResource(R.drawable.ic_launcher);
+		
+		// Now, how would I find out the row/column of the square that called the event...
+		// Well, I could try loop through all the squaresOfBoard until 'squaresOfBoard[x][y].equals(v) ;)
+		//
+		
+		for(int x = 0;x<8;x++)
+		{
+			for(int y = 0;y<8;y++)
+			{
+				if(squaresOfBoard[x][y].equals(v))
+				{
+					// So, that worked.
+					Log.i("The square clicked is located at ", "row " + x + " and column " + y);
+				}
+			}
+		}
+		
+		
+	}
 }
