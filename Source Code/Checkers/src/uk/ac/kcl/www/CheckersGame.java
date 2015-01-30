@@ -83,11 +83,11 @@ public class CheckersGame extends Activity{
 				// The other 32 sqaures are just for design.
 				if(x % 2 == 0 && y % 2 == 1){
 					// This will add the event to the square, that could be empty or occupying the checkers piece. 
-					squaresOfBoard[loopX][loopY].setOnClickListener(new MakeMove(squaresOfBoard, loopX, loopY));
+					squaresOfBoard[loopX][loopY].setOnClickListener(new PlayerMoves(squaresOfBoard, loopX, loopY));
 					
 				}else if(x % 2 == 1 && y % 2 == 0){
 					// This will add the event to the square, that could be empty or occupying the checkers piece. 
-					squaresOfBoard[loopX][loopY].setOnClickListener(new MakeMove(squaresOfBoard, loopX, loopY));
+					squaresOfBoard[loopX][loopY].setOnClickListener(new PlayerMoves(squaresOfBoard, loopX, loopY));
 				}			
 			}
 		}
@@ -136,14 +136,14 @@ public class CheckersGame extends Activity{
 	}
 }
 
-class MakeMove implements View.OnClickListener
+class PlayerMoves implements View.OnClickListener
 {
 	// Member Variables
 	public int row, column;
 	public ImageView[][] squaresOfBoard;
 	
 	// Constructor
-	public MakeMove(ImageView[][] passSquares, int passX, int passY)
+	public PlayerMoves(ImageView[][] passSquares, int passX, int passY)
 	{
 		squaresOfBoard = passSquares;
 		row = passX;
@@ -153,7 +153,7 @@ class MakeMove implements View.OnClickListener
 	public void onClick(View v)
 	{
 		// Yes!!! It changed the image of the first light brown checkers piece... It is safe to go on ahead now :)
-		squaresOfBoard[row][column].setImageResource(R.drawable.ic_launcher);
+		//squaresOfBoard[row][column].setImageResource(R.drawable.ic_launcher);
 		
 		// Now, how would I find out the row/column of the square that called the event...
 		// Well, I could try loop through all the squaresOfBoard until 'squaresOfBoard[x][y].equals(v) ;)
@@ -163,10 +163,30 @@ class MakeMove implements View.OnClickListener
 		{
 			for(int y = 0;y<8;y++)
 			{
+				// Finds the row/column values of the square that initiated the event.
 				if(squaresOfBoard[x][y].equals(v))
 				{
 					// So, that worked.
 					Log.i("The square clicked is located at ", "row " + x + " and column " + y);
+					
+					// Perform a move anywhere on rows 0 through 6... Just some board constraints.
+					if(x >= 0 && x <= 6)
+					{
+						// Highlight neighboring checkers' pieces or squares...
+						// if x = 0, y = 1 in squaresOfBoard[x][y],
+						// We will highlight the selected checkers piece itself (in time), and as well as squaresOfBoard[x+1][y-1] and squaresOfBoard[x+1][y+2]
+						if(y >= 1)
+						{
+							// Board constraints so, we don't try to pick squares that won't exist 
+							squaresOfBoard[x+1][y-1].setImageResource(R.drawable.ic_launcher);
+						}
+						if(y >= 0 && y <= 6)
+						{
+							// Board constraints so, we don't try to pick squares that won't exist
+							squaresOfBoard[x+1][y+1].setImageResource(R.drawable.ic_launcher);
+						}	
+					}
+					
 				}
 			}
 		}
