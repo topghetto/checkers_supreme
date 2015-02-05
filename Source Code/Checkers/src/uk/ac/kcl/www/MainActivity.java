@@ -18,7 +18,7 @@ public class MainActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 				
-				Button singlePlayerBtn = (Button) findViewById(R.id.single_player_btn);
+				//Button singlePlayerBtn = (Button) findViewById(R.id.single_player_btn);
 				
 				
 				// Whenever I would try to implement a GridView, the application would just crash on launch, and I believe

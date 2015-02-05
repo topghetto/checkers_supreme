@@ -38,8 +38,9 @@ public class CheckersGame extends Activity{
 	public View inflateSquare;
 	public ImageView imageOfSquares[][];
 	public View squaresOfBoard[][];
+	// Later on, I will change this to a 'char' array instead.
 	public String	strCheckersBoard[][];
-	
+  // Handles all the events.
 	public PlayerMoves playerEvents;
 	
 	
@@ -58,7 +59,7 @@ public class CheckersGame extends Activity{
 		// This will keep track of the entire board
 		strCheckersBoard = new String[8][8];
 		// Create instiate the event class
-		playerEvents = new PlayerMoves(imageOfSquares, strCheckersBoard);
+		playerEvents = new PlayerMoves(imageOfSquares, imageOfSquares, strCheckersBoard);
 		
 		// ---- Initially Populates the Checkersboard and Adds the Events to the Squares ---- \\ 
 		// For each row of the checkersboard...
@@ -183,20 +184,32 @@ class PlayerMoves implements View.OnClickListener
 	// Member Variables
 	public int row, column;
 	public View[][] squaresOfBoard;
+	public ImageView[][] imageOfSquares;
 	public String[][] strCheckersBoard;
+	
 	// Keeps track of the selected square.
 	public ArrayList<View> prevSquares;
 	public ArrayList<ImageView> imgOfPrevSquares;
 	public int sizeOfPrev;
 	
+	
+	public ArrayList<Integer> xPrevAxis, yPrevAxis;
+	public boolean isHighlighted;
+	public int xParentPrev, yParentPrev;
+	
 	// Constructor
-	public PlayerMoves(View[][] passSquares, String[][] passCheckersBoard)
+	public PlayerMoves(View[][] passSquares, ImageView[][] passImgSquares, String[][] passCheckersBoard)
 	{
 		strCheckersBoard = passCheckersBoard;
 		squaresOfBoard = passSquares;
+		imageOfSquares = passImgSquares;
 		prevSquares = new ArrayList<View>();
 		imgOfPrevSquares = null;
 		sizeOfPrev = 0;
+		xPrevAxis = new ArrayList<Integer>();
+		yPrevAxis = new ArrayList<Integer>();
+		
+		
 	}
 	// I made this synchronised so, I am hoping the code runs one at a time otherwise, if I click two buttons at the same time, I have a hunch
 	// that it would cause a series of problems.
@@ -211,13 +224,247 @@ class PlayerMoves implements View.OnClickListener
 				// Firstly, we must find the row/column value of the square that initiated the event.
 				if(squaresOfBoard[x][y].equals(v))
 				{
+					
+					// Used to hold the value of whether the squares are highlighted or not.
+					isHighlighted = false;
+					// And then check whether the neighbouring square(s) are empty...	AND THIS ENTIRE ELSE IF STATEMENT WORKS :)
+					sizeOfPrev = xPrevAxis.size();    // xPrevAxis.size() causes the program to crash when I click a checkers piece!!! - SORTED ;)
+					
+					if(sizeOfPrev <= 0 && (strCheckersBoard[x][y] == "1" || strCheckersBoard[x][y] == "2"))
+					{
+						// First param variable is a condition
+						// Last param variable 'upOrDown' = 1 so, [x+upOrDown] = [x+1] i.e, go from top to bottom of the checkersboard.
+						highlightSquares(x >= 0 && x <= 6, x, y, 1);
+						
+						// If this section is enabled, then the app crashes when I select checkers pieces that have neighbouring checkers pieces
+						//xParentPrev = xPrevAxis.get(0).intValue();
+						//yParentPrev = yPrevAxis.get(0).intValue();
+					}
+					else // WE WILL ADD A CONDITION FOR "1" IF THIS WORKS... INSHALLAH! - The problem is here!
+					{
+						// ---
+						// For all highlighted squares, check whether the selected square is part of the highlighted squares.
+							for(int h = 0;h < sizeOfPrev;h++)
+							{
+								// Remove the highlights from the highlighted squares.
+								int xHighlighted = xPrevAxis.get(h).intValue();
+								int yHighlighted = yPrevAxis.get(h).intValue();
+								
+								if(squaresOfBoard[xHighlighted][yHighlighted].equals(v))
+								{
+									// The selected square is part of the highlighted squares.
+									isHighlighted = true;
+									System.out.println("It is highlighted and xHighlighted=" + xHighlighted + " and yHighlighted=" + yHighlighted);
+									// Close the loop. 
+									h = sizeOfPrev;
+									
+								}else
+								{
+									// Closing the loop early fixed the problem because if x = 0 true, then x =1 is false, then isHighlighted == false will run.
+									// All we need is at least one x to be false in order for x1 && x2 && x3 to be false so, any other checks would cause harm.
+									// The selected square is not part of the highlighted squares.
+									isHighlighted = false;
+									System.out.println("It is not highlighted and xHighlighted=" + xHighlighted + " and yHighlighted=" + yHighlighted);
+								}
+								
+								System.out.println("I ran " + h + " times!");
+							}
+							
+							if(isHighlighted == false)
+							{
+								// Works as expected :)
+								removeHighlights(); 
+								/*// If the square is not part of the highlighted squares, then remove the highlights of the existing square...
+								for(int rm = 0;rm < sizeOfPrev;rm++)
+								{
+									// Remove the highlights from the highlighted squares.
+									int xHighlighted = xPrevAxis.get(rm).intValue();
+									int yHighlighted = yPrevAxis.get(rm).intValue();
+									//squaresOfBoard[xHighlighted][yHighlighted].setBackground(null);
+									prevSquares.get(rm).setBackground(null);
+								}
+								*/
+								// Add new highlights for the newly selected square.
+								highlightSquares(x >= 0 && x <= 6, x, y, 1); // upOrDown = 1 so, x+1 i.e, go from top to bottom of the checkersboard.
+								// Debug purposes.
+								System.out.println("In isHighlighted==false The size of xPrevAxis = " + xPrevAxis.size() + " and yPrevAxis = " + yPrevAxis.size());
+								
+							}
+							else if(isHighlighted == true)
+							{
+								// The coordinates of the root square of highlighted squares
+								int parentPrevX = xPrevAxis.get(0).intValue();
+								int parentPrevY = yPrevAxis.get(0).intValue();
+								
+								for(int mv = 1;mv < sizeOfPrev;mv++)
+								{	
+									// The coordinates of the neighbouring squares of the highlighted squares.
+									int prevX = xPrevAxis.get(mv).intValue();
+									int prevY = yPrevAxis.get(mv).intValue();
+
+									// If the selected piece is part of the highlighted neighbouring squares, then perform blah de blah blah.
+									if(v.equals(squaresOfBoard[prevX][prevY]))
+									{
+										if(strCheckersBoard[parentPrevX][parentPrevY] == "1")	// Determines what colour piece we move ;)
+										{
+											
+										}else if(strCheckersBoard[parentPrevX][parentPrevY] == "2")		// Determines what colour piece we move ;)
+										{
+											System.out.println("We successfully moved the piece :)");
+											// Clear the square of the checker piece we want to move.
+											strCheckersBoard[parentPrevX][parentPrevY] = "0";
+											// Clear the image of that square.
+											imageOfSquares[parentPrevX][parentPrevY].setImageResource(0);
+											// Occupies new space in the helper array.
+											strCheckersBoard[x][y] = "2";
+											// Move the checkers piece into the new location.
+											imageOfSquares[x][y].setImageResource(R.drawable.light_brown_piece);
+											// Now, I need to get rid of the highlights, etc.
+											removeHighlights();
+											// Clear the row/column values of the highlighted squares.
+											xPrevAxis = new ArrayList<Integer>(); //- This causes the app to crash when I try to move another piece after successfully moving one beforehand.
+											yPrevAxis = new ArrayList<Integer>();
+											// - This stops the app crashing from happening because on on line 247, it will try to loop through the old value of
+											// sizeOfPrev, where the size of the 'sizeOfPrev' would be larger the size of elements in the array causing an
+											// IndexOutOfBounds exception ;)
+											sizeOfPrev = 0; 
+			
+											for(int c = 0;c <8;c++)
+											{
+												for(int d=0;d<8;d++)
+												{
+													System.out.print(strCheckersBoard[c][d]);
+												}
+												System.out.println("");
+											}
+											
+											System.out.println("|----------|");
+											// Ends the for loop.
+											//z = xPrevAxis.size();	
+										}
+									}
+								}							
+							}					
+						// ---End of paste
+					}
+					
+					
+					
+					
+					/*
+					isHighlighted = true;
+					
+					// We need to check if the selected square has a checkers piece...
+					// I need a better condition because when I select a highlighted square, it will be 0 in the array and therefore, the following
+					// statement will not run.
+					//if(strCheckersBoard[x][y] == "1" && strCheckersBoard[x][y] == "2") // PROBLEM IS HERE!
+					//{
+						// And then check whether the neighbouring square(s) are empty...	AND THIS ENTIRE ELSE IF STATEMENT WORKS :)
+						sizeOfPrev = xPrevAxis.size();    // xPrevAxis.size() causes the program to crash when I click a checkers piece!!! - SORTED ;)
+						
+						if(sizeOfPrev == 0)
+						{
+							// First param variable is a condition
+							// Last param variable 'upOrDown' = 1 so, [x+upOrDown] = [x+1] i.e, go from top to bottom of the checkersboard.
+							highlightSquares(x >= 0 && x <= 6, x, y, 1);	
+						}
+						else
+						{
+							
+							
+							// For all highlighted squares, check whether the selected square is part of the highlighted squares.
+							for(int h = 0;h < sizeOfPrev;h++)
+							{
+								if(!prevSquares.get(h).equals(v))
+								{
+									// The selected square is not part of the highlighted squares.
+									isHighlighted = false;
+								}else
+								{
+									// The selected square is part of the highlighted squares.
+									isHighlighted = true;
+									// Close the loop early.
+									//h = sizeOfPrev;
+								}
+							}
+							
+							if(isHighlighted == false)
+							{
+								// If the square is not part of the highlighted squares, then remove the highlights of the existing square...
+								for(int rm = 0;rm < sizeOfPrev;rm++)
+								{
+									// Remove the highlights from the highlighted squares.
+									int xHighlighted = xPrevAxis.get(rm).intValue();
+									int yHighlighted = yPrevAxis.get(rm).intValue();
+									squaresOfBoard[xHighlighted][yHighlighted].setBackground(null);
+								}	
+								// Add new highlights for the newly selected square.
+								highlightSquares(x >= 0 && x <= 6, x, y, 1); // upOrDown = 1 so, x+1 i.e, go from top to bottom of the checkersboard.
+								// Debug purposes.
+								System.out.println("The size of xPrevAxis = " + xPrevAxis.size() + " and yPrevAxis = " + yPrevAxis.size());
+							}
+							else
+							{
+								// The coordinates of the root square of highlighted squares
+								int parentPrevX = xPrevAxis.get(0).intValue();
+								int parentPrevY = yPrevAxis.get(0).intValue();
+								
+								for(int mv = 1;mv < sizeOfPrev;mv++)
+								{	
+									// The coordinates of the neighbouring squares of the highlighted squares.
+									int prevX = xPrevAxis.get(mv).intValue();
+									int prevY = yPrevAxis.get(mv).intValue();
+
+									// If the selected piece is part of the highlighted neighbouring squares, then perform blah de blah blah.
+									if(v.equals(squaresOfBoard[prevX][prevY]))
+									{
+										if(strCheckersBoard[parentPrevX][parentPrevY] == "1")	// Determines what colour piece we move ;)
+										{
+											
+										}else if(strCheckersBoard[parentPrevX][parentPrevY] == "2")		// Determines what colour piece we move ;)
+										{
+											System.out.println("We successfully moved the piece :)");
+											// Clear the square of the checker piece we want to move.
+											strCheckersBoard[parentPrevX][parentPrevY] = "0";
+											// Clear the image of that square.
+											imageOfSquares[parentPrevX][parentPrevY].setImageResource(0);
+											// Occupies new space in the helper array.
+											strCheckersBoard[x][y] = "2";
+											// Move the checkers piece into the new location.
+											imageOfSquares[x][y].setImageResource(R.drawable.light_brown_piece);
+											// Now, I need to get rid of the highlights, etc.
+											// Purpose of debug.
+											System.out.println("|----------|");
+			
+											for(int c = 0;c <8;c++)
+											{
+												for(int d=0;d<8;d++)
+												{
+													System.out.print(strCheckersBoard[c][d]);
+												}
+												System.out.println("");
+											}
+											
+											System.out.println("|----------|");
+											// Ends the for loop.
+											//z = xPrevAxis.size();	
+										}
+									}
+								}
+								
+							}
+							
+										
+						}*/
+					//}
+					
+					
+					/*
 					// We need to check if the selected square has a checkers piece...
 					if(strCheckersBoard[x][y] == "1" || strCheckersBoard[x][y] == "2")
 					{
-						// And then check whether the neighbouring square(s) are empty...
-						
-						sizeOfPrev = prevSquares.size();
-						
+						// And then check whether the neighbouring square(s) are empty...	
+						sizeOfPrev = prevSquares.size();	
 						// The prevSquares will initially be empty so, this statement should only run once.
 						if(sizeOfPrev == 0)
 						{
@@ -225,51 +472,7 @@ class PlayerMoves implements View.OnClickListener
 							// upOrDown = 1 so, x+1 i.e, go from top to bottom of the checkersboard.
 							highlightSquares(x >= 0 && x <= 6, x, y, 1);
 							
-							/*// Initialises the prevSquares and imgOfPrevSquares array
-							prevSquares = new ArrayList<View>();
-							imgOfPrevSquares = new ArrayList<ImageView>();
-										
-							if(x >= 0 && x <= 6)
-							{
-								// Assigns the newly selected square as part of the new prevSquares[] array.
-								//prevSquares.get(0) = squaresOfBoard[x][y];
-								//squaresOfBoard[x][y].setBackground(new ColorDrawable(0xFF999966));
-								//prevSquares.add(squaresOfBoard[x][y]);
-								
-								
-								// "2" for Player 2's checkers piece ;) 	
-								if(y >= 1 && strCheckersBoard[x+1][y-1] != "2" && strCheckersBoard[x+1][y-1] != "1")
-								{
-									// Remove possible duplicate.
-									prevSquares.remove(squaresOfBoard[x][y]);
-									// Highlights the selected square.
-									squaresOfBoard[x][y].setBackground(new ColorDrawable(0xFF999966));
-									// Add the selected square to the prevSquares ArrayList
-									prevSquares.add(squaresOfBoard[x][y]);
-									// Also highlights the neighbouring square to left of it.
-									squaresOfBoard[x+1][y-1].setBackground(new ColorDrawable(0xFF999966));
-									// Adds the neighbouring square to the prevSquares ArrayList ;)
-									prevSquares.add(squaresOfBoard[x+1][y-1]);
-								}
-								if(y >= 0 && y <= 6 && strCheckersBoard[x+1][y+1] != "2" && strCheckersBoard[x+1][y+1] != "1")
-								{
-									// Remove possible duplicate.
-									prevSquares.remove(squaresOfBoard[x][y]);
-									// Highlights the selected square.
-									squaresOfBoard[x][y].setBackground(new ColorDrawable(0xFF999966));
-									// Add the selected square to the prevSquares ArrayList
-									prevSquares.add(squaresOfBoard[x][y]);
-									// Also highlights the neighbouring square to the right of it.
-									squaresOfBoard[x+1][y+1].setBackground(new ColorDrawable(0xFF999966));
-									// Adds the neighbouring square to the prevSquares ArrayList ;)
-									prevSquares.add(squaresOfBoard[x+1][y+1]);
-								}
-								
-								// This section works gracefully :)
-								System.out.println("Printed from the prevSquares.size() == 0 -- The size of prevSquares is now " + prevSquares.size());
-							}*/
 						}else{
-							// This else statement never seems to run.
 							// prevSquares has data so, perform the following...
 							System.out.println("The ELSE statement runs...");
 							
@@ -284,41 +487,9 @@ class PlayerMoves implements View.OnClickListener
 								// Condition = constraints and whatnot.
 								// upOrDown = 1 so, x+1 i.e, go from top to bottom of the checkersboard.
 								highlightSquares(x >= 0 && x <= 6, x, y, 1);
-								
 								// Debug purposes.
-								System.out.println("Printed from the prevSquares.size() == 2 -- The size of prevSquares is now " + prevSquares.size());
-								
-								/*
-								// Clear prevSquares but, double check this.
-								prevSquares = new ArrayList<View>();
-								// Clear imgOfPrevSquares but, double check this.
-								imgOfPrevSquares = new ArrayList<ImageView>();
-								// I need to figure out the initial values too for this... Long.
-								
-								if(x >= 0 && x <= 6)
-								{
-									//prevSquares.get(0) = squaresOfBoard[x][y];
-									squaresOfBoard[x][y].setBackground(new ColorDrawable(0xFF999966));
-									// Assigns the newly selected square as part of the new prevSquares[] array.
-									prevSquares.add(squaresOfBoard[x][y]);
-									
-									
-									if(y >= 1)
-									{
-										//prevSquares.get(1) = squaresOfBoard[x+1][y-1];
-										squaresOfBoard[x+1][y-1].setBackground(new ColorDrawable(0xFF999966));
-										// Assigns the newly selected square as part of the new prevSquares[] array.
-										prevSquares.add(squaresOfBoard[x+1][y-1]);
-									}
-									if(y >= 0 && y <= 6)
-									{
-										//prevSquares.get(1) = squaresOfBoard[x+1][y-1];
-										squaresOfBoard[x+1][y+1].setBackground(new ColorDrawable(0xFF999966));
-										// Assigns the newly selected square as part of the new prevSquares[] array.
-										prevSquares.add(squaresOfBoard[x+1][y+1]);
-									}
-									System.out.println("Printed from the prevSquares.size() == 2 -- The size of prevSquares is now " + prevSquares.size());
-								}*/					
+								System.out.println("The size of xPrevAxis = " + xPrevAxis.size() + " and yPrevAxis = " + yPrevAxis.size());
+												
 							}else if(sizeOfPrev == 3 && !prevSquares.get(0).equals(v) && !prevSquares.get(1).equals(v) && !prevSquares.get(2).equals(v))
 							{
 								prevSquares.get(0).setBackground(null);
@@ -326,117 +497,75 @@ class PlayerMoves implements View.OnClickListener
 								prevSquares.get(2).setBackground(null);
 								
 								// Condition = constraints and whatnot.
-								// upOrDown = 1 so, x+1 i.e, go from top to bottom of the checkersboard.
+								// upOrDown = 1 so, [x+1] i.e, go from top to bottom of the checkersboard.
 								highlightSquares(x >= 0 && x <= 6, x, y, 1);
+								// Debug purposes.
+								System.out.println("The size of xPrevAxis = " + xPrevAxis.size() + " and yPrevAxis = " + yPrevAxis.size());
 								
-								// Debug purposes.				
-								System.out.println("Printed from the prevSquares.size() == 3 -- The size of prevSquares is now " + prevSquares.size());
 								
-								/*
-								// Clear prevSquares but, double check this.
-								prevSquares = new ArrayList<View>();
-								// Clear imgOfPrevSquares but, double check this.
-								imgOfPrevSquares = new ArrayList<ImageView>();
-								// I need to figure out the initial values too for this... Long.
 								
-								if(x >= 0 && x <= 6)
-								{
-									//prevSquares.get(0) = squaresOfBoard[x][y];
-									squaresOfBoard[x][y].setBackground(new ColorDrawable(0xFF999966));
-									// Assigns the newly selected square as part of the new prevSquares[] array.
-									prevSquares.add(squaresOfBoard[x][y]);
-									if(y >= 1)
-									{
-										//prevSquares.get(1) = squaresOfBoard[x+1][y-1];
-										squaresOfBoard[x+1][y-1].setBackground(new ColorDrawable(0xFF999966));
-										// Assigns the newly selected square as part of the new prevSquares[] array.
-										prevSquares.add(squaresOfBoard[x+1][y-1]);
-									}
-									if(y >= 0 && y <= 6)
-									{
-										//prevSquares.get(1) = squaresOfBoard[x+1][y-1];
-										squaresOfBoard[x+1][y+1].setBackground(new ColorDrawable(0xFF999966));
-										// Assigns the newly selected square as part of the new prevSquares[] array.
-										prevSquares.add(squaresOfBoard[x+1][y+1]);
-									}														
-								}
-								System.out.println("Printed from the prevSquares.size() == 3 -- The size of prevSquares is now " + prevSquares.size());
-								*/
-							}else if(false)
-							{
-								// This will move the piece, and blah de blah blah blah.
 							}
+							
+							// THIS SECTION DOES NOT WORK PROPERLY!!!! - NEEDS FIXING - I will come back to this.
+							
+							for(int z = 1;z < xPrevAxis.size();z++)
+							{
+								int prevX = xPrevAxis.get(z).intValue();
+								int prevY = yPrevAxis.get(z).intValue();
+								
+								int parentPrevX = xPrevAxis.get(0).intValue();
+								int parentPrevY = yPrevAxis.get(0).intValue();
+								
+								// If the new selected square is part of the highlighted neighbouring squares of squaresOfBoard[x][y] then...
+								//
+								System.out.println("The clicked square is x=" + x + " and y=" + y);
+								System.out.println("The square of highlighted square x=" + parentPrevX + " and y="+parentPrevY);
+								
+								if(v.equals(squaresOfBoard[prevX][prevY]))
+								{
+									if(strCheckersBoard[parentPrevX][parentPrevY] == "1")
+									{
+										
+									}else if(strCheckersBoard[parentPrevX][parentPrevY] == "2")
+									{
+										System.out.println("This did run :)");
+										// Clear the square of the checker piece we want to move.
+										strCheckersBoard[parentPrevX][parentPrevY] = "0";
+										// Clear the image of that square.
+										imageOfSquares[parentPrevX][parentPrevY].setImageResource(0);
+										// Occupies new space in the helper array.
+										strCheckersBoard[x][y] = "2";
+										// Move the checkers piece into the new location.
+										imageOfSquares[x][y].setImageResource(R.drawable.light_brown_piece);
+										// Get rid of the highlights, etc.
+										
+										
+										
+										// Ends the for loop.
+										//z = 3;	
+									}
+								}else
+								{
+									// Because this gets callled twice, the problem lies in the condition of the IF statement related to this else statement!
+									System.out.println("This did not run :(");
+								}
+							}
+							// THIS SECTION DOES NOT WORK PROPERLY!!!! - NEEDS FIXING 
 						}
 						
 						
 					}else{
 						
 						// Do nothing
-					}
+					}*/
 					
 					
-					//*/
 					
-			}	
+					
+			}// if(squaresOfBoard[x][y].equals(v))	
 		}		
 	}	
-	
-	
-	/*	
-		for(int x = 0;x<8;x++)
-		{
-			for(int y = 0;y<8;y++)
-			{
-				// Finds the row/column value of the square that initiated the event.
-				if(squaresOfBoard[x][y].equals(v))
-				{
-					// So, that worked.
-					Log.i("The square clicked is located at ", "row " + x + " and column " + y);
-					
-					// Perform a move anywhere on rows 0 through 6... Just some board constraints.
-					if(x >= 0 && x <= 6)
-					{
-						// Highlight neighboring checkers' pieces or squares...
-						// if x = 0, y = 1 in squaresOfBoard[x][y],
-						// We will highlight the selected checkers piece itself (in time), and as well as squaresOfBoard[x+1][y-1] and squaresOfBoard[x+1][y+2]
-						squaresOfBoard[x][y].setBackground(new ColorDrawable(0xFF999966));
-						
-						if(y >= 1)
-						{
-							if(strCheckersBoard[x+1][y-1] == "0")
-							{
-								// Board constraints so, we don't try to pick squares that don't exist 
-								//squaresOfBoard[x+1][y-1].setImageResource(R.drawable.ic_launcher);
-								// The FF in 0xFF... corresponds to opacity.
-								squaresOfBoard[x+1][y-1].setBackground(new ColorDrawable(0xFF999966));		
-							}			
-						}
-						if(y >= 0 && y <= 6)
-						{
-							// Board constraints so, we don't try to pick squares that don't exist
-							// I don't think the y >= 0 is needed but, I'll confirm this when I feel much better.
-							// The FF in 0xFF... corresponds to opacity.
-							squaresOfBoard[x+1][y+1].setBackground(new ColorDrawable(0xFF999966));
-						}
-						
-						// Now, I must create a while loop until a decision is made/cancelled ;)
-						
-						//while(squaresOfBoard[x][y] != v)
-					}
-					
-					
-					
-					
-					// Now, once we have done everything we need to do, we will break the loop as we have already found the view which called the event.
-					// Any further search would be useless.
-					x = 8;
-					y = 8;
-				}
-			}
-		}
-		*/
-		
-	}
+	}// End of 'onClick'
 	
 	public void highlightSquares(boolean passCondition, int passX, int passY, int upOrDown)
 	{
@@ -445,18 +574,23 @@ class PlayerMoves implements View.OnClickListener
 		// Initialises the prevSquares and imgOfPrevSquares array
 		prevSquares = new ArrayList<View>();
 		imgOfPrevSquares = new ArrayList<ImageView>();
-					
+		// Holds the co-ordinates of the 'x' and 'y' axis of the highlighted squares.
+		xPrevAxis = new ArrayList<Integer>();
+		yPrevAxis = new ArrayList<Integer>();
+		//sizeOfPrev = xPrevAxis.size();
+		
 		if(passCondition)
 		{
-			// Assigns the newly selected square as part of the new prevSquares[] array.
-			//prevSquares.get(0) = squaresOfBoard[x][y];
-			//squaresOfBoard[x][y].setBackground(new ColorDrawable(0xFF999966));
-			//prevSquares.add(squaresOfBoard[x][y]);
-			
-			
-			// "2" for Player 2's checkers piece ;) - [x+upOrDown] == [x+1] for now ;)
-			if(y >= 1 && strCheckersBoard[x+upOrDown][y-1] != "2" && strCheckersBoard[x+upOrDown][y-1] != "1")
+			// Only highlight the squares if the neighbbouring squares are vacant.
+			if(y >= 1 && strCheckersBoard[x+upOrDown][y-1] == "0")
 			{
+				// Remove duplicate.
+				xPrevAxis.remove(new Integer(x));
+				yPrevAxis.remove(new Integer(y));
+				// Stores the coordinates for later use and makes sure these values are the first element in their ArrayLists ;)
+				xPrevAxis.add(0, new Integer(x));
+				yPrevAxis.add(0, new Integer(y));
+				
 				// Remove possible duplicate.
 				prevSquares.remove(squaresOfBoard[x][y]);
 				// Highlights the selected square.
@@ -467,9 +601,21 @@ class PlayerMoves implements View.OnClickListener
 				squaresOfBoard[x+upOrDown][y-1].setBackground(new ColorDrawable(0xFF999966));
 				// Adds the neighbouring square to the prevSquares ArrayList ;)
 				prevSquares.add(squaresOfBoard[x+upOrDown][y-1]);
+				
+				// Stores the coordinates for later use ;)
+				xPrevAxis.add(new Integer(x+upOrDown));
+				yPrevAxis.add(new Integer(y-1));
+				
 			}
-			if(y >= 0 && y <= 6 && strCheckersBoard[x+upOrDown][y+1] != "2" && strCheckersBoard[x+upOrDown][y+1] != "1")
+			if(y >= 0 && y <= 6 && strCheckersBoard[x+upOrDown][y+1] == "0")
 			{
+				// Remove duplicate.
+				xPrevAxis.remove(new Integer(x));
+				yPrevAxis.remove(new Integer(y));
+				// Stores the coordinates for later use and makes sure these values are the first element in their ArrayLists ;)
+				xPrevAxis.add(0, new Integer(x));
+				yPrevAxis.add(0, new Integer(y));
+				
 				// Remove possible duplicate.
 				prevSquares.remove(squaresOfBoard[x][y]);
 				// Highlights the selected square.
@@ -480,10 +626,82 @@ class PlayerMoves implements View.OnClickListener
 				squaresOfBoard[x+upOrDown][y+1].setBackground(new ColorDrawable(0xFF999966));
 				// Adds the neighbouring square to the prevSquares ArrayList ;)
 				prevSquares.add(squaresOfBoard[x+upOrDown][y+1]);
+				
+				
+				// Stores the coordinates for later use ;)
+				xPrevAxis.add(new Integer(x+upOrDown));
+				yPrevAxis.add(new Integer(y+1));
 			}
 			
-			// This section works gracefully :)
-			//System.out.println("Printed from the prevSquares.size() == 0 -- The size of prevSquares is now " + prevSquares.size());
+			// Debug purposes - It works in the way I hoped it would :)
+			for(int a = 0;a<xPrevAxis.size();a++)
+			{
+				System.out.print("xPrevAxis.get(" + a + ").intValue() = " + xPrevAxis.get(a).intValue() + " and ");
+				System.out.println("yPrevAxis.get(" + a + ").intValue() = " + yPrevAxis.get(a).intValue());
+			}
+			
+			// I will need to add an else if statement to each of the previous if statements so, if the neighbouring square is an enemy piece,
+			// I must also check if the enemy square's neighbour is an empty square, in other words, this will take the opponent's piece.	
+			// Debug purposes.
+			System.out.println("Printed from the if(prevSquares.size() == " + sizeOfPrev + " -- The size of prevSquares is now " + prevSquares.size());
+			
 		}
+		
+		// NEEDS CONFIRMATION - I cannot confirm whether this code works because I have not implemented the code for the pieces to move.
+		/*if(x >= 0 && x <= 5) // I NEED A MUCH BETTER CONDITION. I'M DONE, I CBA ANY MORE. I'LL CONTINUE TOMORROW.
+		{
+			// If the neighbouring piece is an enemy piece, do the following...
+			// I would need to change this later so, that the other part (operand) of the && operator is a param variable ;)
+			
+			// Only highlight the squares if the neighbbouring squares are vacant. "1" is the opposing piece.
+			if(y >= 1 && strCheckersBoard[x+upOrDown][y-1] == "1")
+			{
+				// If neighbouring square is an enemy piece, then...
+				if(y >= 2 && strCheckersBoard[x+(upOrDown+1)][y-2] == "0")
+				{
+					// if it is an enemy piece, check that the enemy piece's neighbouring square is an empty, if so...
+					// Remove possible duplicate.
+					prevSquares.remove(squaresOfBoard[x][y]);
+					// Highlights the selected square.
+					squaresOfBoard[x][y].setBackground(new ColorDrawable(0xFF999966));
+					// Add the selected square to the prevSquares ArrayList
+					prevSquares.add(squaresOfBoard[x][y]);
+					// Also highlights the neighbouring square of the enemy square to the right of it.
+					squaresOfBoard[x+(upOrDown+1)][y-2].setBackground(new ColorDrawable(0xFF999966));
+					// Adds the neighbouring square of the enemy square to the prevSquares ArrayList ;)
+					prevSquares.add(squaresOfBoard[x+upOrDown][y-1]);
+				}
+			}else if((y >= 1 && strCheckersBoard[x+upOrDown][y+1] == "1"))
+			{
+				// If neighbouring square is an enemy piece, then...
+				if(y >= 2 && strCheckersBoard[x+(upOrDown+1)][y+2] == "0")
+				{
+					// if it is an enemy piece, check that the enemy piece's neighbouring square is an empty, if so...
+					// Remove possible duplicate.
+					prevSquares.remove(squaresOfBoard[x][y]);
+					// Highlights the selected square.
+					squaresOfBoard[x][y].setBackground(new ColorDrawable(0xFF999966));
+					// Add the selected square to the prevSquares ArrayList
+					prevSquares.add(squaresOfBoard[x][y]);
+					// Also highlights the neighbouring square of the enemy square to the right of it.
+					squaresOfBoard[x+(upOrDown+1)][y+2].setBackground(new ColorDrawable(0xFF999966));
+					// Adds the neighbouring square of the enemy square to the prevSquares ArrayList ;)
+					prevSquares.add(squaresOfBoard[x+upOrDown][y+2]);
+				}	
+			}
+			
+		}*/// NEEDS CONFIRMATION! -------- ///
+	}
+	public void removeHighlights()
+	{
+			// If the square is not part of the highlighted squares, then remove the highlights of the existing square...
+			for(int rm = 0;rm < sizeOfPrev;rm++)
+			{
+				// Remove the highlights from the highlighted squares.
+				int xHighlighted = xPrevAxis.get(rm).intValue();
+				int yHighlighted = yPrevAxis.get(rm).intValue();
+				//squaresOfBoard[xHighlighted][yHighlighted].setBackground(null);
+				prevSquares.get(rm).setBackground(null);
+			}			
 	}
 }
