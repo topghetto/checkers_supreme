@@ -211,15 +211,15 @@ class PlayerMoves implements View.OnClickListener
 		
 		
 	}
-	// I made this synchronised so, I am hoping the code runs one at a time otherwise, if I click two buttons at the same time, I have a hunch
-	// that it would cause a series of problems.
+	// I declared this method as synchronised hoping the code runs one at a time otherwise, because if I click two buttons at the same time, I have a hunch
+	// that it may cause a series of problems.
 	public synchronized void onClick(View v)
 	{
-		
-		
 		for(int x = 0;x<8;x++)
 		{
-			for(int y=0;y<8;y++)
+			// ((x+1)%2) will make it change back-and-forth from 1 to 0 after each 'x' iteration. This will allow a search for events through
+			// the 32 squares that would call an event instead of searching through 64 squares (where 32 will never ever call a event).
+			for(int y=((x+1)%2);y<8;y+=2)
 			{
 				// Firstly, we must find the row/column value of the square that initiated the event.
 				if(squaresOfBoard[x][y].equals(v))
