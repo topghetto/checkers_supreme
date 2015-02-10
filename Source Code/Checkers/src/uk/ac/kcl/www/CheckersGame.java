@@ -222,15 +222,6 @@ class PlayerMoves implements View.OnClickListener
 	// that it may cause a series of problems.
 	public synchronized void onClick(View v)
 	{
-		/*if(playerOneTurn == false)
-		{
-			// Then do the following...
-			
-		}else
-		{
-			// AI Code will go here.
-		}*/
-		
 		for(int x = 0;x<8;x++)
 		{
 			// ((x+1)%2) will make it change back-and-forth from 1 to 0 after each 'x' iteration. This will allow a search for events through
@@ -244,13 +235,13 @@ class PlayerMoves implements View.OnClickListener
 					{
 						System.out.println("Player One's Turn.");
 						// If it player one's turn...
-						playerTurn("1", v, x >= 1 && x <= 7, x, y, -1, R.drawable.dark_brown_piece, false);		// Nice, it works.			
+						playerTurn("1", v, x >= 1 && x <= 7, x, y, -1, R.drawable.dark_brown_piece, false, x >= 2, "2");		// Nice, it works.			
 					}
 					else
 					{
 						System.out.println("Player Two's Turn.");
 						// If it is Player two's turn...
-						playerTurn("2", v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, true);	// Nice, it works.		
+						playerTurn("2", v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, true, x <= 5, "1");	// Nice, it works.		
 					}
 					
 					// Used to hold the value of whether the squares are highlighted or not.
@@ -416,7 +407,7 @@ class PlayerMoves implements View.OnClickListener
 		yPrevAxis.add(new Integer(y+(leftOrRight)));
 	}
 	
-	public void highlightSquares(boolean passCondition, int passX, int passY, int upOrDown)
+	public void highlightSquares(boolean passCondition, int passX, int passY, int upOrDown, boolean attackConstraint, String opponentNo)
 	{
 		int x = passX;
 		int y = passY;
@@ -428,21 +419,37 @@ class PlayerMoves implements View.OnClickListener
 		yPrevAxis = new ArrayList<Integer>();
 		//sizeOfPrev = xPrevAxis.size();
 		
+		// Our new code works fine, I basically mixed up the values for the 'attackConstraint' when passed into the 'playerTurn()' method... lol.
+		// Now, I need it to make it so, that when an enemy is in the square, it only highlights the square for an attack, and nothing else.
+		// After that, it must take the piece too.
+		
 		if(passCondition)
 		{
 			// Only highlight the squares if the neighbbouring squares are vacant.
-			if(y >= 1 && strCheckersBoard[x+upOrDown][y-1] == "0")
+			if(y >= 2 && attackConstraint && strCheckersBoard[x+(upOrDown)][y-1] == opponentNo && strCheckersBoard[x+(upOrDown+upOrDown)][y-2] == "0")
+			{	
+				// WORKS - Adds an highlight to a neighbouring empty square or enemy piece (which needs to be implemented).
+				addHighlight(x, y, upOrDown+upOrDown, -2);	// y-2
+				System.out.println("First if statment went through");
+			}
+			else if(y >= 1 && strCheckersBoard[x+upOrDown][y-1] == "0")
 			{
 				// WORKS - Adds an highlight to a neighbouring empty square or enemy piece (which needs to be implemented).
 				addHighlight(x, y, upOrDown, -1);	// y-1
-				
-				
+				System.out.println("Second if statment went through");
 			}
-			if(y >= 0 && y <= 6 && strCheckersBoard[x+upOrDown][y+1] == "0")
+			
+			if(y <= 5 && attackConstraint && strCheckersBoard[x+(upOrDown)][y+1] == opponentNo && strCheckersBoard[x+(upOrDown+upOrDown)][y+2] == "0")
 			{
 				// WORKS - Adds an highlight to a neighbouring empty square or enemy piece (which needs to be implemented).
-				addHighlight(x, y, upOrDown, 1);	// y+1
-		
+				addHighlight(x, y, upOrDown+upOrDown, 2);	// y+2
+				System.out.println("Third if statment went through");
+			}
+			else if(y >= 0 && y <= 6 && strCheckersBoard[x+upOrDown][y+1] == "0")
+			{
+					// WORKS - Adds an highlight to a neighbouring empty square or enemy piece (which needs to be implemented).
+					addHighlight(x, y, upOrDown, 1);	// y+1
+					System.out.println("Fourth if statment went through");
 			}
 			
 			// Debug purposes - It works in the way I hoped it would :)
@@ -528,6 +535,7 @@ class PlayerMoves implements View.OnClickListener
 				// Clear the image of that square.
 				imageOfSquares[parentPrevX][parentPrevY].setImageResource(0);
 				// Occupies new space in the helper array.
+				
 				strCheckersBoard[x][y] = strDest;
 				// Move the checkers piece into the new location.
 				imageOfSquares[x][y].setImageResource(destImg);
@@ -593,7 +601,7 @@ class PlayerMoves implements View.OnClickListener
 			}
 		}							
 	}
-	public void playerTurn(String playerNo, View v, boolean passCondition, int passX, int passY, int upOrDown, int passImgId, boolean playerTurn)
+	public void playerTurn(String playerNo, View v, boolean passCondition, int passX, int passY, int upOrDown, int passImgId, boolean playerTurn, boolean attackConstraint, String opponentNo)
 	{
 		// The coordinates of the currently selected square.
 		int x = passX, y = passY;
@@ -610,7 +618,7 @@ class PlayerMoves implements View.OnClickListener
 			if(strCheckersBoard[x][y] == playerNo)
 			{
 				// Add new highlights for the newly selected square.
-				highlightSquares(passCondition, x, y, upOrDown); // upOrDown = 1 so, x-1 i.e, go from bottom to the top of the checkersboard.
+				highlightSquares(passCondition, x, y, upOrDown, attackConstraint, opponentNo); // upOrDown = 1 so, x-1 i.e, go from bottom to the top of the checkersboard.
 			}			
 		}
 		else
@@ -624,7 +632,7 @@ class PlayerMoves implements View.OnClickListener
 				if(strCheckersBoard[x][y] == playerNo)
 				{
 					// Add new highlights for the newly selected square.
-					highlightSquares(passCondition, x, y, upOrDown); // upOrDown = 1 so, x-1 i.e, go from bottom to the top of the checkersboard.
+					highlightSquares(passCondition, x, y, upOrDown, attackConstraint, opponentNo); // upOrDown = 1 so, x-1 i.e, go from bottom to the top of the checkersboard.
 					// Debug purposes.
 					System.out.println("In isHighlighted==false The size of xPrevAxis = " + xPrevAxis.size() + " and yPrevAxis = " + yPrevAxis.size());
 				}
