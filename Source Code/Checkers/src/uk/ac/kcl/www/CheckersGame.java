@@ -188,8 +188,6 @@ class PlayerMoves implements View.OnClickListener
 	public String[][] strCheckersBoard;
 	
 	// Keeps track of the selected square.
-	public ArrayList<View> prevSquares;
-	public ArrayList<ImageView> imgOfPrevSquares;
 	public int sizeOfPrev;
 	public ArrayList<Integer> xPrevAxis, yPrevAxis;
 	
@@ -210,8 +208,6 @@ class PlayerMoves implements View.OnClickListener
 		strCheckersBoard = passCheckersBoard;
 		squaresOfBoard = passSquares;
 		imageOfSquares = passImgSquares;
-		prevSquares = new ArrayList<View>();
-		imgOfPrevSquares = null;
 		sizeOfPrev = 0;
 		xPrevAxis = new ArrayList<Integer>();
 		yPrevAxis = new ArrayList<Integer>();
@@ -378,6 +374,13 @@ class PlayerMoves implements View.OnClickListener
 		}		
 	}	
 	}// End of 'onClick'
+	public void prepareHighlight()
+	{
+		// Construct a method that will handle how many neighbouring squares that need to be highlighted, or only highlights enemy square, should
+		// it be the case.
+		
+		
+	}
 	public void addHighlight(int passX, int passY, int upOrDown, int leftOrRight)
 	{
 		// leftOrRight would either be a negative value (go right), and a positive value (go left)
@@ -391,18 +394,12 @@ class PlayerMoves implements View.OnClickListener
 		xPrevAxis.add(0, new Integer(x));
 		yPrevAxis.add(0, new Integer(y));
 		
-		// Remove possible duplicate.
-		prevSquares.remove(squaresOfBoard[x][y]);
+
 		// Highlights the selected square.
 		squaresOfBoard[x][y].setBackground(new ColorDrawable(0xFF999966));
-		// Add the selected square to the prevSquares ArrayList
-		prevSquares.add(squaresOfBoard[x][y]);
 		// Also highlights the neighbouring square to left/right of it.
 		squaresOfBoard[x+upOrDown][y+(leftOrRight)].setBackground(new ColorDrawable(0xFF999966));
-		// Adds the neighbouring square to the prevSquares ArrayList ;)
-		prevSquares.add(squaresOfBoard[x+upOrDown][y+(leftOrRight)]);
-		
-		// Stores the coordinates for later use ;)
+		// Adds the coordinates of the neighbouring square to the x/yPrevAxis ArrayList ;)
 		xPrevAxis.add(new Integer(x+upOrDown));
 		yPrevAxis.add(new Integer(y+(leftOrRight)));
 	}
@@ -411,17 +408,18 @@ class PlayerMoves implements View.OnClickListener
 	{
 		int x = passX;
 		int y = passY;
-		// Initialises the prevSquares and imgOfPrevSquares array
-		prevSquares = new ArrayList<View>();
-		imgOfPrevSquares = new ArrayList<ImageView>();
+		// Initialises the x/yPrevAxis coordinates ArrayList.
 		// Holds the co-ordinates of the 'x' and 'y' axis of the highlighted squares.
 		xPrevAxis = new ArrayList<Integer>();
 		yPrevAxis = new ArrayList<Integer>();
-		//sizeOfPrev = xPrevAxis.size();
+		sizeOfPrev = xPrevAxis.size();
 		
 		// Our new code works fine, I basically mixed up the values for the 'attackConstraint' when passed into the 'playerTurn()' method... lol.
 		// Now, I need it to make it so, that when an enemy is in the square, it only highlights the square for an attack, and nothing else.
-		// After that, it must take the piece too.
+		// After that, it must take the piece too. I think I got it.
+		
+		
+		
 		
 		if(passCondition)
 		{
@@ -460,7 +458,8 @@ class PlayerMoves implements View.OnClickListener
 			}
 			
 			// Debug purposes.
-			System.out.println("Printed from the if(prevSquares.size() == " + sizeOfPrev + " -- The size of prevSquares is now " + prevSquares.size());		
+			sizeOfPrev = xPrevAxis.size();
+			System.out.println("Printed from the if(xPrevAxis.size() == " + sizeOfPrev + " -- The size of xPrevAxis is now " + sizeOfPrev);		
 		}
 	}
 	public void removeHighlights()
