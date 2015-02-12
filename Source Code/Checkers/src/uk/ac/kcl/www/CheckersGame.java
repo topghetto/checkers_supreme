@@ -632,7 +632,7 @@ class PlayerMoves implements View.OnClickListener
 		
 		return isHighlighted;
 	}
-	public void movePiece(View v, int passX, int passY, String strDest, int destImg)
+	public void movePiece(View v, int passX, int passY, int upOrDown, String strDest, int destImg)
 	{
 		// I need to implement this in a bit.
 		// The coordinates of the root square of highlighted squares
@@ -649,13 +649,55 @@ class PlayerMoves implements View.OnClickListener
 			// If the selected piece is part of the highlighted neighbouring squares, then perform blah de blah blah.
 			if(v.equals(squaresOfBoard[prevX][prevY]))
 			{
-				
+				// Close the loop after this iteration.
+				mv = sizeOfPrev;
+				// Debug purposes.
 				System.out.println("We successfully moved the piece :)");
 				// Clear the square of the checker piece we want to move.
 				strCheckersBoard[parentPrevX][parentPrevY] = "0";
 				// Clear the image of that square.
 				imageOfSquares[parentPrevX][parentPrevY].setImageResource(0);
 				// Occupies new space in the helper array.
+				
+				// THIS IS A HUGE TEST. The test succeeded :)
+				// If the parent square has a neighbouring enemy piece, then we determine which enemy piece it is.
+				if(xEnemyAxis.size() > 0)
+				{
+					// Assuming that the parent highlighted sqaure was neighbouring more than one enemy piece, we would need to find out the right enemy...
+					// Piece to get rid of.
+					for(int e = 0; e < xEnemyAxis.size(); e++)
+					{
+						int enemyCoordinateX = xEnemyAxis.get(e).intValue();
+						int enemyCoordinateY = yEnemyAxis.get(e).intValue();
+						
+						// Tries to go up/down depending on whose player turn is it. If it is player two's, then it will be x+1.
+						int checkX = parentPrevX + upOrDown;
+
+						if(checkX == enemyCoordinateX && (prevY+1) == enemyCoordinateY)
+						{
+							// The enemy square is here. This works. Nice.
+							System.out.println("These are the correct coordinates of the enemy square checkX=" + checkX + " and checkY=" + (prevY+1));
+							// We clear the space i.e. take the piece.
+							strCheckersBoard[enemyCoordinateX][enemyCoordinateY] = "0";
+							// We clear the space (visually) i.e. take the piece
+							imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
+							// Makes this the last 'e' iteration.
+							e = xEnemyAxis.size();
+						}
+						else if(checkX == enemyCoordinateX && (prevY-1) == enemyCoordinateY)
+						{
+							// The enemy square is here. This works. Nice.
+							System.out.println("These are the correct coordinates of the enemy square checkX=" + checkX + " and checkY=" + (prevY+1));
+							// We clear the space i.e. take the piece.
+							strCheckersBoard[enemyCoordinateX][enemyCoordinateY] = "0";
+							// We clear the space (visually) i.e. take the piece
+							imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
+							// Makes this the last 'e' iteration.
+							e = xEnemyAxis.size();
+						}
+						// If we had a king, we would need to add another two extra statements to the ones we already have.				
+					}
+				}
 				
 				strCheckersBoard[x][y] = strDest;
 				// Move the checkers piece into the new location.
@@ -665,6 +707,8 @@ class PlayerMoves implements View.OnClickListener
 				// Clear the row/column values of the highlighted squares.
 				xPrevAxis = new ArrayList<Integer>(); //- This causes the app to crash when I try to move another piece after successfully moving one beforehand.
 				yPrevAxis = new ArrayList<Integer>();
+				xEnemyAxis = new ArrayList<Integer>();
+				yEnemyAxis = new ArrayList<Integer>();
 				// - This stops the app crashing from happening because on on line 247, it will try to loop through the old value of
 				// sizeOfPrev, where the size of the 'sizeOfPrev' would be larger the size of elements in the array causing an
 				// IndexOutOfBounds exception ;)
@@ -761,7 +805,7 @@ class PlayerMoves implements View.OnClickListener
 			else if(isHighlighted == true)
 			{
 				// Moves the checkers piece to the new location.
-				movePiece(v, x, y, playerNo, passImgId);
+				movePiece(v, x, y, upOrDown, playerNo, passImgId);
 				// The next turn will be player x ;)
 				playerOneTurn = playerTurn;
 			}	
