@@ -189,11 +189,17 @@ class PlayerMoves implements View.OnClickListener
 	
 	// Keeps track of the selected square.
 	public int sizeOfPrev;
+	// This is a test.
+	public ArrayList<ArrayList<Integer>> arrayOfPrevCoordinatesX;
+	public ArrayList<ArrayList<Integer>> arrayOfPrevCoordinatesY;
+	public ArrayList<ArrayList<Integer>> arrayOfEnemyCoordinatesX;
+	public ArrayList<ArrayList<Integer>> arrayOfEnemyCoordinatesY;
+	// Keeps track of the highlighted squares.
 	public ArrayList<Integer> xPrevAxis, yPrevAxis;
 	// Keeps track of the neighbouring enemies to the highlight checkers piece.
 	public ArrayList<Integer> xEnemyAxis, yEnemyAxis;
 	
-	public boolean isHighlighted, playerOneTurn, isAdjacentToEnemy;
+	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent;
 	
 	public int highlightParentX, highlightParentY, xOfNewDest, yOfNewDest;
 	
@@ -217,6 +223,13 @@ class PlayerMoves implements View.OnClickListener
 		yEnemyAxis = new ArrayList<Integer>();
 		xOfNewDest = 0;
 		yOfNewDest = 0;
+		
+		// THIS IS A TEST
+		isEnemyAdjacent = false;
+		arrayOfPrevCoordinatesX = new ArrayList<ArrayList<Integer>>();
+		arrayOfPrevCoordinatesY = new ArrayList<ArrayList<Integer>>();
+		arrayOfEnemyCoordinatesX = new ArrayList<ArrayList<Integer>>();
+		arrayOfEnemyCoordinatesY = new ArrayList<ArrayList<Integer>>();
 	}
 	// I declared this method as synchronised hoping the code runs one at a time otherwise,if I clicked ib two buttons at the same time, I have a hunch
 	// that it may cause a series of problems.
@@ -234,52 +247,19 @@ class PlayerMoves implements View.OnClickListener
 					if(playerOneTurn == true)
 					{
 						System.out.println("Player One's Turn.");
-						
-						// I need to check if there are any neighbouring enemy pieces.
-						// In order to do this, I must check every piece of player one's, and the neighbours of those pieces... Long.
-						// This will require another nested for-loop.
-						// a boolean variable 'isAdjacentToEnemy'.
-						
-						/*for(int row = 0;row < 8;row++)
+						/*
+						for(int i = 0; i < arrayOfPrevCoordinatesX.size(); i++)
 						{
-							for(int column = 0;column < 8;column++)
-							{
-								if(strCheckersBoard[row][column] == "1")
-								{
-									// For every checkers piece we encounter, we will check if there are any neighbouring enemy pieces
-									// Add new highlights for the newly selected square.
-									// upOrDown = 1 so, x-1 i.e, go from bottom to the top of the checkersboard.
-									//highlightSquares(passCondition, x, y, upOrDown, attackConstraint, opponentNo);
-									//highlightSquares(row >= 1 && row <= 7, row, column, -1, x >= 2, "2");
-									
-									if(xEnemyAxis.size() > 0)
-									{
-										hasEnemyNeighbourX.add(row);
-										hasEnemyNeighbourY.add(column);
-										// We will use these coordinates later on.
-									}
-										
-								
-								}
-							}
-						}
-						// After searching through all the possible neighbouring enemies, and now we do something. Damn, this is harder than I thought.
-						
-						for(int he = 0; he < hasEnemyNeighbourX.size(); he++)
-						{
-							int xOfHEN = hasEnemyNeighbourX.get(he).intValue();
-							int yOfHEN = hasEnemyNeighbourY.get(he).intValue();
-							
-							
-						}
-						
-						*/
-						
-						
-						
-						
-						// If it player one's turn...
-						playerTurn("1", v, x >= 1 && x <= 7, x, y, -1, R.drawable.dark_brown_piece, false, x >= 2, "2");		// Nice, it works.			
+							// Now, we add the highlights to the right squares. Though, the 'addHighlight' needs some modifcations.
+							// For each ArrayList i, we grab the the x/yPrevAxis ArrayList, and then access the x/yPrevAxis (i.e. iteration j);								
+							ArrayList<Integer> addX = arrayOfPrevCoordinatesX.get(i);
+							ArrayList<Integer> addY = arrayOfPrevCoordinatesY.get(i);
+							// Adds the highlight for each square that has neighbouring enemy pieces. I can guarantee they would be no more than 3
+							// different squares where it is adjacent to an enemy piece.
+							addHighlight(addX, addY);								
+						}*/
+						// We move our pieces as normal.
+						playerTurn("1", v, x >= 1 && x <= 7, x, y, -1, R.drawable.dark_brown_piece, false, x >= 2, "2");		// Nice, it works.
 					}
 					else
 					{
@@ -502,14 +482,14 @@ class PlayerMoves implements View.OnClickListener
 		}		
 	}
 	//public void addHighlight(int passX, int passY, int upOrDown, int leftOrRight)
-	public void addHighlight()
+	public void addHighlight(ArrayList<Integer> passCoordinatesX, ArrayList<Integer> passCoordinatesY)
 	{
 		/*// leftOrRight would either be a negative value (go right), and a positive value (go left)
 		int x = passX;
 		int y = passY;
 		
 		// Remove duplicate.
-		xPrevAxis.remove(new Integer(x));
+		passCoordinatesX.remove(new Integer(x));
 		yPrevAxis.remove(new Integer(y));
 		// Stores the coordinates for later use and makes sure these values are the first element in their ArrayLists ;)
 		xPrevAxis.add(0, new Integer(x));
@@ -531,15 +511,15 @@ class PlayerMoves implements View.OnClickListener
 		int highlightX, highlightY;
 		
 		
-		if(xPrevAxis.size() > 0)
+		if(passCoordinatesX.size() > 0)
 		{
-			for(int count = 1; count < xPrevAxis.size();count++)
+			for(int count = 1; count < passCoordinatesX.size();count++)
 			{
 				// Coordinates of the parent of the highlighted squares.
-				parentX = xPrevAxis.get(0);
-				parentY = yPrevAxis.get(0);
-				highlightX = xPrevAxis.get(count);
-				highlightY = yPrevAxis.get(count);
+				parentX = passCoordinatesX.get(0);
+				parentY = passCoordinatesY.get(0);
+				highlightX = passCoordinatesX.get(count);
+				highlightY = passCoordinatesY.get(count);
 				
 				// Highlights the selected square.
 				squaresOfBoard[parentX][parentY].setBackground(new ColorDrawable(0xFF999966));
@@ -688,19 +668,19 @@ class PlayerMoves implements View.OnClickListener
 		
 		return isHighlighted;
 	}
-	public void movePiece(View v, int passX, int passY, int upOrDown, String strDest, int destImg)
+	public void movePiece(View v, int passX, int passY, int upOrDown, ArrayList<Integer> passListOfRows, ArrayList<Integer> passListOfColumns, String strDest, int destImg)
 	{
 		// I need to implement this in a bit.
 		// The coordinates of the root square of highlighted squares
 		int x = passX, y = passY;
-		int parentPrevX = xPrevAxis.get(0).intValue();
-		int parentPrevY = yPrevAxis.get(0).intValue();
+		int parentPrevX = passListOfRows.get(0).intValue();
+		int parentPrevY = passListOfColumns.get(0).intValue();
 		
 		for(int mv = 1;mv < sizeOfPrev;mv++)
 		{	
 			// The coordinates of the neighbouring squares of the highlighted squares.
-			int prevX = xPrevAxis.get(mv).intValue();
-			int prevY = yPrevAxis.get(mv).intValue();
+			int prevX = passListOfRows.get(mv).intValue();
+			int prevY = passListOfColumns.get(mv).intValue();
 
 			// If the selected piece is part of the highlighted neighbouring squares, then perform blah de blah blah.
 			if(v.equals(squaresOfBoard[prevX][prevY]))
@@ -831,6 +811,9 @@ class PlayerMoves implements View.OnClickListener
 	}
 	public void playerTurn(String playerNo, View v, boolean passCondition, int passX, int passY, int upOrDown, int passImgId, boolean playerTurn, boolean attackConstraint, String opponentNo)
 	{
+		// I can try write the sample code here. At least I will have all the variables read to use :)
+		
+		
 		// The coordinates of the currently selected square.
 		int x = passX, y = passY;
 		// The coordinates of the parent (root) square of highlight squares.
@@ -851,7 +834,7 @@ class PlayerMoves implements View.OnClickListener
 				if(passCondition)
 				{
 					// Adds the highlights to the squares based on the result from the 'prepareHighlight' method.
-					addHighlight();
+					addHighlight(xPrevAxis, yPrevAxis);
 				}				
 			}			
 		}
@@ -872,7 +855,7 @@ class PlayerMoves implements View.OnClickListener
 					if(passCondition)
 					{
 						// Adds the highlights to the squares based on the result from the 'prepareHighlight' method.
-						addHighlight();
+						addHighlight(xPrevAxis, yPrevAxis);
 					}					
 					System.out.println("In isHighlighted==false The size of xPrevAxis = " + xPrevAxis.size() + " and yPrevAxis = " + yPrevAxis.size());
 				}
@@ -880,7 +863,7 @@ class PlayerMoves implements View.OnClickListener
 			else if(isHighlighted == true)
 			{
 				// Moves the checkers piece to the new location.
-				movePiece(v, x, y, upOrDown, playerNo, passImgId);
+				movePiece(v, x, y, upOrDown, xPrevAxis, yPrevAxis, playerNo, passImgId);
 				// The next turn will be player x ;)
 				playerOneTurn = playerTurn;
 			}	
