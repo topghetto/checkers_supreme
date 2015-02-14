@@ -481,60 +481,6 @@ class PlayerMoves implements View.OnClickListener
 			System.out.println("Second entire 'if' statment went through");				
 		}		
 	}
-	//public void addHighlight(int passX, int passY, int upOrDown, int leftOrRight)
-	public void addHighlight(ArrayList<Integer> passCoordinatesX, ArrayList<Integer> passCoordinatesY)
-	{
-		/*// leftOrRight would either be a negative value (go right), and a positive value (go left)
-		int x = passX;
-		int y = passY;
-		
-		// Remove duplicate.
-		passCoordinatesX.remove(new Integer(x));
-		yPrevAxis.remove(new Integer(y));
-		// Stores the coordinates for later use and makes sure these values are the first element in their ArrayLists ;)
-		xPrevAxis.add(0, new Integer(x));
-		yPrevAxis.add(0, new Integer(y));
-		
-		// Highlights the selected square.
-		squaresOfBoard[x][y].setBackground(new ColorDrawable(0xFF999966));
-		// Also highlights the neighbouring square to left/right of it.
-		squaresOfBoard[x+upOrDown][y+(leftOrRight)].setBackground(new ColorDrawable(0xFF999966));
-		// Adds the coordinates of the neighbouring square to the x/yPrevAxis ArrayList ;)
-		xPrevAxis.add(new Integer(x+upOrDown));
-		yPrevAxis.add(new Integer(y+(leftOrRight)));
-		
-		*/
-		// Attempt an Optimal Version.
-		
-		int parentX;
-		int parentY;
-		int highlightX, highlightY;
-		
-		
-		if(passCoordinatesX.size() > 0)
-		{
-			for(int count = 1; count < passCoordinatesX.size();count++)
-			{
-				// Coordinates of the parent of the highlighted squares.
-				parentX = passCoordinatesX.get(0);
-				parentY = passCoordinatesY.get(0);
-				highlightX = passCoordinatesX.get(count);
-				highlightY = passCoordinatesY.get(count);
-				
-				// Highlights the selected square.
-				squaresOfBoard[parentX][parentY].setBackground(new ColorDrawable(0xFF999966));
-				// Also highlights the neighbouring square to left/right of it.
-				squaresOfBoard[highlightX][highlightY].setBackground(new ColorDrawable(0xFF999966));		
-			}	
-		}	
-		// Highlights the selected square.
-		//squaresOfBoard[parentX][parentY].setBackground(new ColorDrawable(0xFF999966));
-		// Also highlights the neighbouring square to left/right of it.
-		//squaresOfBoard[highlightX][highlightY].setBackground(new ColorDrawable(0xFF999966));
-		
-		//
-	}
-	
 	public void highlightSquares(boolean passCondition, int passX, int passY, int upOrDown, boolean attackConstraint, String opponentNo)
 	{
 		int x = passX;
@@ -614,16 +560,80 @@ class PlayerMoves implements View.OnClickListener
 			System.out.println("Printed from the if(xPrevAxis.size() == " + sizeOfPrev + " -- The size of xPrevAxis is now " + sizeOfPrev);		
 		}*/
 	}
+	//public void addHighlight(int passX, int passY, int upOrDown, int leftOrRight)
+	public void addHighlight(ArrayList<Integer> passCoordinatesX, ArrayList<Integer> passCoordinatesY)
+	{
+		/*// leftOrRight would either be a negative value (go right), and a positive value (go left)
+		int x = passX;
+		int y = passY;
+		
+		// Remove duplicate.
+		passCoordinatesX.remove(new Integer(x));
+		yPrevAxis.remove(new Integer(y));
+		// Stores the coordinates for later use and makes sure these values are the first element in their ArrayLists ;)
+		xPrevAxis.add(0, new Integer(x));
+		yPrevAxis.add(0, new Integer(y));
+		
+		// Highlights the selected square.
+		squaresOfBoard[x][y].setBackground(new ColorDrawable(0xFF999966));
+		// Also highlights the neighbouring square to left/right of it.
+		squaresOfBoard[x+upOrDown][y+(leftOrRight)].setBackground(new ColorDrawable(0xFF999966));
+		// Adds the coordinates of the neighbouring square to the x/yPrevAxis ArrayList ;)
+		xPrevAxis.add(new Integer(x+upOrDown));
+		yPrevAxis.add(new Integer(y+(leftOrRight)));
+		
+		*/
+		// Attempt an Optimal Version.
+		
+		int parentX;
+		int parentY;
+		int highlightX, highlightY;
+		
+		
+		if(passCoordinatesX.size() > 0)
+		{
+			for(int count = 1; count < passCoordinatesX.size();count++)
+			{
+				// Coordinates of the parent of the highlighted squares.
+				parentX = passCoordinatesX.get(0);
+				parentY = passCoordinatesY.get(0);
+				highlightX = passCoordinatesX.get(count);
+				highlightY = passCoordinatesY.get(count);
+				
+				// Highlights the selected square.
+				squaresOfBoard[parentX][parentY].setBackground(new ColorDrawable(0xFF999966));
+				// Also highlights the neighbouring square to left/right of it.
+				squaresOfBoard[highlightX][highlightY].setBackground(new ColorDrawable(0xFF999966));		
+			}	
+		}	
+		// Highlights the selected square.
+		//squaresOfBoard[parentX][parentY].setBackground(new ColorDrawable(0xFF999966));
+		// Also highlights the neighbouring square to left/right of it.
+		//squaresOfBoard[highlightX][highlightY].setBackground(new ColorDrawable(0xFF999966));
+		
+		//
+	}
 	public void removeHighlights()
 	{
+		// If the square is not part of the highlighted squares, then remove the highlights of the existing square...
+		for(int rm = 0;rm < sizeOfPrev;rm++)
+		{
+			// Remove the highlights from the highlighted squares.
+			int xHighlighted = xPrevAxis.get(rm).intValue();
+			int yHighlighted = yPrevAxis.get(rm).intValue();
+			squaresOfBoard[xHighlighted][yHighlighted].setBackground(null);
+		}
+	}
+	public void clearHelperArrays()
+	{
 			// If the square is not part of the highlighted squares, then remove the highlights of the existing square...
-			for(int rm = 0;rm < sizeOfPrev;rm++)
+			/*for(int rm = 0;rm < sizeOfPrev;rm++)
 			{
 				// Remove the highlights from the highlighted squares.
 				int xHighlighted = xPrevAxis.get(rm).intValue();
 				int yHighlighted = yPrevAxis.get(rm).intValue();
 				squaresOfBoard[xHighlighted][yHighlighted].setBackground(null);
-			}
+			}*/
 			// When I highlight a checkers piece, and then click on another square that is not part of the highlighted squares, it removes the...
 			// highlights as it should do but, when I try to click on the checkers piece that was once highlighted, it does not highlight again.
 			// The following code may solve this, inshallah... Well, that sorted it :) alhamdullah.
@@ -756,6 +766,7 @@ class PlayerMoves implements View.OnClickListener
 				
 				// Now, I need to get rid of the highlights, etc.
 				removeHighlights();
+				clearHelperArrays();
 				
 				// --- Debug Purposes --- //
 				for(int c = 0;c <8;c++)
@@ -811,9 +822,38 @@ class PlayerMoves implements View.OnClickListener
 	}
 	public void playerTurn(String playerNo, View v, boolean passCondition, int passX, int passY, int upOrDown, int passImgId, boolean playerTurn, boolean attackConstraint, String opponentNo)
 	{
-		// I can try write the sample code here. At least I will have all the variables read to use :)
+		// I can try write the sample code here. At least I will have all the variables ready to be used. :)
+		/*
 		
+		for(int row = 0; row < 8;row++)
+		{
+			for(int column = ((row+1)%2);column<8;column+=2)
+			{
+				if(strCheckersBoard[row][column] == playerNo)
+				{
+					// Creates an ArrayList that holds the coordinates for what square needs to be highlighted.
+					highlightSquares(passCondition, row, column, upOrDown, attackConstraint, opponentNo);
+					// Add the ArrayLists to the master ArrayList... Aha.
+					
+					if(xEnemyAxis.size() > 0)
+					{
+						// We apply the highlights to the eligable squares...
+						addHighlight(xPrevAxis, yPrevAxis);	
+						// Add the ArrayLists to the master ArrayList... Aha.
+						// I NEED TO ADD CODE!
+						// Then clear the standard ArrayLists and repeat.
+						removeHighlights();
+					}
+					else
+					{
+						// Clear the standard ArrayLists.
+						removeHighlights();
+					}	
+				}
+			}
+		}
 		
+		*/
 		// The coordinates of the currently selected square.
 		int x = passX, y = passY;
 		// The coordinates of the parent (root) square of highlight squares.
@@ -843,7 +883,8 @@ class PlayerMoves implements View.OnClickListener
 			if(isHighlighted == false)
 			{
 				// Gets rid of the highlights, and clears the helper ArrayLists such as the x/yPrevAxis and x/yEnemyAxis ArrayLists.
-				removeHighlights(); // I never actually needed this as I'd always call it just before calling this method (highlightSquares).
+				removeHighlights();
+				clearHelperArrays(); // I never actually needed this as I'd always call it just before calling this method (highlightSquares).
 				// Now, if the newly selected square has checkers piece which belongs to playerX, then highlight it, and its neighbouring squares.
 				// This prevents us from highlighting empty parent squares ;)
 				if(strCheckersBoard[x][y] == playerNo)
