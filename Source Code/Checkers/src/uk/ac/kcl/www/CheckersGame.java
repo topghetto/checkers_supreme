@@ -201,7 +201,7 @@ class PlayerMoves implements View.OnClickListener
 	
 	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent;
 	
-	public int highlightParentX, highlightParentY, xOfNewDest, yOfNewDest;
+	public int highlightParentX, highlightParentY, xOfNewDest, yOfNewDest, erm;
 	
 	// Constructor
 	public PlayerMoves(View[][] passSquares, ImageView[][] passImgSquares, String[][] passCheckersBoard)
@@ -223,6 +223,7 @@ class PlayerMoves implements View.OnClickListener
 		yEnemyAxis = new ArrayList<Integer>();
 		xOfNewDest = 0;
 		yOfNewDest = 0;
+		erm = 0;
 		
 		// THIS IS A TEST
 		isEnemyAdjacent = false;
@@ -411,11 +412,11 @@ class PlayerMoves implements View.OnClickListener
 		int y = passY;
 		
 		// Debug purposes.
-		System.out.println("x+(upOrDown+upOrDown) = " + x + "+(" + upOrDown + "+" + upOrDown + ") = " + (x+(upOrDown+upOrDown)));
-		System.out.println("y+(leftOrRight+leftOrRight) = " + y + "+(" + leftOrRight + "+" + leftOrRight + ") = " + (y+(leftOrRight+leftOrRight)));
+		//System.out.println("x+(upOrDown+upOrDown) = " + x + "+(" + upOrDown + "+" + upOrDown + ") = " + (x+(upOrDown+upOrDown)));
+		//System.out.println("y+(leftOrRight+leftOrRight) = " + y + "+(" + leftOrRight + "+" + leftOrRight + ") = " + (y+(leftOrRight+leftOrRight)));
 		// Debug purposes.
-		System.out.println("x+upOrDown = " + x +"+" + upOrDown + " = " + (x+upOrDown));
-		System.out.println("y+leftOrRight = " + y +"+" + leftOrRight + " = " + (y+leftOrRight));
+		//System.out.println("x+upOrDown = " + x +"+" + upOrDown + " = " + (x+upOrDown));
+		//System.out.println("y+leftOrRight = " + y +"+" + leftOrRight + " = " + (y+leftOrRight));
 		
 		// If neighbouring square contains an enemy piece...
 		if(firstCondition && strCheckersBoard[x+(upOrDown+upOrDown)][y+(leftOrRight+leftOrRight)] == "0") 
@@ -561,7 +562,7 @@ class PlayerMoves implements View.OnClickListener
 		}*/
 	}
 	//public void addHighlight(int passX, int passY, int upOrDown, int leftOrRight)
-	public void addHighlight(ArrayList<Integer> passCoordinatesX, ArrayList<Integer> passCoordinatesY)
+	public void addHighlight(boolean passCondition, ArrayList<Integer> passCoordinatesX, ArrayList<Integer> passCoordinatesY)
 	{
 		/*// leftOrRight would either be a negative value (go right), and a positive value (go left)
 		int x = passX;
@@ -589,23 +590,31 @@ class PlayerMoves implements View.OnClickListener
 		int parentY;
 		int highlightX, highlightY;
 		
-		
-		if(passCoordinatesX.size() > 0)
+		// If the constraints are satisfied, then add the highlights...
+		if(passCondition)
 		{
-			for(int count = 1; count < passCoordinatesX.size();count++)
+			if(passCoordinatesX.size() > 0)
 			{
-				// Coordinates of the parent of the highlighted squares.
-				parentX = passCoordinatesX.get(0);
-				parentY = passCoordinatesY.get(0);
-				highlightX = passCoordinatesX.get(count);
-				highlightY = passCoordinatesY.get(count);
+				for(int count = 1; count < passCoordinatesX.size();count++)
+				{
+					// Coordinates of the parent of the highlighted squares.
+					parentX = passCoordinatesX.get(0);
+					parentY = passCoordinatesY.get(0);
+					highlightX = passCoordinatesX.get(count);
+					highlightY = passCoordinatesY.get(count);
+					
+					// Highlights the selected square.
+					squaresOfBoard[parentX][parentY].setBackground(new ColorDrawable(0xFF999966));
+					// Also highlights the neighbouring square to left/right of it.
+					squaresOfBoard[highlightX][highlightY].setBackground(new ColorDrawable(0xFF999966));		
+				}	
+			}
+		}else
+		{
+			
+		}
 				
-				// Highlights the selected square.
-				squaresOfBoard[parentX][parentY].setBackground(new ColorDrawable(0xFF999966));
-				// Also highlights the neighbouring square to left/right of it.
-				squaresOfBoard[highlightX][highlightY].setBackground(new ColorDrawable(0xFF999966));		
-			}	
-		}	
+		//}
 		// Highlights the selected square.
 		//squaresOfBoard[parentX][parentY].setBackground(new ColorDrawable(0xFF999966));
 		// Also highlights the neighbouring square to left/right of it.
@@ -613,14 +622,14 @@ class PlayerMoves implements View.OnClickListener
 		
 		//
 	}
-	public void removeHighlights()
+	public void removeHighlights(ArrayList<Integer> passCoordinatesX, ArrayList<Integer> passCoordinatesY)
 	{
 		// If the square is not part of the highlighted squares, then remove the highlights of the existing square...
-		for(int rm = 0;rm < sizeOfPrev;rm++)
+		for(int rm = 0;rm < passCoordinatesX.size();rm++)
 		{
 			// Remove the highlights from the highlighted squares.
-			int xHighlighted = xPrevAxis.get(rm).intValue();
-			int yHighlighted = yPrevAxis.get(rm).intValue();
+			int xHighlighted = passCoordinatesX.get(rm).intValue();
+			int yHighlighted = passCoordinatesY.get(rm).intValue();
 			squaresOfBoard[xHighlighted][yHighlighted].setBackground(null);
 		}
 	}
@@ -678,16 +687,18 @@ class PlayerMoves implements View.OnClickListener
 		
 		return isHighlighted;
 	}
-	public void movePiece(View v, int passX, int passY, int upOrDown, ArrayList<Integer> passListOfRows, ArrayList<Integer> passListOfColumns, String strDest, int destImg)
+	public void movePiece(View v, int passX, int passY, int upOrDown, ArrayList<Integer> passListOfRows, ArrayList<Integer> passListOfColumns,
+												ArrayList<Integer> passEnemyX, ArrayList<Integer> passEnemyY, String strDest, int destImg)
 	{
 		// I need to implement this in a bit.
-		// The coordinates of the root square of highlighted squares
+		int sizeOfPrev = passListOfRows.size();
 		int x = passX, y = passY;
-		int parentPrevX = passListOfRows.get(0).intValue();
-		int parentPrevY = passListOfColumns.get(0).intValue();
 		
 		for(int mv = 1;mv < sizeOfPrev;mv++)
 		{	
+			// The coordinates of the root square of highlighted squares
+			int parentPrevX = passListOfRows.get(0).intValue();
+			int parentPrevY = passListOfColumns.get(0).intValue();
 			// The coordinates of the neighbouring squares of the highlighted squares.
 			int prevX = passListOfRows.get(mv).intValue();
 			int prevY = passListOfColumns.get(mv).intValue();
@@ -707,14 +718,14 @@ class PlayerMoves implements View.OnClickListener
 				
 				// THIS IS A HUGE TEST. The test succeeded :)
 				// If the parent square has a neighbouring enemy piece, then we determine which enemy piece it is.
-				if(xEnemyAxis.size() > 0)
+				if(passEnemyX.size() > 0)
 				{
 					// Assuming that the parent highlighted sqaure was neighbouring more than one enemy piece, we would need to find out the right enemy...
 					// Piece to get rid of.
-					for(int e = 0; e < xEnemyAxis.size(); e++)
+					for(int e = 0; e < passEnemyX.size(); e++)
 					{
-						int enemyCoordinateX = xEnemyAxis.get(e).intValue();
-						int enemyCoordinateY = yEnemyAxis.get(e).intValue();
+						int enemyCoordinateX = passEnemyX.get(e).intValue();
+						int enemyCoordinateY = passEnemyY.get(e).intValue();
 						
 						// Tries to go up/down depending on whose player turn is it. If it is player two's, then it will be x+1.
 						int checkX = parentPrevX + upOrDown;
@@ -728,7 +739,7 @@ class PlayerMoves implements View.OnClickListener
 							// We clear the space (visually) i.e. take the piece
 							imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
 							// Makes this the last 'e' iteration.
-							e = xEnemyAxis.size();
+							e = passEnemyX.size();
 						}
 						else if(checkX == enemyCoordinateX && (prevY-1) == enemyCoordinateY)
 						{
@@ -739,7 +750,7 @@ class PlayerMoves implements View.OnClickListener
 							// We clear the space (visually) i.e. take the piece
 							imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
 							// Makes this the last 'e' iteration.
-							e = xEnemyAxis.size();
+							e = passEnemyX.size();
 						}
 						// If we had a king, we would need to add another two extra statements to the ones we already have.				
 					}
@@ -763,9 +774,9 @@ class PlayerMoves implements View.OnClickListener
 				
 				
 				
-				
+				// Probably need to put an IF statment round this because this could possibly be a consecutive move...
 				// Now, I need to get rid of the highlights, etc.
-				removeHighlights();
+				removeHighlights(passListOfRows, passListOfColumns);
 				clearHelperArrays();
 				
 				// --- Debug Purposes --- //
@@ -796,7 +807,7 @@ class PlayerMoves implements View.OnClickListener
 					// Move the checkers piece into the new location.
 					imageOfSquares[x][y].setImageResource(R.drawable.light_brown_piece);
 					// Now, I need to get rid of the highlights, etc.
-					removeHighlights();
+					removeHighlights(passListOfRows, passListOfColumns);
 					// Clear the row/column values of the highlighted squares.
 					xPrevAxis = new ArrayList<Integer>(); //- This causes the app to crash when I try to move another piece after successfully moving one beforehand.
 					yPrevAxis = new ArrayList<Integer>();
@@ -822,8 +833,262 @@ class PlayerMoves implements View.OnClickListener
 	}
 	public void playerTurn(String playerNo, View v, boolean passCondition, int passX, int passY, int upOrDown, int passImgId, boolean playerTurn, boolean attackConstraint, String opponentNo)
 	{
+		//----- THIS IS THE TEST CODE - DELETE IF NECCESSARY AND ENABLE THE CODE BELOW, AHA.
 		// I can try write the sample code here. At least I will have all the variables ready to be used. :)
-		/*
+		
+		// removeHighlights();;
+		
+		
+		// The coordinates of the currently selected square.
+		int x = passX, y = passY;
+		// The coordinates of the parent (root) square of highlight squares.
+		int rootX, rootY;
+		
+		// If there are no highlighted squares.
+		sizeOfPrev = xPrevAxis.size();    // Initially, the size will be zero.
+		// WORKS :) - It will check whether all the squares are highlighted, and assign the result of the operation into 'isHighlighted'
+		isHighlighted = checkHighlights(v);
+				
+		if(sizeOfPrev <= 0)
+		{
+			// Maybe the code could go here...
+			
+			// ----	
+			int noOfTimes = 0;
+			
+			
+			// If we have not found adjacent enemies yet, we look again.
+			if(arrayOfPrevCoordinatesX.size() <= 0)
+			{	
+				for(int row = 0; row < 8;row++)
+				{
+					for(int column =((row+1)%2);column<8;column+=2)
+					{
+						if(strCheckersBoard[row][column] == playerNo)
+						{
+							System.out.println("Does this section ever get run?");
+							
+							// Gets rid of the highlights, and clears the helper ArrayLists such as the x/yPrevAxis and x/yEnemyAxis ArrayLists.
+							//removeHighlights();
+							//clearHelperArrays(); 
+							// Creates an ArrayList that holds the coordinates for what square needs to be highlighted.
+							// Further into playing the game, sometimes this line of code causes an IndexOutOfBounds Error... I am so baffled.
+							// Debug purposes.
+							//System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
+							//highlightSquares(passCondition, row, column, upOrDown, attackConstraint, opponentNo);
+							// Strange, the code did not crash this time. I think it might be because of I was manually selecting the pieces I wanted
+							// to use for capture instead of it letting automatically select the piece. Maybe, the problem is there.
+							// Okay, I have got it. Whenever a checkers piece (let's say light brown for player 2) reaches the other side,
+							// making row=7. Now, if we click another light brown piece that has not reached row 7, the entire application crashes.
+							// Well, Alhamdullah, I am on to something now.
+							// I have an idea why it may be crashing. It might be because of the value of 'passCondition' and 'attackConstraints' that's causing this.
+							// passCondition = x >= 1 && x <= 7 and attackConstraints = x >= 2.
+							// Here's the thing, in this particular section we are not working with x and y, we are working row and column ;)
+							// I hope I can fix it now... Inshallah.
+							// Okay, that sorted it. There is just one more problem. let's say I am player 1 and I have a black piece
+							// at row = 0. according to my constraints, this can no longer do anything which is cool. However, when another black piece
+							// (as well as the black piece at row = 0) is within the constraints (row >= 1 && row <=7), and it neighbours an enemy,
+							// it does not highlight automatically highlight the black piece neighbouring the enemy. I believe it is clashing with the constraints
+							// of the following code. Ah well, that's for another day. Alhamdullah, today was a huge success. :)
+							
+							if(playerNo == "1")
+							{
+								// Debug purposes.
+								System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
+								highlightSquares(row >= 1 && row <=7, row, column, upOrDown, row >=2, opponentNo);
+							}
+							else if(playerNo == "2")
+							{
+								// Debug purposes.
+								System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
+								highlightSquares(row >= 0 && row <= 6, row, column, upOrDown, row <=5, opponentNo);
+							}
+							
+							
+							noOfTimes++;
+							// Debug purposes. - This does not even run... I guess that's why the code does not break any more... Lol
+							System.out.println("Our Piece was seen at " + noOfTimes + " different time(s).");
+							
+							if(xEnemyAxis.size() > 0)
+							{
+								erm++;
+								// Add the ArrayLists to the master ArrayList... Aha.
+								arrayOfPrevCoordinatesX.add(xPrevAxis);
+								arrayOfPrevCoordinatesY.add(yPrevAxis);
+								arrayOfEnemyCoordinatesX.add(xEnemyAxis);
+								arrayOfEnemyCoordinatesY.add(yEnemyAxis);
+								// We apply the highlights to the eligable squares...
+								addHighlight(passCondition, xPrevAxis, yPrevAxis);
+								// Debug purposes.
+								System.out.println("row=" + row + ", column=" + column + " is neighbouring an enemy.");
+								// Then clear the standard ArrayLists and repeat.
+								clearHelperArrays();
+							}
+							else
+							{
+								// Clear the standard ArrayLists.
+								clearHelperArrays();
+							}	
+						}
+					}
+				}
+			}
+			// ...Let's see... Need a better condition.
+			if(erm > 0)
+			{
+				// If there are neighbouring enemies already highlighted... We check if a move has been made on the 
+				// isEnemyAdjacent = true;
+				// Then we loop through until each move has been made.
+				// We will get the destination squares of each piece.
+				
+				// So far, so good.
+				System.out.println("Player "+ playerNo + " You must make an attack... Dawg. and erm is equal to: " + erm);
+				
+				for(int i = 0 ; i < arrayOfPrevCoordinatesX.size(); i++)
+				{
+					// Debug purposes.
+					System.out.println("The size of the arrayOfPrevCoordinates is equal to " + arrayOfPrevCoordinatesX.size());
+					
+					//arrayOfPrevCoordinatesX.get(i);
+					ArrayList<Integer> autoPrevX = arrayOfPrevCoordinatesX.get(i);
+					ArrayList<Integer> autoPrevY = arrayOfPrevCoordinatesY.get(i);
+					ArrayList<Integer> autoEnemyX = arrayOfEnemyCoordinatesX.get(i);
+					ArrayList<Integer> autoEnemyY = arrayOfEnemyCoordinatesY.get(i);
+					// Moves the checkers piece to the new location.
+					// Continue from here on out. It captures the piece but, the highlights stay, and it also captures some undesired pieces. Needs work!
+					// CONTINUE FROM AROUND HERE!
+					movePiece(v, x, y, upOrDown, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, passImgId);
+					
+					// We need a way to check if it is at the new location.
+					
+					if(x == xOfNewDest && y == yOfNewDest)
+					{
+						// Debug purposes.
+						System.out.println("We have moved the piece to the new location");
+						// If we have successfully moved the piece...
+						// Makes sure this is the last iteration.
+						i = arrayOfPrevCoordinatesX.size();
+						// Then we check whether the new location is neighbouring an enemy...
+						highlightSquares(passCondition, xOfNewDest, yOfNewDest, upOrDown, attackConstraint, opponentNo);
+						// If xEnemyAxis.size() returns 0 then, we can hand over the player's turn
+						
+						if(xEnemyAxis.size() <= 0)
+						{
+							// Debug purposes.
+							System.out.println("There are no potential captures that this piece can make from the new location so, we handover our turn to the opponent.");
+							
+							// There are no new neighbouring enemies in the new location.
+							// We hand over our turn to the opponent.
+							playerOneTurn = playerTurn;
+							// Make erm equal to 0 so, this statment does not run again.
+							
+							// We will remove the remaining highlights... i.e. if there were two different pieces each neighbouring an enemy.
+							for(int rm = 0;rm<arrayOfPrevCoordinatesX.size();rm++)
+							{
+								// Gets rid of the rest of the highlights for the other pieces that had potential to capture enemy pieces.
+								// It works the way I hoped it to.
+								removeHighlights(arrayOfPrevCoordinatesX.get(rm), arrayOfPrevCoordinatesY.get(rm));
+							}
+							
+							erm = 0;
+							// clear 'arrayOfPrev... arrays
+							arrayOfPrevCoordinatesX.clear();
+							arrayOfPrevCoordinatesY.clear();
+							arrayOfEnemyCoordinatesX.clear();
+							arrayOfEnemyCoordinatesY.clear();
+							// I should also try clearing the xOfNewDest and yOfNewDest values too.
+						}
+						else
+						{
+							// Debug purposes.
+							System.out.println("There is another neighbouring enemy at the new location. So, we don't stop until a move is made.");
+							// THIS PART IS FUCKED. WHEN I TRY TO GET CAPTURE ANOTHER PIECE CONSECUTIVELY, IT CHANGES THE COLOR OF MY PIECE TO THE OPPONENT'S COLOR. NEEDS FIXING!
+							// OK, this section is fine. It can now do consecutive attacks. 
+							// clear 'arrayOfPrev... arrays
+							arrayOfPrevCoordinatesX.clear();
+							arrayOfPrevCoordinatesY.clear();
+							arrayOfEnemyCoordinatesX.clear();
+							arrayOfEnemyCoordinatesY.clear();
+							// Add the ArrayLists to the master ArrayList... Aha.
+							arrayOfPrevCoordinatesX.add(xPrevAxis);
+							arrayOfPrevCoordinatesY.add(yPrevAxis);
+							arrayOfEnemyCoordinatesX.add(xEnemyAxis);
+							arrayOfEnemyCoordinatesY.add(yEnemyAxis);
+							// We apply the highlights to the eligable squares...
+							addHighlight(passCondition, xPrevAxis, yPrevAxis);
+							// Clear the standard ArrayLists.
+							clearHelperArrays();
+							
+							
+						}				
+					}					
+				}
+				
+			}
+			else if(strCheckersBoard[x][y] == playerNo)
+			{
+				// I think I need 
+				// Debug purposes.
+				System.out.println("There are no neighbouring enemies so, this piece was selected by the user, not automatically.");
+				// Add new highlights for the newly selected square.
+				highlightSquares(passCondition, x, y, upOrDown, attackConstraint, opponentNo); // upOrDown = 1 so, x-1 i.e, go from bottom to the top of the checkersboard.
+				// THIS IS A TEST
+				if(passCondition)
+				{
+					// Adds the highlights to the squares based on the result from the 'prepareHighlight' method.
+					addHighlight(passCondition, xPrevAxis, yPrevAxis);
+				}				
+			}			
+		}
+		else
+		{
+			if(isHighlighted == false)
+			{
+				// Debug purposes.
+				System.out.println("The square we selected is not part of the highlighted squares so, we will get rid of the old highlights, and add the highlights to the new square");
+				// Gets rid of the highlights, and clears the helper ArrayLists such as the x/yPrevAxis and x/yEnemyAxis ArrayLists.
+				removeHighlights(xPrevAxis, yPrevAxis);;
+				clearHelperArrays(); 
+				// Now, if the newly selected square has checkers piece which belongs to playerX, then highlight it, and its neighbouring squares.
+				// This prevents us from highlighting empty parent squares ;)
+				if(strCheckersBoard[x][y] == playerNo)
+				{
+					// Debug purposes.
+					System.out.println("If the selected square does contain the player's checkers piece, then we highlight it and its neighbours.");
+					// Add new highlights for the newly selected square.
+					highlightSquares(passCondition, x, y, upOrDown, attackConstraint, opponentNo); // upOrDown = 1 so, x-1 i.e, go from bottom to the top of the checkersboard.
+					// Debug purposes.
+					// THIS IS A TEST
+					if(passCondition) // I think I can delete this condition because it also exists within the function.
+					{
+						// Adds the highlights to the squares based on the result from the 'prepareHighlight' method.
+						addHighlight(passCondition, xPrevAxis, yPrevAxis);
+					}					
+					System.out.println("In isHighlighted==false The size of xPrevAxis = " + xPrevAxis.size() + " and yPrevAxis = " + yPrevAxis.size());
+				}
+			}
+			else if(isHighlighted == true)
+			{	
+				// Maybe we could add a loop here somewhere.
+				// Debug purposes.
+				System.out.println("The square selected is part of the highlighted squares so, we will make the move.");
+				// Moves the checkers piece to the new location.
+				movePiece(v, x, y, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, passImgId);
+				
+				if(x == xOfNewDest && y == yOfNewDest)
+				{
+					// The next turn will be player x ;)
+					playerOneTurn = playerTurn;
+				}
+				// The next turn will be player x ;)
+				//playerOneTurn = playerTurn;	
+			}	
+		}
+		
+		//------
+		
+		/*// If the above f*** UP THE GAME. DELETE AND UNCOMMENT THE CODE BELOW :)
+		int noOfTimes = 0;
 		
 		for(int row = 0; row < 8;row++)
 		{
@@ -831,29 +1096,39 @@ class PlayerMoves implements View.OnClickListener
 			{
 				if(strCheckersBoard[row][column] == playerNo)
 				{
+					// Gets rid of the highlights, and clears the helper ArrayLists such as the x/yPrevAxis and x/yEnemyAxis ArrayLists.
+					//removeHighlights();
+					//clearHelperArrays(); 
 					// Creates an ArrayList that holds the coordinates for what square needs to be highlighted.
-					highlightSquares(passCondition, row, column, upOrDown, attackConstraint, opponentNo);
+					// The problem seems to be coming from 'highlightSquares'
+					//highlightSquares(passCondition, row, column, upOrDown, attackConstraint, opponentNo);
 					// Add the ArrayLists to the master ArrayList... Aha.
+					
 					
 					if(xEnemyAxis.size() > 0)
 					{
+						noOfTimes++;
+						// Debug purposes.
+						System.out.println("An enemy was encountered at " + noOfTimes + " different times.");
 						// We apply the highlights to the eligable squares...
-						addHighlight(xPrevAxis, yPrevAxis);	
+						//addHighlight(xPrevAxis, yPrevAxis);	
 						// Add the ArrayLists to the master ArrayList... Aha.
 						// I NEED TO ADD CODE!
 						// Then clear the standard ArrayLists and repeat.
-						removeHighlights();
+						//clearHelperArrays();
 					}
 					else
 					{
 						// Clear the standard ArrayLists.
-						removeHighlights();
+						//clearHelperArrays();
 					}	
 				}
 			}
 		}
 		
-		*/
+		// removeHighlights();
+		
+		
 		// The coordinates of the currently selected square.
 		int x = passX, y = passY;
 		// The coordinates of the parent (root) square of highlight squares.
@@ -884,7 +1159,7 @@ class PlayerMoves implements View.OnClickListener
 			{
 				// Gets rid of the highlights, and clears the helper ArrayLists such as the x/yPrevAxis and x/yEnemyAxis ArrayLists.
 				removeHighlights();
-				clearHelperArrays(); // I never actually needed this as I'd always call it just before calling this method (highlightSquares).
+				clearHelperArrays(); 
 				// Now, if the newly selected square has checkers piece which belongs to playerX, then highlight it, and its neighbouring squares.
 				// This prevents us from highlighting empty parent squares ;)
 				if(strCheckersBoard[x][y] == playerNo)
@@ -908,6 +1183,6 @@ class PlayerMoves implements View.OnClickListener
 				// The next turn will be player x ;)
 				playerOneTurn = playerTurn;
 			}	
-		}	
+		}*/	
 	}
 }
