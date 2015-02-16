@@ -562,7 +562,7 @@ class PlayerMoves implements View.OnClickListener
 		}*/
 	}
 	//public void addHighlight(int passX, int passY, int upOrDown, int leftOrRight)
-	public void addHighlight(boolean passCondition, ArrayList<Integer> passCoordinatesX, ArrayList<Integer> passCoordinatesY)
+	public void addHighlight(ArrayList<Integer> passCoordinatesX, ArrayList<Integer> passCoordinatesY)
 	{
 		/*// leftOrRight would either be a negative value (go right), and a positive value (go left)
 		int x = passX;
@@ -591,28 +591,24 @@ class PlayerMoves implements View.OnClickListener
 		int highlightX, highlightY;
 		
 		// If the constraints are satisfied, then add the highlights...
-		if(passCondition)
+	
+		if(passCoordinatesX.size() > 0)
 		{
-			if(passCoordinatesX.size() > 0)
+			for(int count = 1; count < passCoordinatesX.size();count++)
 			{
-				for(int count = 1; count < passCoordinatesX.size();count++)
-				{
-					// Coordinates of the parent of the highlighted squares.
-					parentX = passCoordinatesX.get(0);
-					parentY = passCoordinatesY.get(0);
-					highlightX = passCoordinatesX.get(count);
-					highlightY = passCoordinatesY.get(count);
-					
-					// Highlights the selected square.
-					squaresOfBoard[parentX][parentY].setBackground(new ColorDrawable(0xFF999966));
-					// Also highlights the neighbouring square to left/right of it.
-					squaresOfBoard[highlightX][highlightY].setBackground(new ColorDrawable(0xFF999966));		
-				}	
-			}
-		}else
-		{
-			
+				// Coordinates of the parent of the highlighted squares.
+				parentX = passCoordinatesX.get(0);
+				parentY = passCoordinatesY.get(0);
+				highlightX = passCoordinatesX.get(count);
+				highlightY = passCoordinatesY.get(count);
+				
+				// Highlights the selected square.
+				squaresOfBoard[parentX][parentY].setBackground(new ColorDrawable(0xFF999966));
+				// Also highlights the neighbouring square to left/right of it.
+				squaresOfBoard[highlightX][highlightY].setBackground(new ColorDrawable(0xFF999966));		
+			}	
 		}
+		
 				
 		//}
 		// Highlights the selected square.
@@ -866,7 +862,7 @@ class PlayerMoves implements View.OnClickListener
 					{
 						if(strCheckersBoard[row][column] == playerNo)
 						{
-							System.out.println("Does this section ever get run?");
+							System.out.println("Does this section ever get executed?");
 							
 							// Gets rid of the highlights, and clears the helper ArrayLists such as the x/yPrevAxis and x/yEnemyAxis ArrayLists.
 							//removeHighlights();
@@ -889,7 +885,14 @@ class PlayerMoves implements View.OnClickListener
 							// at row = 0. according to my constraints, this can no longer do anything which is cool. However, when another black piece
 							// (as well as the black piece at row = 0) is within the constraints (row >= 1 && row <=7), and it neighbours an enemy,
 							// it does not highlight automatically highlight the black piece neighbouring the enemy. I believe it is clashing with the constraints
-							// of the following code. Ah well, that's for another day. Alhamdullah, today was a huge success. :)
+							// of the following code. Ah well, that's for another day. Alhamdullah, today was a huge success. :) - Sorted it.
+							// Now, sometimes it would not automatically select a piece and highlight neighbouring squares but, the problem was
+							// because of the value of 'passCondition' in the addHighlight() method was equal to the x >= 1 && x <= 7 so, it could cause yet
+							// another clash. I just got rid of the if statement in the 'addHighlight()' method and seemed to stomp out the problem.
+							// --- The list of bugs that need stomping --- //
+							// 1. When we manually select a piece, that has a neighbouring enemy piece, it does not lock the highlights. I think this
+							// can be solved if we made erm = 1 (greather than 0) in the if(isHighlighted == true) statemnent.
+							// 2.
 							
 							if(playerNo == "1")
 							{
@@ -907,7 +910,7 @@ class PlayerMoves implements View.OnClickListener
 							
 							noOfTimes++;
 							// Debug purposes. - This does not even run... I guess that's why the code does not break any more... Lol
-							System.out.println("Our Piece was seen at " + noOfTimes + " different time(s).");
+							System.out.println("Total number of pieces seen, is " + noOfTimes + " time(s).");
 							
 							if(xEnemyAxis.size() > 0)
 							{
@@ -918,7 +921,7 @@ class PlayerMoves implements View.OnClickListener
 								arrayOfEnemyCoordinatesX.add(xEnemyAxis);
 								arrayOfEnemyCoordinatesY.add(yEnemyAxis);
 								// We apply the highlights to the eligable squares...
-								addHighlight(passCondition, xPrevAxis, yPrevAxis);
+								addHighlight(xPrevAxis, yPrevAxis);
 								// Debug purposes.
 								System.out.println("row=" + row + ", column=" + column + " is neighbouring an enemy.");
 								// Then clear the standard ArrayLists and repeat.
@@ -936,6 +939,7 @@ class PlayerMoves implements View.OnClickListener
 			// ...Let's see... Need a better condition.
 			if(erm > 0)
 			{
+				// May need to add code here so, it re-highlights the squares, blah blah.
 				// If there are neighbouring enemies already highlighted... We check if a move has been made on the 
 				// isEnemyAdjacent = true;
 				// Then we loop through until each move has been made.
@@ -1015,7 +1019,7 @@ class PlayerMoves implements View.OnClickListener
 							arrayOfEnemyCoordinatesX.add(xEnemyAxis);
 							arrayOfEnemyCoordinatesY.add(yEnemyAxis);
 							// We apply the highlights to the eligable squares...
-							addHighlight(passCondition, xPrevAxis, yPrevAxis);
+							addHighlight(xPrevAxis, yPrevAxis);
 							// Clear the standard ArrayLists.
 							clearHelperArrays();
 							
@@ -1033,11 +1037,10 @@ class PlayerMoves implements View.OnClickListener
 				// Add new highlights for the newly selected square.
 				highlightSquares(passCondition, x, y, upOrDown, attackConstraint, opponentNo); // upOrDown = 1 so, x-1 i.e, go from bottom to the top of the checkersboard.
 				// THIS IS A TEST
-				if(passCondition)
-				{
-					// Adds the highlights to the squares based on the result from the 'prepareHighlight' method.
-					addHighlight(passCondition, xPrevAxis, yPrevAxis);
-				}				
+				
+				// Adds the highlights to the squares based on the result from the 'prepareHighlight' method.
+				addHighlight(xPrevAxis, yPrevAxis);
+		
 			}			
 		}
 		else
@@ -1059,17 +1062,19 @@ class PlayerMoves implements View.OnClickListener
 					highlightSquares(passCondition, x, y, upOrDown, attackConstraint, opponentNo); // upOrDown = 1 so, x-1 i.e, go from bottom to the top of the checkersboard.
 					// Debug purposes.
 					// THIS IS A TEST
-					if(passCondition) // I think I can delete this condition because it also exists within the function.
-					{
-						// Adds the highlights to the squares based on the result from the 'prepareHighlight' method.
-						addHighlight(passCondition, xPrevAxis, yPrevAxis);
-					}					
+					
+					// Adds the highlights to the squares based on the result from the 'prepareHighlight' method.
+					addHighlight(xPrevAxis, yPrevAxis);
+					// Debug purposes.
 					System.out.println("In isHighlighted==false The size of xPrevAxis = " + xPrevAxis.size() + " and yPrevAxis = " + yPrevAxis.size());
 				}
 			}
 			else if(isHighlighted == true)
 			{	
-				// Maybe we could add a loop here somewhere.
+				// Let's say we click a checkers piece that is neighbouring an enemy piece. If we let the game automatically highlight the
+				// ...Enemy pieces (by clicking any piece on the board ;)) then, the highlight will be locked until we make that particular capture, which is what we want.
+				// ...But, if we manually select the piece that we want to use to perform the capture... It does not lock the highlight as I can still
+				// ...select any other piece of mine. This is in fact, a glitch :) To overcome this, I can try setting erm to greater than 1 or something.
 				// Debug purposes.
 				System.out.println("The square selected is part of the highlighted squares so, we will make the move.");
 				// Moves the checkers piece to the new location.
