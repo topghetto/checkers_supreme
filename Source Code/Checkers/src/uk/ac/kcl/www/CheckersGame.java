@@ -260,13 +260,13 @@ class PlayerMoves implements View.OnClickListener
 							addHighlight(addX, addY);								
 						}*/
 						// We move our pieces as normal.
-						playerTurn("1", v, x >= 1 && x <= 7, x, y, -1, R.drawable.dark_brown_piece, false, x >= 2, "2");		// Nice, it works.
+						playerTurn("1", v, x >= 1 && x <= 7, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, false, x >= 2, "2");		// Nice, it works.
 					}
 					else
 					{
 						System.out.println("Player Two's Turn.");
 						// If it is Player two's turn...
-						playerTurn("2", v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, true, x <= 5, "1");	// Nice, it works.		
+						playerTurn("2", v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1");	// Nice, it works.		
 					}
 					
 					// Used to hold the value of whether the squares are highlighted or not.
@@ -482,7 +482,7 @@ class PlayerMoves implements View.OnClickListener
 			System.out.println("Second entire 'if' statment went through");				
 		}		
 	}
-	public void highlightSquares(boolean passCondition, int passX, int passY, int upOrDown, boolean attackConstraint, String opponentNo)
+	public void highlightSquares(boolean passCondition, int passX, int passY, int upOrDown, boolean attackConstraint, String opponentNo, String playerNo)
 	{
 		int x = passX;
 		int y = passY;
@@ -503,7 +503,56 @@ class PlayerMoves implements View.OnClickListener
 		// Now, I need it to make it so, that when an enemy is in the square, it only highlights the square for an attack, and nothing else.
 		// After that, it must take the piece too. I think I got it.
 		
+		// Maybe, I need another if statement here... Somewhere. This section needs major work.
+		String strKing = "K" + playerNo;
 		
+		if(strCheckersBoard[x][y].contains(strKing))
+		{
+			System.out.println("Well, there is indeed a king!");
+			// If the piece selected is a king piece...
+			if(x >= 1 && x <= 7)
+			{
+				// Debug purposes.
+				System.out.println("if(x >= 1 && x <= 7) and strKing =" + strKing);
+				// Only perform a move if we are on/within row 7 to row 1... x >= 2
+				// Checks the left side and decides whether it should highlight the squre or not.
+				// .contains() is more optimable than checking both, for example [x][y] == K2 || [x][y] == 2 where we know,
+				// it will at least contain the number '2' ;)
+				prepareHighlight(y >= 2 && x >= 2 && strCheckersBoard[x+(-1)][y-1].contains(opponentNo),
+												 y >= 1 && strCheckersBoard[x+(-1)][y-1] == "0", x, y, -1, -1);
+				// Checks the right side and decides whether it should highlight the square or not.
+				prepareHighlight(y <= 5 && x >= 2 && strCheckersBoard[x+(-1)][y+1].contains(opponentNo),
+												 y >= 0 && y <= 6 && strCheckersBoard[x+(-1)][y+1] == "0", x, y, -1 , 1);	
+			}
+			if(x >= 0 && x <= 6)
+			{
+				// Debug purposes.
+				System.out.println("if(x >= 0 && x <= 6) and strKing =" + strKing);
+				// Only perform a move if we are on/within row 6 to row 0... x <= 5
+				// Checks the left side and decides whether it should highlight the squre or not.
+				prepareHighlight(y >= 2 && x <= 5 && strCheckersBoard[x+(1)][y-1].contains(opponentNo),
+												 y >= 1 && strCheckersBoard[x+(1)][y-1] == "0", x, y, 1, -1);
+				// Checks the right side and decides whether it should highlight the square or not.
+				prepareHighlight(y <= 5 && x <= 5 && strCheckersBoard[x+(1)][y+1].contains(opponentNo),
+												 y >= 0 && y <= 6 && strCheckersBoard[x+(1)][y+1] == "0", x, y, 1, 1);	
+			}		
+		}
+		else if(strCheckersBoard[x][y] == playerNo && passCondition)
+		{
+			System.out.println("else if(strCheckersBoard[x][y] == playerNo && passCondition) AND strCheckersBoard[" + x + "][" + y + "] = " + strCheckersBoard[x][y]);
+			// If it is just a standard piece then...
+			// I think it works fine. I accidentally put a [y+2] and a [y-2] for both of the second conditions of the 'prepareHighlight'
+			// Checks the left side and decides whether it should highlight the squre or not.
+			prepareHighlight(y >= 2 && attackConstraint && strCheckersBoard[x+(upOrDown)][y-1].contains(opponentNo),
+											 y >= 1 && strCheckersBoard[x+(upOrDown)][y-1] == "0", x, y, upOrDown, -1);
+			// Checks the right side and decides whether it should highlight the square or not.
+			prepareHighlight(y <= 5 && attackConstraint && strCheckersBoard[x+(upOrDown)][y+1].contains(opponentNo),
+											 y >= 0 && y <= 6 && strCheckersBoard[x+(upOrDown)][y+1] == "0", x, y, upOrDown, 1);		
+			// Adds the highlights to the squares based on the result from the 'prepareHighlight' method.
+			//addHighlight();		// Uncomment if it breaks the application... Lol.
+		}
+		
+		/*
 		if(passCondition)
 		{
 			// I think it works fine. I accidentally put a [y+2] and a [y-2] for both of the second conditions of the 'prepareHighlight'
@@ -513,9 +562,9 @@ class PlayerMoves implements View.OnClickListener
 			// Checks the right side and decides whether it should highlight the square or not.
 			prepareHighlight(y <= 5 && attackConstraint && strCheckersBoard[x+(upOrDown)][y+1] == opponentNo,
 											 y >= 0 && y <= 6 && strCheckersBoard[x+(upOrDown)][y+1] == "0", x, y, upOrDown, 1);		
-			// Adds the highlights to the squares based on the result from the 'prepareHighlight' method.
-			//addHighlight();		// Uncomment if it breaks the application... Lol.
+			// We will add the highlights to the squares based on the result from the 'prepareHighlight' method later on.
 		}
+		*/
 		
 		 //OLD CODE FOR HIGHLIGHT WHICH SHOULD STILL WORK... I HOPE. I DID CHANGE THE CODE FOR THE 'addHighlight' METHOD SO THAT MIGHT
 		//	MIGHT BE A PROBLEM.
@@ -675,7 +724,8 @@ class PlayerMoves implements View.OnClickListener
 				
 				// Actually, it may be better to base these conditions on Strings instead of Views. That way the computer can work with the code a bit easier.
 				//if(squaresOfBoard[xHighlighted][yHighlighted].equals(v))
-				if(squaresOfBoard[x][y].equals(squaresOfBoard[xHighlighted][yHighlighted]))
+				//if(squaresOfBoard[x][y].equals(squaresOfBoard[xHighlighted][yHighlighted]))
+				if(x == xHighlighted && y == yHighlighted) // This is safer to use, in terms of a IndexOutOfBoundException, and less expensive.
 				{
 					// The selected square is part of the highlighted squares.
 					isHighlighted = true;
@@ -704,7 +754,7 @@ class PlayerMoves implements View.OnClickListener
 		return isHighlighted;		
 	}
 	public void movePiece(int passX, int passY, int upOrDown, ArrayList<Integer> passListOfRows, ArrayList<Integer> passListOfColumns,
-												ArrayList<Integer> passEnemyX, ArrayList<Integer> passEnemyY, String strDest, String opponentNo, int destImg)
+												ArrayList<Integer> passEnemyX, ArrayList<Integer> passEnemyY, String strDest, String opponentNo, int destImg, int passImgOfKing)
 	{
 		// Another test.
 		xOfNewDest = 0;
@@ -713,6 +763,7 @@ class PlayerMoves implements View.OnClickListener
 		// I need to implement this in a bit.
 		int sizeOfPrev = passListOfRows.size();
 		int x = passX, y = passY;
+		String strSource;
 		
 		for(int mv = 1;mv < sizeOfPrev;mv++)
 		{	
@@ -726,17 +777,15 @@ class PlayerMoves implements View.OnClickListener
 			// If the selected piece is part of the highlighted neighbouring squares, then perform blah de blah blah.
 			//if(v.equals(squaresOfBoard[prevX][prevY]))
 			//if(squaresOfBoard[x][y].equals(squaresOfBoard[prevX][prevY]))
+			// x == prevX && y == prevY would be a much better/safer condition.
 			if(squaresOfBoard[x][y].equals(squaresOfBoard[prevX][prevY]) && strCheckersBoard[x][y] != opponentNo)
 			{
 				// Close the loop after this iteration.
 				mv = sizeOfPrev;
 				// Debug purposes.
 				System.out.println("We successfully moved the piece :)");
-				// Clear the square of the checker piece we want to move.
-				strCheckersBoard[parentPrevX][parentPrevY] = "0";
-				// Clear the image of that square.
-				imageOfSquares[parentPrevX][parentPrevY].setImageResource(0);
-				// Occupies new space in the helper array.
+				// Temporary variable that will hold the value at the old location (i.e. the piece we wish to move).
+				strSource = strCheckersBoard[parentPrevX][parentPrevY];
 				
 				// THIS IS A HUGE TEST. The test succeeded :)
 				// If the parent square has a neighbouring enemy piece, then we determine which enemy piece it is.
@@ -750,8 +799,9 @@ class PlayerMoves implements View.OnClickListener
 						int enemyCoordinateY = passEnemyY.get(e).intValue();
 						
 						// Tries to go up/down depending on whose player turn is it. If it is player two's, then it will be x+1.
-						int checkX = parentPrevX + upOrDown;
+						/*int checkX = parentPrevX + upOrDown;
 
+						// We check the square below...
 						if(checkX == enemyCoordinateX && (prevY+1) == enemyCoordinateY)
 						{
 							// The enemy square is here. This works. Nice.
@@ -765,8 +815,25 @@ class PlayerMoves implements View.OnClickListener
 						}
 						else if(checkX == enemyCoordinateX && (prevY-1) == enemyCoordinateY)
 						{
+							// Check the square below...
 							// The enemy square is here. This works. Nice.
-							System.out.println("These are the correct coordinates of the enemy square checkX=" + checkX + " and checkY=" + (prevY+1));
+							System.out.println("These are the correct coordinates of the enemy square checkX=" + checkX + (prevY+1));
+							// We clear the space i.e. take the piece.
+							strCheckersBoard[enemyCoordinateX][enemyCoordinateY] = "0";
+							// We clear the space (visually) i.e. take the piece
+							imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
+							// Makes this the last 'e' iteration.
+							e = passEnemyX.size();
+						}*/
+						
+						int checkBelow = parentPrevX + 1;
+						int checkAbove = parentPrevX - 1;
+
+						// We check the square below...
+						if(checkBelow == enemyCoordinateX && (prevY+1) == enemyCoordinateY)
+						{
+							// The enemy square is here. This works. Nice.
+							System.out.println("These are the correct coordinates of the enemy square checkBelow=" + checkBelow + " and checkY=" + (prevY+1));
 							// We clear the space i.e. take the piece.
 							strCheckersBoard[enemyCoordinateX][enemyCoordinateY] = "0";
 							// We clear the space (visually) i.e. take the piece
@@ -774,13 +841,101 @@ class PlayerMoves implements View.OnClickListener
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 						}
-						// If we had a king, we would need to add another two extra statements to the ones we already have.				
+						else if(checkBelow == enemyCoordinateX && (prevY-1) == enemyCoordinateY)
+						{
+							// Check the square below...
+							// The enemy square is here. This works. Nice.
+							System.out.println("These are the correct coordinates of the enemy square checkBelow=" + checkBelow + (prevY+1));
+							// We clear the space i.e. take the piece.
+							strCheckersBoard[enemyCoordinateX][enemyCoordinateY] = "0";
+							// We clear the space (visually) i.e. take the piece
+							imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
+							// Makes this the last 'e' iteration.
+							e = passEnemyX.size();
+						}
+						else if(checkAbove == enemyCoordinateX && (prevY+1) == enemyCoordinateY)
+						{
+							// Check the square above...
+							// The enemy square is here. This works. Nice.
+							System.out.println("These are the correct coordinates of the enemy square checkAbove=" + checkAbove + " and checkY=" + (prevY+1));
+							// We clear the space i.e. take the piece.
+							strCheckersBoard[enemyCoordinateX][enemyCoordinateY] = "0";
+							// We clear the space (visually) i.e. take the piece
+							imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
+							// Makes this the last 'e' iteration.
+							e = passEnemyX.size();
+						}
+						else if(checkAbove == enemyCoordinateX && (prevY-1) == enemyCoordinateY)
+						{
+							// Check the square above...
+							// The enemy square is here. This works. Nice.
+							System.out.println("These are the correct coordinates of the enemy square checkAbove=" + checkAbove + (prevY+1));
+							// We clear the space i.e. take the piece.
+							strCheckersBoard[enemyCoordinateX][enemyCoordinateY] = "0";
+							// We clear the space (visually) i.e. take the piece
+							imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
+							// Makes this the last 'e' iteration.
+							e = passEnemyX.size();
+						}
+						
 					}
 				}
 				
-				strCheckersBoard[x][y] = strDest;
+				// If a piece of player one reaches the last row, transform the piece into a king...
+				
+				// Creates the king string corresponding to the player number.
+				String strKing = "K" + strDest;
+				
+				if(x == 0 && strCheckersBoard[parentPrevX][parentPrevY] == "1")
+				{
+					// Debug purposes.
+					System.out.println("strSource does equal player one and let's output strKing=" + strKing);
+					// Now, the piece will now become a king at the new location.
+					strCheckersBoard[parentPrevX][parentPrevY] = strKing;
+					
+				}else if(x == 7 && strCheckersBoard[parentPrevX][parentPrevY] == "2")
+				{
+					// Debug purposes.
+					System.out.println("strSource does equal player two and let's output strKing=" + strKing);
+					// If a piece of player two reaches the last row, transform the piece into a king.
+					// Now, the piece will now become a king at the new location.
+					strCheckersBoard[parentPrevX][parentPrevY] = strKing;
+				}
+				
+				// If the piece that we wish to move/perform capture is a king then...
+				// if(strCheckersBoard[parentPrevX][parentPrevY] == strKing) never satisfies, regardless. == and mutated strings seem to cause problems.
+				if(strCheckersBoard[parentPrevX][parentPrevY].contains(strKing))
+				{
+					// Finally, we will clear the square of the checker piece's old location
+					strCheckersBoard[parentPrevX][parentPrevY] = "0";
+					// Clear the image of that square.
+					imageOfSquares[parentPrevX][parentPrevY].setImageResource(0);
+					// Moves it to the new location...
+					strCheckersBoard[x][y] = strKing;
+					// (Visually) Moves the checkers piece into the new location
+					imageOfSquares[x][y].setImageResource(passImgOfKing);
+				}
+				else //if(strCheckersBoard[parentPrevX][parentPrevY] == strDest)
+				{
+					// Finally, we will clear the square of the checker piece's old location
+					strCheckersBoard[parentPrevX][parentPrevY] = "0";
+					// Clear the image of that square.
+					imageOfSquares[parentPrevX][parentPrevY].setImageResource(0);
+					// If it is an ordinary piece, then it will just be a simple capture/move.
+					strCheckersBoard[x][y] = strSource;
+					// Move the checkers piece into the new location.
+					imageOfSquares[x][y].setImageResource(destImg);
+				}
+				
+				/*// Finally, we will clear the square of the checker piece's old location
+				strCheckersBoard[parentPrevX][parentPrevY] = "0";
+				// Clear the image of that square.
+				imageOfSquares[parentPrevX][parentPrevY].setImageResource(0);
+				// Occupies new space in the helper array.*/
+				
+				//strCheckersBoard[x][y] = strDest;
 				// Move the checkers piece into the new location.
-				imageOfSquares[x][y].setImageResource(destImg);
+				//imageOfSquares[x][y].setImageResource(destImg);
 				// THIS IS A TEST
 				xOfNewDest = x;
 				yOfNewDest = y;
@@ -860,7 +1015,7 @@ class PlayerMoves implements View.OnClickListener
 	
 	// -----------------THIS IS A TEST, IF ALL FAILS, WE DELETE THIS CODE AND UNCOMMENT THE CODE BELOW ----------------- \\
 	
-	public void playerTurn(String playerNo, View v, boolean passCondition, int passX, int passY, int upOrDown, int passImgId, boolean playerTurn, boolean attackConstraint, String opponentNo)
+	public void playerTurn(String playerNo, View v, boolean passCondition, int passX, int passY, int upOrDown, int passImgId, int passImgOfKing, boolean playerTurn, boolean attackConstraint, String opponentNo)
 	{
 
 		// I can try write the sample code here. At least I will have all the variables ready to be used. :)		
@@ -884,13 +1039,15 @@ class PlayerMoves implements View.OnClickListener
 		if(arrayOfPrevCoordinatesX.size() <= 0)
 		{	
 			// Debug purposes.
-			System.out.println("The initial statement that checks for adjacent enemies has just ran.");
+			System.out.println("The initial statement that checks for adjacent enemies has just started.");
+			// Erm, yeah.
+			String strKing = "K" + playerNo;
 			
 			for(int row = 0; row < 8;row++)
 			{
 				for(int column =((row+1)%2);column<8;column+=2)
 				{
-					if(strCheckersBoard[row][column] == playerNo)
+					if(strCheckersBoard[row][column] == playerNo || strCheckersBoard[row][column].contains(strKing))
 					{
 						// Debug purposes.
 						// System.out.println("Does this section ever get executed?");
@@ -899,13 +1056,13 @@ class PlayerMoves implements View.OnClickListener
 						{
 							// Debug purposes.
 							// System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
-							highlightSquares(row >= 1 && row <=7, row, column, upOrDown, row >=2, opponentNo);
+							highlightSquares(row >= 1 && row <=7, row, column, upOrDown, row >=2, opponentNo, playerNo);
 						}
 						else if(playerNo == "2")
 						{
 							// Debug purposes.
 							// System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
-							highlightSquares(row >= 0 && row <= 6, row, column, upOrDown, row <=5, opponentNo);
+							highlightSquares(row >= 0 && row <= 6, row, column, upOrDown, row <=5, opponentNo, playerNo);
 						}		
 						noOfTimes++;
 						// Debug purposes. - This does not even run... I guess that's why the code does not break any more... Lol
@@ -980,12 +1137,12 @@ class PlayerMoves implements View.OnClickListener
 			// Debug purposes.
 			System.out.println("if(isEnemyAdjacent == true) just ran so, a capture needs to be performed.");
 			// This will determine what type of move (standard or a capture) it should make, and also make the move.
-			performMoveAndCheckAdjacent(passX, passY, attackConstraint, passCondition, upOrDown, playerNo, opponentNo, passImgId, playerTurn);
+			performMoveAndCheckAdjacent(passX, passY, attackConstraint, passCondition, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing, playerTurn);
 			
 		}else
 		{
 			//...Otherwise, we check if the selected square corresponds to the player's number and if it is part of the highlighted squares.
-			if(strCheckersBoard[x][y] == playerNo && isHighlighted == false)
+			if(strCheckersBoard[x][y].contains(playerNo) && isHighlighted == false)
 			{
 				// Debug purposes.
 				System.out.println("the if(strCheckersBoard[x][y] == playerNo && isHighlighted == false) statement has just been run.");
@@ -1008,7 +1165,7 @@ class PlayerMoves implements View.OnClickListener
 				// Debug purposes.
 				System.out.println("and the selected square does contain the player's checkers piece, then we highlight it and its neighbours.");
 				// Add new highlights for the newly selected square.
-				highlightSquares(passCondition, x, y, upOrDown, attackConstraint, opponentNo); // upOrDown = 1 so, x-1 i.e, go from bottom to the top of the checkersboard.
+				highlightSquares(passCondition, x, y, upOrDown, attackConstraint, opponentNo, playerNo); // upOrDown = 1 so, x-1 i.e, go from bottom to the top of the checkersboard.
 				// Add the ArrayLists to the master ArrayList... Aha.
 				arrayOfPrevCoordinatesX.add(xPrevAxis);
 				arrayOfPrevCoordinatesY.add(yPrevAxis);
@@ -1025,7 +1182,7 @@ class PlayerMoves implements View.OnClickListener
 				// Debug purposes.
 				System.out.println("else if(strCheckersBoard[x][y] == 0 && isHighlighted == true) just ran but, failed miserably.");
 				// This will determine what type of move (standard or a capture) it should make, and also make the move.
-				performMoveAndCheckAdjacent(passX, passY, attackConstraint, passCondition, upOrDown, playerNo, opponentNo, passImgId, playerTurn);
+				performMoveAndCheckAdjacent(passX, passY, attackConstraint, passCondition, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing, playerTurn);
 			}
 		}
 		
@@ -1244,7 +1401,7 @@ class PlayerMoves implements View.OnClickListener
 		}*/	
 	}
 	
-	public void performMoveAndCheckAdjacent(int passX, int passY, boolean attackConstraint, boolean passCondition, int upOrDown, String playerNo, String opponentNo, int passImgId, boolean playerTurn)
+	public void performMoveAndCheckAdjacent(int passX, int passY, boolean attackConstraint, boolean passCondition, int upOrDown, String playerNo, String opponentNo, int passImgId, int passImgOfKing, boolean playerTurn)
 	{
 			// Debug purposes.
 			System.out.println("arrayOfPrevCoordinatesX.size() > 0 if statement just ran. (using our new function)");
@@ -1275,7 +1432,7 @@ class PlayerMoves implements View.OnClickListener
 				}
 			
 				// Moves the checkers piece to the new location.
-				movePiece(x, y, upOrDown, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, passImgId);
+				movePiece(x, y, upOrDown, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, passImgId, passImgOfKing);
 				
 				// We need a way to check if it is at the new location.
 				
@@ -1287,7 +1444,7 @@ class PlayerMoves implements View.OnClickListener
 					// Makes sure this is the last iteration.
 					i = arrayOfPrevCoordinatesX.size();
 					// Then we check whether the new location is neighbouring an enemy...		
-					highlightSquares(passCondition, xOfNewDest, yOfNewDest, upOrDown, attackConstraint, opponentNo);
+					highlightSquares(passCondition, xOfNewDest, yOfNewDest, upOrDown, attackConstraint, opponentNo, playerNo);
 					// If xEnemyAxis.size() returns 0 then, we can hand over the player's turn
 					
 					// If a capture was made we check if there are neighbouring enemies at our new location...
@@ -1297,7 +1454,7 @@ class PlayerMoves implements View.OnClickListener
 						System.out.println("A capture was made prior to this move so, we will check if there any potential captures at our new location.");
 						System.out.println("The size arrayOfEnemyCoordinatesX.size() == " + arrayOfEnemyCoordinatesX.size());
 						// ...We check whether the new location is neighbouring an enemy.
-						highlightSquares(passCondition, xOfNewDest, yOfNewDest, upOrDown, attackConstraint, opponentNo);
+						highlightSquares(passCondition, xOfNewDest, yOfNewDest, upOrDown, attackConstraint, opponentNo, playerNo);
 						
 						// If the size of xEnemyAxis.size() == 0, then we can say no new enemies have been found using the 'highlightSquares()' method above.
 						if(xEnemyAxis.size() <= 0)
@@ -1332,6 +1489,17 @@ class PlayerMoves implements View.OnClickListener
 							// ...To the isEnemyAdjacent == true, if statement.
 							// Debug purposes.
 							System.out.println("There is another neighbouring enemy at the new location. So, we don't stop until a move is made.");
+							
+							// Hopefully, this should sort out problem 3... Yup, it sorted problem 3 :)
+							for(int rm = 0;rm<arrayOfPrevCoordinatesX.size();rm++)
+							{
+								// Gets rid of the rest of the highlights for the other pieces that had potential to capture enemy pieces.
+								// It works the way I hoped it to.
+								removeHighlights(arrayOfPrevCoordinatesX.get(rm), arrayOfPrevCoordinatesY.get(rm));
+							}
+							//...Well, hopefully.
+							
+							
 							// Clear the master ArrayLists
 							arrayOfPrevCoordinatesX.clear();
 							arrayOfPrevCoordinatesY.clear();

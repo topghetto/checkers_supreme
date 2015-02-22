@@ -14,17 +14,22 @@ public final class R {
         public static final int checkers_board=0x7f020000;
         public static final int dark_brown_piece=0x7f020001;
         public static final int ic_launcher=0x7f020002;
-        public static final int light_brown_piece=0x7f020003;
+        public static final int king_dark_brown_piece=0x7f020003;
+        public static final int king_light_brown_piece=0x7f020004;
+        public static final int light_brown_piece=0x7f020005;
     }
     public static final class id {
-        public static final int checkersboard_gridlayout=0x7f050000;
-        public static final int image_square=0x7f050001;
-        public static final int single_player_btn=0x7f050002;
+        public static final int checkersboard_gridlayout=0x7f060000;
+        public static final int image_square=0x7f060001;
+        public static final int single_player_btn=0x7f060002;
     }
     public static final class layout {
         public static final int checkers_game=0x7f030000;
         public static final int gridview_item=0x7f030001;
         public static final int main=0x7f030002;
+    }
+    public static final class menu {
+        public static final int menu_item=0x7f050000;
     }
     public static final class string {
         public static final int app_name=0x7f040000;
