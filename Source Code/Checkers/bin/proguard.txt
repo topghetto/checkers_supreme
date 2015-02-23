@@ -4,3 +4,6 @@
 # view AndroidManifest.xml #generated:8
 -keep class uk.ac.kcl.www.MainActivity { <init>(...); }
 
+# onClick res/layout/main.xml #generated:21
+-keepclassmembers class * { *** startMultiplayer(...); }
+
