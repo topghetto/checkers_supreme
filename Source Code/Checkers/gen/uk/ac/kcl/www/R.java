@@ -19,9 +19,10 @@ public final class R {
         public static final int light_brown_piece=0x7f020005;
     }
     public static final class id {
-        public static final int checkersboard_gridlayout=0x7f060000;
-        public static final int image_square=0x7f060001;
-        public static final int single_player_btn=0x7f060002;
+        public static final int checkersboard_gridlayout=0x7f060001;
+        public static final int image_square=0x7f060002;
+        public static final int playerInfo=0x7f060000;
+        public static final int single_player_btn=0x7f060003;
     }
     public static final class layout {
         public static final int checkers_game=0x7f030000;

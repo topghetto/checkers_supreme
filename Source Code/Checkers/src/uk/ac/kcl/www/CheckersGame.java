@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.Adapter;
 import android.widget.Toast;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import android.view.ViewGroup.*;
 import android.view.Gravity;
@@ -43,6 +44,7 @@ public class CheckersGame extends Activity{
   // Handles all the events.
 	public PlayerMoves playerEvents;
 	
+	public TextView playerInfo;
 	
 	
 	@Override
@@ -58,8 +60,10 @@ public class CheckersGame extends Activity{
 		squaresOfBoard = new View[8][8];
 		// This will keep track of the entire board
 		strCheckersBoard = new String[8][8];
+		// This will state whose turn it is to make a move.
+		playerInfo = (TextView) findViewById(R.id.playerInfo);
 		// Create instiate the event class
-		playerEvents = new PlayerMoves(imageOfSquares, imageOfSquares, strCheckersBoard);
+		playerEvents = new PlayerMoves(imageOfSquares, imageOfSquares, strCheckersBoard, playerInfo);
 		
 		// ---- Initially Populates the Checkersboard and Adds the Events to the Squares ---- \\ 
 		// For each row of the checkersboard...
@@ -186,9 +190,13 @@ class PlayerMoves implements View.OnClickListener
 	public View[][] squaresOfBoard;
 	public ImageView[][] imageOfSquares;
 	public String[][] strCheckersBoard;
+	// Player information.
+	public TextView playerInfo;
 	
 	// Keeps track of the selected square.
 	public int sizeOfPrev;
+	// Keeps track of the number of pieces left for each player.
+	int noOfPiecesPlayerOne, noOfPiecesPlayerTwo;
 	// This is a test.
 	public ArrayList<ArrayList<Integer>> arrayOfPrevCoordinatesX;
 	public ArrayList<ArrayList<Integer>> arrayOfPrevCoordinatesY;
@@ -204,7 +212,7 @@ class PlayerMoves implements View.OnClickListener
 	public int highlightParentX, highlightParentY, xOfNewDest, yOfNewDest, erm;
 	
 	// Constructor
-	public PlayerMoves(View[][] passSquares, ImageView[][] passImgSquares, String[][] passCheckersBoard)
+	public PlayerMoves(View[][] passSquares, ImageView[][] passImgSquares, String[][] passCheckersBoard, TextView passTextView)
 	{
 		// The first turn goes to player two.
 		// After each turn a player makes, a boolean variable will determine when it is the others players turn.
@@ -231,6 +239,16 @@ class PlayerMoves implements View.OnClickListener
 		arrayOfPrevCoordinatesY = new ArrayList<ArrayList<Integer>>();
 		arrayOfEnemyCoordinatesX = new ArrayList<ArrayList<Integer>>();
 		arrayOfEnemyCoordinatesY = new ArrayList<ArrayList<Integer>>();
+		
+		// Another test... Aha.
+		playerInfo = passTextView;
+		
+		// Display the player's turn. REMEMBER TO CHANGE THIS PARTICULAR SECTION WHEN I AUTOMATICALLY MAKE THE CODE DECIDE WHO GOES FIRST!!!
+		playerInfo.setText("Player " + 2 + "'s \n Turn.");
+		// Keeps track of the number of pieces.
+		noOfPiecesPlayerOne = 12;
+		noOfPiecesPlayerTwo = 12;
+		
 	}
 	// I declared this method as synchronised hoping the code runs one at a time otherwise,if I clicked ib two buttons at the same time, I have a hunch
 	// that it may cause a series of problems.
@@ -248,25 +266,32 @@ class PlayerMoves implements View.OnClickListener
 					if(playerOneTurn == true)
 					{
 						System.out.println("Player One's Turn.");
-						/*
-						for(int i = 0; i < arrayOfPrevCoordinatesX.size(); i++)
+						// If there are no more pieces for player one...
+						if(noOfPiecesPlayerOne <= 0)
 						{
-							// Now, we add the highlights to the right squares. Though, the 'addHighlight' needs some modifcations.
-							// For each ArrayList i, we grab the the x/yPrevAxis ArrayList, and then access the x/yPrevAxis (i.e. iteration j);								
-							ArrayList<Integer> addX = arrayOfPrevCoordinatesX.get(i);
-							ArrayList<Integer> addY = arrayOfPrevCoordinatesY.get(i);
-							// Adds the highlight for each square that has neighbouring enemy pieces. I can guarantee they would be no more than 3
-							// different squares where it is adjacent to an enemy piece.
-							addHighlight(addX, addY);								
-						}*/
-						// We move our pieces as normal.
-						playerTurn("1", v, x >= 1 && x <= 7, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, false, x >= 2, "2");		// Nice, it works.
+							// End the game.
+							playerInfo.setText("Game Over!\nPlayer " + 2 + ", Wins!");
+						}
+						else
+						{
+							// We move our pieces as normal.
+							playerTurn("1", v, x >= 1 && x <= 7, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, false, x >= 2, "2", noOfPiecesPlayerTwo);		// Nice, it works.
+						}
 					}
 					else
 					{
-						System.out.println("Player Two's Turn.");
-						// If it is Player two's turn...
-						playerTurn("2", v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1");	// Nice, it works.		
+						// If there are no more pieces for player two...
+						if(noOfPiecesPlayerTwo <= 0)
+						{
+							// End the game.
+							playerInfo.setText("Game Over!\nPlayer " + 1 + ", Wins!");
+						}
+						else
+						{
+							System.out.println("Player Two's Turn.");
+							// If it is Player two's turn...
+							playerTurn("2", v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1", noOfPiecesPlayerOne);	// Nice, it works.		
+						}
 					}
 					
 					// Used to hold the value of whether the squares are highlighted or not.
@@ -754,7 +779,8 @@ class PlayerMoves implements View.OnClickListener
 		return isHighlighted;		
 	}
 	public void movePiece(int passX, int passY, int upOrDown, ArrayList<Integer> passListOfRows, ArrayList<Integer> passListOfColumns,
-												ArrayList<Integer> passEnemyX, ArrayList<Integer> passEnemyY, String strDest, String opponentNo, int destImg, int passImgOfKing)
+												ArrayList<Integer> passEnemyX, ArrayList<Integer> passEnemyY, String strDest, String opponentNo, int destImg,
+												int passImgOfKing)
 	{
 		// Another test.
 		xOfNewDest = 0;
@@ -840,6 +866,9 @@ class PlayerMoves implements View.OnClickListener
 							imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
+							// Will decrease the number of pieces the opponent has by 1.
+							if(strDest.contains("1")){noOfPiecesPlayerTwo--;}else{noOfPiecesPlayerOne--;}
+							
 						}
 						else if(checkBelow == enemyCoordinateX && (prevY-1) == enemyCoordinateY)
 						{
@@ -852,6 +881,8 @@ class PlayerMoves implements View.OnClickListener
 							imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
+							// Will decrease the number of pieces the opponent has by 1.
+							if(strDest.contains("1")){noOfPiecesPlayerTwo--;}else{noOfPiecesPlayerOne--;}
 						}
 						else if(checkAbove == enemyCoordinateX && (prevY+1) == enemyCoordinateY)
 						{
@@ -864,6 +895,8 @@ class PlayerMoves implements View.OnClickListener
 							imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
+							// Will decrease the number of pieces the opponent has by 1.
+							if(strDest.contains("1")){noOfPiecesPlayerTwo--;}else{noOfPiecesPlayerOne--;}
 						}
 						else if(checkAbove == enemyCoordinateX && (prevY-1) == enemyCoordinateY)
 						{
@@ -876,6 +909,8 @@ class PlayerMoves implements View.OnClickListener
 							imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
+							// Will decrease the number of pieces the opponent has by 1.
+							if(strDest.contains("1")){noOfPiecesPlayerTwo--;}else{noOfPiecesPlayerOne--;}
 						}
 						
 					}
@@ -1015,7 +1050,7 @@ class PlayerMoves implements View.OnClickListener
 	
 	// -----------------THIS IS A TEST, IF ALL FAILS, WE DELETE THIS CODE AND UNCOMMENT THE CODE BELOW ----------------- \\
 	
-	public void playerTurn(String playerNo, View v, boolean passCondition, int passX, int passY, int upOrDown, int passImgId, int passImgOfKing, boolean playerTurn, boolean attackConstraint, String opponentNo)
+	public void playerTurn(String playerNo, View v, boolean passCondition, int passX, int passY, int upOrDown, int passImgId, int passImgOfKing, boolean playerTurn, boolean attackConstraint, String opponentNo, int passNoOfPieces)
 	{
 
 		// I can try write the sample code here. At least I will have all the variables ready to be used. :)		
@@ -1137,7 +1172,7 @@ class PlayerMoves implements View.OnClickListener
 			// Debug purposes.
 			System.out.println("if(isEnemyAdjacent == true) just ran so, a capture needs to be performed.");
 			// This will determine what type of move (standard or a capture) it should make, and also make the move.
-			performMoveAndCheckAdjacent(passX, passY, attackConstraint, passCondition, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing, playerTurn);
+			performMoveAndCheckAdjacent(passX, passY, attackConstraint, passCondition, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing, playerTurn, passNoOfPieces);
 			
 		}else
 		{
@@ -1182,7 +1217,7 @@ class PlayerMoves implements View.OnClickListener
 				// Debug purposes.
 				System.out.println("else if(strCheckersBoard[x][y] == 0 && isHighlighted == true) just ran but, failed miserably.");
 				// This will determine what type of move (standard or a capture) it should make, and also make the move.
-				performMoveAndCheckAdjacent(passX, passY, attackConstraint, passCondition, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing, playerTurn);
+				performMoveAndCheckAdjacent(passX, passY, attackConstraint, passCondition, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing, playerTurn, passNoOfPieces);
 			}
 		}
 		
@@ -1401,7 +1436,7 @@ class PlayerMoves implements View.OnClickListener
 		}*/	
 	}
 	
-	public void performMoveAndCheckAdjacent(int passX, int passY, boolean attackConstraint, boolean passCondition, int upOrDown, String playerNo, String opponentNo, int passImgId, int passImgOfKing, boolean playerTurn)
+	public void performMoveAndCheckAdjacent(int passX, int passY, boolean attackConstraint, boolean passCondition, int upOrDown, String playerNo, String opponentNo, int passImgId, int passImgOfKing, boolean playerTurn, int passNoOfPieces)
 	{
 			// Debug purposes.
 			System.out.println("arrayOfPrevCoordinatesX.size() > 0 if statement just ran. (using our new function)");
@@ -1482,6 +1517,8 @@ class PlayerMoves implements View.OnClickListener
 							playerOneTurn = playerTurn;
 							// Since there are no adjacent enemies, we make it false.
 							isEnemyAdjacent = false;
+							// Display the player's turn.
+							playerInfo.setText("Player " + opponentNo + "'s Turn");
 						}
 						else
 						{
@@ -1536,6 +1573,8 @@ class PlayerMoves implements View.OnClickListener
 						// Erm, I am so lost.
 						isEnemyAdjacent = false;
 						// I think I would need to remove the highlights too.
+						// Display the player's turn.
+						playerInfo.setText("Player " + opponentNo + "'s Turn");
 					}
 									
 				}else
