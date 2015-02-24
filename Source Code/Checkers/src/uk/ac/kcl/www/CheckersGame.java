@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import android.util.Log;
 
 import android.app.Activity;
+import android.app.ActionBar;
+
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -64,6 +66,12 @@ public class CheckersGame extends Activity{
 		playerInfo = (TextView) findViewById(R.id.playerInfo);
 		// Create instiate the event class
 		playerEvents = new PlayerMoves(imageOfSquares, imageOfSquares, strCheckersBoard, playerInfo);
+		
+		// Grabs the ActionBar.
+		ActionBar actionBar = getActionBar();
+		// Hides the ActionBar.
+		actionBar.hide();
+
 		
 		// ---- Initially Populates the Checkersboard and Adds the Events to the Squares ---- \\ 
 		// For each row of the checkersboard...

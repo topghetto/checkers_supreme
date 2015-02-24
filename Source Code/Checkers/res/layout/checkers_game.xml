@@ -43,8 +43,8 @@
 	
 	<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
 		android:id="@+id/checkersboard_gridlayout"
-		android:layout_width="341.22dp"
-		android:layout_height="312.18dp"
+		android:layout_width="344.66666667dp"
+		android:layout_height="315.33333333dp"
 		android:layout_centerInParent="true"
 		android:rowCount="8"
 		android:columnCount="8"
