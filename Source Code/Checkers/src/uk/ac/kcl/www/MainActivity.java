@@ -7,6 +7,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.content.Intent;
 
+// Delete this later on.
+import android.view.MenuInflater;
+import android.view.Menu;
+
 
 public class MainActivity extends Activity
 {
@@ -24,5 +28,13 @@ public class MainActivity extends Activity
 				Intent intent = new Intent(this, CheckersGame.class);
 				// Load the Multiplayer Activity.
 				startActivity(intent);
+		}
+		// Just a test and shizz.
+		@Override
+		public boolean onCreateOptionsMenu(Menu menu) {
+				// Inflate the menu items for use in the action bar
+				MenuInflater inflater = getMenuInflater();
+				inflater.inflate(R.menu.menu_item, menu);
+				return super.onCreateOptionsMenu(menu);
 		}
 }
