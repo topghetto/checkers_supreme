@@ -137,6 +137,21 @@ public class MultiplayerEvents implements View.OnClickListener
 		}		
 	}	
 	}// End of 'onClick'
+	public void addCoordinatesToLists(int passX, int passY, int upOrDown, int leftOrRight)
+	{
+				int x = passX, y = passY;
+				
+				// Stores the coordinates of parent for later use and makes sure these values are the first element in their ArrayLists ;)
+				xPrevAxis.add(0, new Integer(x));
+				yPrevAxis.add(0, new Integer(y));
+				// Coordinates of the enemy square. 
+				xEnemyAxis.add(x+upOrDown);
+				yEnemyAxis.add(y+(leftOrRight));
+				// Coordinates of the empty square neighbouring the enemy piece.
+				xPrevAxis.add(x+(upOrDown+upOrDown));
+				yPrevAxis.add(y+(leftOrRight+leftOrRight));
+	}
+	
 	public void prepareHighlight(boolean firstCondition, boolean secondCondition, int passX, int passY, int upOrDown, int leftOrRight)
 	{
 		// This a method that will handle any number of neighbouring squares that need to be highlighted, or
@@ -154,7 +169,7 @@ public class MultiplayerEvents implements View.OnClickListener
 				// Clear the x/yPrevAxis ArrayList i.e. gets rid of the previous highlights.
 				xPrevAxis = new ArrayList<Integer>();
 				yPrevAxis = new ArrayList<Integer>();
-				// Stores the coordinates of parent for later use and makes sure these values are the first element in their ArrayLists ;)
+				/*// Stores the coordinates of parent for later use and makes sure these values are the first element in their ArrayLists ;)
 				xPrevAxis.add(0, new Integer(x));
 				yPrevAxis.add(0, new Integer(y));
 				// Coordinates of the enemy square. 
@@ -162,9 +177,10 @@ public class MultiplayerEvents implements View.OnClickListener
 				yEnemyAxis.add(y+(leftOrRight));
 				// Coordinates of the empty square neighbouring the enemy piece.
 				xPrevAxis.add(x+(upOrDown+upOrDown));
-				yPrevAxis.add(y+(leftOrRight+leftOrRight));
-				// Experiment.
-				//isAdjacentToEnemy = true;
+				yPrevAxis.add(y+(leftOrRight+leftOrRight));*/
+				
+				// Experiment - DELELTE IF NECESSARY AND ENABLE CODE ABOVE!!
+				addCoordinatesToLists(x, y, upOrDown, leftOrRight);
 			}
 			else
 			{
@@ -172,7 +188,8 @@ public class MultiplayerEvents implements View.OnClickListener
 				// Remove duplicate parent root.
 				xPrevAxis.remove(new Integer(x));
 				yPrevAxis.remove(new Integer(y));
-				// Stores the coordinates of parent for later use and makes sure these values are the first element in their ArrayLists ;)
+				
+				/*// Stores the coordinates of parent for later use and makes sure these values are the first element in their ArrayLists ;)
 				xPrevAxis.add(0, new Integer(x));
 				yPrevAxis.add(0, new Integer(y));
 				// Coordinates of the enemy square. 
@@ -180,7 +197,10 @@ public class MultiplayerEvents implements View.OnClickListener
 				yEnemyAxis.add(y+(leftOrRight));
 				// Coordinates of the empty square neighbouring the enemy piece.
 				xPrevAxis.add(x+(upOrDown+upOrDown));
-				yPrevAxis.add(y+(leftOrRight+leftOrRight));	
+				yPrevAxis.add(y+(leftOrRight+leftOrRight));*/
+				
+				// Experiment - DELELTE IF NECESSARY AND ENABLE CODE ABOVE!!
+				addCoordinatesToLists(x, y, upOrDown, leftOrRight);
 			}
 			// Debug purposes.
 			System.out.println("First entire 'if' statment went through");
@@ -574,8 +594,22 @@ public class MultiplayerEvents implements View.OnClickListener
 		}							
 	}
 	
-	// -----------------THIS IS A TEST, IF ALL FAILS, WE DELETE THIS CODE AND UNCOMMENT THE CODE BELOW ----------------- \\
-	
+	public void addToMasterLists(ArrayList<Integer> passPrevX, ArrayList<Integer> passPrevY, ArrayList<Integer> passEnemyX, ArrayList<Integer> passEnemyY)
+	{
+				// We apply the highligh// Add the ArrayLists to the master ArrayList... Aha.
+				arrayOfPrevCoordinatesX.add(passPrevX);
+				arrayOfPrevCoordinatesY.add(passPrevY);
+				arrayOfEnemyCoordinatesX.add(passEnemyX);
+				arrayOfEnemyCoordinatesY.add(passEnemyY);
+	}
+	public void clearMasterLists()
+	{
+				// This will clear the ArrayLists that holds the ArrayLists :)
+				arrayOfPrevCoordinatesX.clear();
+				arrayOfPrevCoordinatesY.clear();
+				arrayOfEnemyCoordinatesX.clear();
+				arrayOfEnemyCoordinatesY.clear();
+	}
 	public void playerTurn(String playerNo, View v, boolean passCondition, int passX, int passY, int upOrDown, int passImgId, int passImgOfKing, boolean playerTurn, boolean attackConstraint, String opponentNo, int passNoOfPieces)
 	{	
 		// The coordinates of the currently selected square.
@@ -626,10 +660,14 @@ public class MultiplayerEvents implements View.OnClickListener
 							// There is an adjacent enemy.
 							isEnemyAdjacent = true;
 							// We apply the highligh// Add the ArrayLists to the master ArrayList... Aha.
-							arrayOfPrevCoordinatesX.add(xPrevAxis);
+							/*arrayOfPrevCoordinatesX.add(xPrevAxis);
 							arrayOfPrevCoordinatesY.add(yPrevAxis);
 							arrayOfEnemyCoordinatesX.add(xEnemyAxis);
-							arrayOfEnemyCoordinatesY.add(yEnemyAxis);
+							arrayOfEnemyCoordinatesY.add(yEnemyAxis);*/
+							
+							// THIS IS A TEST - This should add the ArrayLists to the master ArrayLists - ENABLE ABOVE CODE IF THIS DOESN'T WORK.
+							addToMasterLists(xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis);
+							
 							// Debug purposes.
 							// System.out.println("row=" + row + ", column=" + column + " is neighbouring an enemy.");
 							// Then clear the standard ArrayLists and repeat.
@@ -711,10 +749,14 @@ public class MultiplayerEvents implements View.OnClickListener
 				clearHelperArrays(); 
 				// Now, if the newly selected square has checkers piece which belongs to playerX, then highlight it, and its neighbouring squares.
 				// I forgot to clear the master ArrayLists too... Which, I will do now.
-				arrayOfPrevCoordinatesX.clear();
+				/*arrayOfPrevCoordinatesX.clear();
 				arrayOfPrevCoordinatesY.clear();
 				arrayOfEnemyCoordinatesX.clear();
-				arrayOfEnemyCoordinatesY.clear();
+				arrayOfEnemyCoordinatesY.clear();*/
+				
+				// THIS IS A TEST - This should clear the master ArrayLists - ENABLE ABOVE CODE IF THIS DOESN'T WORK.
+				clearMasterLists();
+				
 				// Debug purposes.
 				// System.out.println("and the selected square does contain the player's checkers piece, then we highlight it and its neighbours.");
 				// Add new highlights for the newly selected square.
@@ -808,10 +850,14 @@ public class MultiplayerEvents implements View.OnClickListener
 							}
 							
 							// clear the master ArrayLists.
-							arrayOfPrevCoordinatesX.clear();
+							/*arrayOfPrevCoordinatesX.clear();
 							arrayOfPrevCoordinatesY.clear();
 							arrayOfEnemyCoordinatesX.clear();
-							arrayOfEnemyCoordinatesY.clear();
+							arrayOfEnemyCoordinatesY.clear();*/
+							
+							// THIS IS A TEST - This should clear the master ArrayLists - ENABLE ABOVE CODE IF THIS DOESN'T WORK.
+				      clearMasterLists();
+							
 							// I have just realised that I have not cleared xPrevAxis and yPrevAis ArrayList so, I'll do that now.
 							clearHelperArrays();
 							// Handover the turn to opponent.
@@ -838,15 +884,23 @@ public class MultiplayerEvents implements View.OnClickListener
 							//...Well, hopefully.
 											
 							// Clear the master ArrayLists
-							arrayOfPrevCoordinatesX.clear();
+							/*arrayOfPrevCoordinatesX.clear();
 							arrayOfPrevCoordinatesY.clear();
 							arrayOfEnemyCoordinatesX.clear();
-							arrayOfEnemyCoordinatesY.clear();
+							arrayOfEnemyCoordinatesY.clear();*/
+							
+							// THIS IS A TEST - This should clear the master ArrayLists - ENABLE ABOVE CODE IF THIS DOESN'T WORK.
+				      clearMasterLists();
+							
 							// Add the ArrayLists to the master ArrayList... Aha.
-							arrayOfPrevCoordinatesX.add(xPrevAxis);
+							/*arrayOfPrevCoordinatesX.add(xPrevAxis);
 							arrayOfPrevCoordinatesY.add(yPrevAxis);
 							arrayOfEnemyCoordinatesX.add(xEnemyAxis);
-							arrayOfEnemyCoordinatesY.add(yEnemyAxis);
+							arrayOfEnemyCoordinatesY.add(yEnemyAxis);*/
+							
+							// THIS IS A TEST - This should add the ArrayLists to the master ArrayLists - ENABLE ABOVE CODE IF THIS DOESN'T WORK.
+							addToMasterLists(xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis);
+							
 							// We apply the highlights to the eligable squares...
 							addHighlight(arrayOfPrevCoordinatesX.get(0), arrayOfPrevCoordinatesY.get(0));
 							// Clear the standard ArrayLists.
@@ -862,10 +916,14 @@ public class MultiplayerEvents implements View.OnClickListener
 						System.out.println("This is just a standard move.");
 						// If it is just a standard move, we clear all the ArrayLists and handover our turn to the opponent.
 						// clear 'arrayOfPrev... arrays... I might not need to clear this.
-						arrayOfPrevCoordinatesX.clear();
+						/*arrayOfPrevCoordinatesX.clear();
 						arrayOfPrevCoordinatesY.clear();
 						arrayOfEnemyCoordinatesX.clear();
-						arrayOfEnemyCoordinatesY.clear();
+						arrayOfEnemyCoordinatesY.clear();*/
+						
+						// THIS IS A TEST - This should clear the master ArrayLists - ENABLE ABOVE CODE IF THIS DOESN'T WORK.
+				    clearMasterLists();
+						
 						// Clear the standard ArrayLists.
 						clearHelperArrays();
 						// Handover the turn to opponent.
