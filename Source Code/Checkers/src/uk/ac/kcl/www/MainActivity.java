@@ -22,6 +22,13 @@ public class MainActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);							
     }
+		public void startSinglePlayer(View view)
+		{
+				// Prepares the Intent for the Single player Activity.
+				Intent intent = new Intent(this, SinglePlayerGame.class);
+				// Load the SinglePlayer Activity.
+				startActivity(intent);
+		}
 		public void startMultiplayer(View view)
 		{
 				// Prepares the Intent for the Multiplayer Activity.

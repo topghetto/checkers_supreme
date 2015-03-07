@@ -23,14 +23,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="CheckersGame"
+        <activity android:name="SinglePlayerGame"
                   android:label="@string/str_single_player"
                   android:parentActivityName="uk.ac.kcl.www.MainActivity"
                   android:screenOrientation="landscape"
                   android:configChanges="keyboardHidden|orientation|screenSize">
            <!-- I don't need an intent-filter tag for reasons explained on a screenshot placed on my desktop.
-           Well, this application will not be opening any other installed applications so, there is no need for it -->
-            
+           Well, this application will not be opening any other installed applications so, there is no need for it -->     
+        </activity>
+        <activity android:name="CheckersGame"
+                  android:label="@string/str_multiplayer"
+                  android:parentActivityName="uk.ac.kcl.www.MainActivity"
+                  android:screenOrientation="landscape"
+                  android:configChanges="keyboardHidden|orientation|screenSize">
+           <!-- I don't need an intent-filter tag for reasons explained on a screenshot placed on my desktop.
+           Well, this application will not be opening any other installed applications so, there is no need for it -->     
         </activity>
     </application>
 </manifest>

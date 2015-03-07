@@ -22,7 +22,7 @@ import android.view.LayoutInflater;
 
 import 	android.graphics.drawable.ColorDrawable;
 
-public class MultiplayerEvents implements View.OnClickListener
+public class SinglePlayerEvents implements View.OnClickListener
 {
 	// Member Variables
 	public int row, column;
@@ -51,7 +51,7 @@ public class MultiplayerEvents implements View.OnClickListener
 	public int highlightParentX, highlightParentY, xOfNewDest, yOfNewDest, erm;
 	
 	// Constructor
-	public MultiplayerEvents(View[][] passSquares, ImageView[][] passImgSquares, String[][] passCheckersBoard, TextView passTextView)
+	public SinglePlayerEvents(View[][] passSquares, ImageView[][] passImgSquares, String[][] passCheckersBoard, TextView passTextView)
 	{
 		// The first turn goes to player two.
 		// After each turn a player makes, a boolean variable will determine when it is the others players turn.
@@ -118,7 +118,7 @@ public class MultiplayerEvents implements View.OnClickListener
 							playerTurn("1", v, x >= 1 && x <= 7, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, false, x >= 2, "2", noOfPiecesPlayerTwo);		// Nice, it works.
 						}
 					}
-					else
+					else	// playerTwo's turn...
 					{
 						// If there are no more pieces for player two...
 						if(noOfPiecesPlayerTwo <= 0)

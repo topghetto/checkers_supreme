@@ -21,3 +21,5 @@
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/classes/uk/ac/kcl/www/R$menu.class \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/classes/uk/ac/kcl/www/R$string.class \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/classes/uk/ac/kcl/www/R.class \
+/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/classes/uk/ac/kcl/www/SinglePlayerEvents.class \
+/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/classes/uk/ac/kcl/www/SinglePlayerGame.class \
