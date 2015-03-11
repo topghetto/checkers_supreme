@@ -46,7 +46,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 	// Keeps track of the neighbouring enemies to the highlight checkers piece.
 	public ArrayList<Integer> xEnemyAxis, yEnemyAxis;
 	
-	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent;
+	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent, isNewKing;
 	
 	public int highlightParentX, highlightParentY, xOfNewDest, yOfNewDest, erm;
 	
@@ -59,6 +59,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 		// become playerOne = false, and playerTwo = true, and this will keep switching back-and-forth. I just realised,
 		// the computer will never ever be able to click this, lol.
 		playerOneTurn = true;
+		isNewKing = false;
 		
 		strCheckersBoard = passCheckersBoard;
 		squaresOfBoard = passSquares;
@@ -103,40 +104,36 @@ public class SinglePlayerEvents implements View.OnClickListener
 				// Firstly, we must find the row/column value of the square that initiated the event.
 				if(squaresOfBoard[x][y].equals(v))
 				{		
-					if(playerOneTurn == true)
-					{
-						System.out.println("Player One's Turn.");
-						// If there are no more pieces for player one...
-						if(noOfPiecesPlayerOne <= 0)
-						{
-							// End the game.
-							playerInfo.setText("Game Over!\nPlayer " + 2 + ", Wins!");
-						}
-						else
+						// --------
+						if(playerOneTurn == true)
 						{
 							// We move our pieces as normal.
 							playerTurn("1", v, x >= 1 && x <= 7, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, false, x >= 2, "2", noOfPiecesPlayerTwo);		// Nice, it works.
 						}
-					}
-					else	// playerTwo's turn...
-					{
-						// If there are no more pieces for player two...
-						if(noOfPiecesPlayerTwo <= 0)
-						{
-							// End the game.
-							playerInfo.setText("Game Over!\nPlayer " + 1 + ", Wins!");
-						}
 						else
 						{
-							System.out.println("Player Two's Turn.");
-							// If it is Player two's turn...
+							// We move our pieces as normal.
 							playerTurn("2", v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1", noOfPiecesPlayerOne);	// Nice, it works.		
 						}
-					}
-			}// if(squaresOfBoard[x][y].equals(v))	
+				}// if(squaresOfBoard[x][y].equals(v))
 		}		
 	}	
 	}// End of 'onClick'
+	public void addCoordinatesToLists(int passX, int passY, int upOrDown, int leftOrRight)
+	{
+				// Store in the variables passed in.
+				int x = passX, y = passY;
+				
+				// Stores the coordinates of parent for later use and makes sure these values are the first element in their ArrayLists ;)
+				xPrevAxis.add(0, new Integer(x));
+				yPrevAxis.add(0, new Integer(y));
+				// Coordinates of the enemy square. 
+				xEnemyAxis.add(x+upOrDown);
+				yEnemyAxis.add(y+(leftOrRight));
+				// Coordinates of the empty square neighbouring the enemy piece.
+				xPrevAxis.add(x+(upOrDown+upOrDown));
+				yPrevAxis.add(y+(leftOrRight+leftOrRight));
+	}
 	public void prepareHighlight(boolean firstCondition, boolean secondCondition, int passX, int passY, int upOrDown, int leftOrRight)
 	{
 		// This a method that will handle any number of neighbouring squares that need to be highlighted, or
@@ -154,17 +151,8 @@ public class SinglePlayerEvents implements View.OnClickListener
 				// Clear the x/yPrevAxis ArrayList i.e. gets rid of the previous highlights.
 				xPrevAxis = new ArrayList<Integer>();
 				yPrevAxis = new ArrayList<Integer>();
-				// Stores the coordinates of parent for later use and makes sure these values are the first element in their ArrayLists ;)
-				xPrevAxis.add(0, new Integer(x));
-				yPrevAxis.add(0, new Integer(y));
-				// Coordinates of the enemy square. 
-				xEnemyAxis.add(x+upOrDown);
-				yEnemyAxis.add(y+(leftOrRight));
-				// Coordinates of the empty square neighbouring the enemy piece.
-				xPrevAxis.add(x+(upOrDown+upOrDown));
-				yPrevAxis.add(y+(leftOrRight+leftOrRight));
-				// Experiment.
-				//isAdjacentToEnemy = true;
+				// Experiment - Adds the coordinates to the correct ArrayLists.
+				addCoordinatesToLists(x, y, upOrDown, leftOrRight);
 			}
 			else
 			{
@@ -172,15 +160,8 @@ public class SinglePlayerEvents implements View.OnClickListener
 				// Remove duplicate parent root.
 				xPrevAxis.remove(new Integer(x));
 				yPrevAxis.remove(new Integer(y));
-				// Stores the coordinates of parent for later use and makes sure these values are the first element in their ArrayLists ;)
-				xPrevAxis.add(0, new Integer(x));
-				yPrevAxis.add(0, new Integer(y));
-				// Coordinates of the enemy square. 
-				xEnemyAxis.add(x+upOrDown);
-				yEnemyAxis.add(y+(leftOrRight));
-				// Coordinates of the empty square neighbouring the enemy piece.
-				xPrevAxis.add(x+(upOrDown+upOrDown));
-				yPrevAxis.add(y+(leftOrRight+leftOrRight));	
+				// Experiment - DELELTE IF NECESSARY AND ENABLE CODE ABOVE!!
+				addCoordinatesToLists(x, y, upOrDown, leftOrRight);
 			}
 			// Debug purposes.
 			System.out.println("First entire 'if' statment went through");
@@ -449,7 +430,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
-							if(strDest.contains("1")){noOfPiecesPlayerTwo--;}else{noOfPiecesPlayerOne--;}
+							if(strDest.contains("1")){--noOfPiecesPlayerTwo;}else if(strDest.contains("2")){--noOfPiecesPlayerOne;}
 							
 						}
 						else if(checkBelow == enemyCoordinateX && (prevY-1) == enemyCoordinateY)
@@ -465,7 +446,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
-							if(strDest.contains("1")){noOfPiecesPlayerTwo--;}else{noOfPiecesPlayerOne--;}
+							if(strDest.contains("1")){--noOfPiecesPlayerTwo;}else if(strDest.contains("2")){--noOfPiecesPlayerOne;}
 						}
 						else if(checkAbove == enemyCoordinateX && (prevY+1) == enemyCoordinateY)
 						{
@@ -480,7 +461,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
-							if(strDest.contains("1")){noOfPiecesPlayerTwo--;}else{noOfPiecesPlayerOne--;}
+							if(strDest.contains("1")){--noOfPiecesPlayerTwo;}else if(strDest.contains("2")){--noOfPiecesPlayerOne;}
 						}
 						else if(checkAbove == enemyCoordinateX && (prevY-1) == enemyCoordinateY)
 						{
@@ -495,7 +476,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
-							if(strDest.contains("1")){noOfPiecesPlayerTwo--;}else{noOfPiecesPlayerOne--;}
+							if(strDest.contains("1")){--noOfPiecesPlayerTwo;}else if(strDest.contains("2")){--noOfPiecesPlayerOne;}
 						}					
 					}
 				}
@@ -511,6 +492,8 @@ public class SinglePlayerEvents implements View.OnClickListener
 					// System.out.println("strSource does equal player one and let's output strKing=" + strKing);
 					// Now, the piece will now become a king at the new location.
 					strCheckersBoard[parentPrevX][parentPrevY] = strKing;
+					// This stops a new king from making a consecutive attack upon transformation.
+					isNewKing = true;
 					
 				}else if(x == 7 && strCheckersBoard[parentPrevX][parentPrevY] == "2")
 				{
@@ -519,6 +502,13 @@ public class SinglePlayerEvents implements View.OnClickListener
 					// If a piece of player two reaches the last row, transform the piece into a king.
 					// Now, the piece will now become a king at the new location.
 					strCheckersBoard[parentPrevX][parentPrevY] = strKing;
+					// This stops a new king from making a consecutive attack upon transformation.
+					isNewKing = true;
+				}
+				else
+				{
+						// This stops a new king from making a consecutive attack upon transformation.
+						isNewKing = false;
 				}
 				
 				// If the piece that we wish to move/perform capture is a king then...
@@ -573,9 +563,6 @@ public class SinglePlayerEvents implements View.OnClickListener
 			}
 		}							
 	}
-	
-	// -----------------THIS IS A TEST, IF ALL FAILS, WE DELETE THIS CODE AND UNCOMMENT THE CODE BELOW ----------------- \\
-	
 	public void playerTurn(String playerNo, View v, boolean passCondition, int passX, int passY, int upOrDown, int passImgId, int passImgOfKing, boolean playerTurn, boolean attackConstraint, String opponentNo, int passNoOfPieces)
 	{	
 		// The coordinates of the currently selected square.
@@ -585,6 +572,12 @@ public class SinglePlayerEvents implements View.OnClickListener
 		// Holds the value on how many times the program it saw a piece of 'playerNo'
 		int noOfTimes = 0;
 				
+		
+		/*if(isGameOver == true)
+		{
+				
+		}*/
+		
 		//if(true)
 		// This works as a better condition because if(true) might as well not be a condition at all.
 		// Since, true will always be true. Now, consecutive attacks work with our new condition.
@@ -625,11 +618,10 @@ public class SinglePlayerEvents implements View.OnClickListener
 						{
 							// There is an adjacent enemy.
 							isEnemyAdjacent = true;
-							// We apply the highligh// Add the ArrayLists to the master ArrayList... Aha.
-							arrayOfPrevCoordinatesX.add(xPrevAxis);
-							arrayOfPrevCoordinatesY.add(yPrevAxis);
-							arrayOfEnemyCoordinatesX.add(xEnemyAxis);
-							arrayOfEnemyCoordinatesY.add(yEnemyAxis);
+							// Add the ArrayLists to the master ArrayList... Aha.
+							// THIS IS A TEST - This should add the ArrayLists to the master ArrayLists
+							addToMasterLists(xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis);
+							
 							// Debug purposes.
 							// System.out.println("row=" + row + ", column=" + column + " is neighbouring an enemy.");
 							// Then clear the standard ArrayLists and repeat.
@@ -708,13 +700,13 @@ public class SinglePlayerEvents implements View.OnClickListener
 					removeHighlights(arrayOfPrevCoordinatesX.get(rm), arrayOfPrevCoordinatesY.get(rm));
 				}
 				
+				// Clear the standard ArrayLists.
 				clearHelperArrays(); 
 				// Now, if the newly selected square has checkers piece which belongs to playerX, then highlight it, and its neighbouring squares.
 				// I forgot to clear the master ArrayLists too... Which, I will do now.
-				arrayOfPrevCoordinatesX.clear();
-				arrayOfPrevCoordinatesY.clear();
-				arrayOfEnemyCoordinatesX.clear();
-				arrayOfEnemyCoordinatesY.clear();
+				// THIS IS A TEST - This should clear the master ArrayLists - ENABLE ABOVE CODE IF THIS DOESN'T WORK.
+				clearMasterLists();
+				
 				// Debug purposes.
 				// System.out.println("and the selected square does contain the player's checkers piece, then we highlight it and its neighbours.");
 				// Add new highlights for the newly selected square.
@@ -739,148 +731,204 @@ public class SinglePlayerEvents implements View.OnClickListener
 			}
 		}	
 	}
+	public void addToMasterLists(ArrayList<Integer> passPrevX, ArrayList<Integer> passPrevY, ArrayList<Integer> passEnemyX, ArrayList<Integer> passEnemyY)
+	{
+				// We apply the highligh// Add the ArrayLists to the master ArrayList... Aha.
+				arrayOfPrevCoordinatesX.add(passPrevX);
+				arrayOfPrevCoordinatesY.add(passPrevY);
+				arrayOfEnemyCoordinatesX.add(passEnemyX);
+				arrayOfEnemyCoordinatesY.add(passEnemyY);
+	}			
+	public void clearMasterLists()
+	{
+				// This will clear the ArrayLists that holds the ArrayLists :)
+				arrayOfPrevCoordinatesX.clear();
+				arrayOfPrevCoordinatesY.clear();
+				arrayOfEnemyCoordinatesX.clear();
+				arrayOfEnemyCoordinatesY.clear();
+	}
+	public void displayTurn(boolean playerOneTurn, String opponentNo)
+	{
+		// This needs major adjustments! I should sort this out, and look into the first few lines of the newly added code for the nest for-loop
+		// at the very top!.
+		// This method will display a TextView that states whether it is the opponent's turn or the winner of the game.
+		// The reason why this did not work as intended because the statement originally was == true, which would be partially correct but,
+		// this method is called after I change the player's turn so, it ends up calling the other if statement... Lol. I will make this better
+		// by putting it back to true, and call this method before I change the value of 'playerOneTurn' to the opponent's turn :)
+		
+		if(playerOneTurn == false)
+		{
+			if(noOfPiecesPlayerTwo <= 0)
+			{
+				// If the opponent has no more pieces then player 1 is the winner.
+				playerInfo.setText("Game Over!\nPlayer 1 is\n the Winner!");
+				
+			}
+			else
+			{
+				// Display the player's turn.
+				playerInfo.setText("Player " + opponentNo + "'s Turn");
+				// Debug.
+				System.out.println("The no of pieces left for Player 2 is " + noOfPiecesPlayerTwo);
+			}				
+		}
+		else
+		{
+		  // If it is player 2's turn...
+		  if(noOfPiecesPlayerOne <= 0)
+			{
+				// If the opponent has no more pieces then player 1 is the winner.
+				playerInfo.setText("Game Over!\nPlayer 2 is\n the Winner!");	
+			}
+			else
+			{
+				// Display the player's turn.
+				playerInfo.setText("Player " + opponentNo + "'s Turn");
+				// Debug.
+				System.out.println("The no of pieces left for Player 1 is " + noOfPiecesPlayerOne);
+			}							
+		}
+	}
 	public void performMoveAndCheckAdjacent(int passX, int passY, boolean attackConstraint, boolean passCondition, int upOrDown, String playerNo, String opponentNo, int passImgId, int passImgOfKing, boolean playerTurn, int passNoOfPieces)
 	{
-			// Debug purposes.
-			// System.out.println("arrayOfPrevCoordinatesX.size() > 0 if statement just ran. (using our new function)");
-			int x = passX, y = passY;
+		// Debug purposes.
+		// System.out.println("arrayOfPrevCoordinatesX.size() > 0 if statement just ran. (using our new function)");
+		int x = passX, y = passY;
 
-			for(int i = 0 ; i < arrayOfPrevCoordinatesX.size(); i++)
-			{
-				// Debug purposes.
-				// System.out.println("The size of the arrayOfPrevCoordinates is equal to " + arrayOfPrevCoordinatesX.size());
-				
-				// Grab the coordinates of the highlighted squares and the enemy pieces, if there are any enemies. 
-				ArrayList<Integer> autoPrevX = arrayOfPrevCoordinatesX.get(i);
-				ArrayList<Integer> autoPrevY = arrayOfPrevCoordinatesY.get(i);
-				ArrayList<Integer> autoEnemyX;
-				ArrayList<Integer> autoEnemyY;
-				
-				// Using '==' instead of 'greater than' works better. No IndexOutOfBoundExceptions 
-				if(arrayOfEnemyCoordinatesX.size() == arrayOfPrevCoordinatesX.size())
-				{
-					autoEnemyX = arrayOfEnemyCoordinatesX.get(i);
-					autoEnemyY = arrayOfEnemyCoordinatesY.get(i);
-				}
-				else
-				{
-					// We will create a autoEnemyX/Y ArrayList and pass it in later but, the movePiece() function will not use it.
-					autoEnemyX = new ArrayList<Integer>();
-					autoEnemyY = new ArrayList<Integer>();
-				}
+		for(int i = 0 ; i < arrayOfPrevCoordinatesX.size(); i++)
+		{
+			// Debug purposes.
+			// System.out.println("The size of the arrayOfPrevCoordinates is equal to " + arrayOfPrevCoordinatesX.size());
 			
-				// Moves the checkers piece to the new location.
-				movePiece(x, y, upOrDown, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, passImgId, passImgOfKing);
+			// Grab the coordinates of the highlighted squares and the enemy pieces, if there are any enemies. 
+			ArrayList<Integer> autoPrevX = arrayOfPrevCoordinatesX.get(i);
+			ArrayList<Integer> autoPrevY = arrayOfPrevCoordinatesY.get(i);
+			ArrayList<Integer> autoEnemyX;
+			ArrayList<Integer> autoEnemyY;
+			
+			// Using '==' instead of 'greater than' works better. No IndexOutOfBoundExceptions 
+			if(arrayOfEnemyCoordinatesX.size() == arrayOfPrevCoordinatesX.size())
+			{
+				autoEnemyX = arrayOfEnemyCoordinatesX.get(i);
+				autoEnemyY = arrayOfEnemyCoordinatesY.get(i);
+			}
+			else
+			{
+				// We will create a autoEnemyX/Y ArrayList and pass it in later but, the movePiece() function will not use it.
+				autoEnemyX = new ArrayList<Integer>();
+				autoEnemyY = new ArrayList<Integer>();
+			}
+		
+			// Moves the checkers piece to the new location.
+			movePiece(x, y, upOrDown, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, passImgId, passImgOfKing);
+			
+			// We need a way to check if it is at the new location.
+			
+			if(x == xOfNewDest && y == yOfNewDest)
+			{
+				// If we have successfully moved the piece...
 				
-				// We need a way to check if it is at the new location.
+				// Debug purposes.
+				// System.out.println("We have moved the piece to the new location (via the auto generated highlight.");
 				
-				if(x == xOfNewDest && y == yOfNewDest)
-				{
-					// Debug purposes.
-					// System.out.println("We have moved the piece to the new location (via the auto generated highlight.");
-					// If we have successfully moved the piece...
-					// Makes sure this is the last iteration.
-					i = arrayOfPrevCoordinatesX.size();
-					// Then we check whether the new location is neighbouring an enemy...		
-					highlightSquares(passCondition, xOfNewDest, yOfNewDest, upOrDown, attackConstraint, opponentNo, playerNo);
-					// If xEnemyAxis.size() returns 0 then, we can hand over the player's turn
+				// Makes sure this is the last iteration as we have found which piece made the recent move.
+				i = arrayOfPrevCoordinatesX.size();
 					
-					// If a capture was made we check if there are neighbouring enemies at our new location...
-					if(arrayOfEnemyCoordinatesX.size() > 0)
+				// If a capture was made we check if there are neighbouring enemies at our new location...
+				if(arrayOfEnemyCoordinatesX.size() > 0)
+				{
+					// I need to check if this piece has just been turned into a king... THIS NEEDS TO WORK SO, RESUME WHEN I COME BACK! 
+					// in the movePiece method there are 3 areas in the code where 'isNewKing' gets mutated so, remember to keep an eye out on those.
+					if(isNewKing == true)
 					{
 						// Debug purposes.
-						// System.out.println("A capture was made prior to this move so, we will check if there any potential captures at our new location.");
-						// System.out.println("The size arrayOfEnemyCoordinatesX.size() == " + arrayOfEnemyCoordinatesX.size());
-						// ...We check whether the new location is neighbouring an enemy.
+						System.out.println("Hello, this is a new king so, no consecutive attacks for you.");
+						// This displays the message but, it still highlights a neighbouring enemy after we turn into a king :/
+					}
+					else
+					{
+						// We can use this method to later check whether the piece at the new location is neighbouring an enemy.
 						highlightSquares(passCondition, xOfNewDest, yOfNewDest, upOrDown, attackConstraint, opponentNo, playerNo);
-						
-						// If the size of xEnemyAxis.size() == 0, then we can say no new enemies have been found using the 'highlightSquares()' method above.
-						if(xEnemyAxis.size() <= 0)
-						{
-							// Debug purposes.
-							// System.out.println("There are no potential captures that this piece can make from the new location so, we handover our turn to the opponent.");
-							// We will remove the remaining highlights... i.e. if there were two different pieces each neighbouring an enemy.
-							for(int rm = 0;rm<arrayOfPrevCoordinatesX.size();rm++)
-							{
-								// Gets rid of the rest of the highlights for the other pieces that had potential to capture enemy pieces.
-								// It works the way I hoped it to.
-								removeHighlights(arrayOfPrevCoordinatesX.get(rm), arrayOfPrevCoordinatesY.get(rm));
-							}
-							
-							// clear the master ArrayLists.
-							arrayOfPrevCoordinatesX.clear();
-							arrayOfPrevCoordinatesY.clear();
-							arrayOfEnemyCoordinatesX.clear();
-							arrayOfEnemyCoordinatesY.clear();
-							// I have just realised that I have not cleared xPrevAxis and yPrevAis ArrayList so, I'll do that now.
-							clearHelperArrays();
-							// Handover the turn to opponent.
-							playerOneTurn = playerTurn;
-							// Since there are no adjacent enemies, we make it false.
-							isEnemyAdjacent = false;
-							// Display the player's turn.
-							playerInfo.setText("Player " + opponentNo + "'s Turn");
-						}
-						else
-						{
-							// There is another neighbouring enemy at our new location so, next time this entire method is called again, thanks...
-							// ...To the isEnemyAdjacent == true, if statement.
-							// Debug purposes.
-							// System.out.println("There is another neighbouring enemy at the new location. So, we don't stop until a move is made.");
-							
-							// Hopefully, this should sort out problem 3... Yup, it sorted problem 3 :)
-							for(int rm = 0;rm<arrayOfPrevCoordinatesX.size();rm++)
-							{
-								// Gets rid of the rest of the highlights for the other pieces that had potential to capture enemy pieces.
-								// It works the way I hoped it to.
-								removeHighlights(arrayOfPrevCoordinatesX.get(rm), arrayOfPrevCoordinatesY.get(rm));
-							}
-							//...Well, hopefully.
-											
-							// Clear the master ArrayLists
-							arrayOfPrevCoordinatesX.clear();
-							arrayOfPrevCoordinatesY.clear();
-							arrayOfEnemyCoordinatesX.clear();
-							arrayOfEnemyCoordinatesY.clear();
-							// Add the ArrayLists to the master ArrayList... Aha.
-							arrayOfPrevCoordinatesX.add(xPrevAxis);
-							arrayOfPrevCoordinatesY.add(yPrevAxis);
-							arrayOfEnemyCoordinatesX.add(xEnemyAxis);
-							arrayOfEnemyCoordinatesY.add(yEnemyAxis);
-							// We apply the highlights to the eligable squares...
-							addHighlight(arrayOfPrevCoordinatesX.get(0), arrayOfPrevCoordinatesY.get(0));
-							// Clear the standard ArrayLists.
-							clearHelperArrays();
-							// Since there are adjacent enemies, we make it true. That way, if(isEnemyAdjacent == true) will call this entire if statement again.
-							isEnemyAdjacent = true;
-						}
-						
-					}else
-					{
-						// Just a standard move.
 						// Debug purposes.
-						System.out.println("This is just a standard move.");
-						// If it is just a standard move, we clear all the ArrayLists and handover our turn to the opponent.
-						// clear 'arrayOfPrev... arrays... I might not need to clear this.
-						arrayOfPrevCoordinatesX.clear();
-						arrayOfPrevCoordinatesY.clear();
-						arrayOfEnemyCoordinatesX.clear();
-						arrayOfEnemyCoordinatesY.clear();
-						// Clear the standard ArrayLists.
+						System.out.println("Hello, no new king here so, yaaaah.");
+					}
+					
+					// If the size of xEnemyAxis.size() == 0, then we can say no new enemies have been found using the 'highlightSquares()' method above.
+					if(xEnemyAxis.size() <= 0)
+					{
+						// Debug purposes.
+						// System.out.println("There are no potential captures that this piece can make from the new location so, we handover our turn to the opponent.");
+						// We will remove the remaining highlights... i.e. if there were two different pieces each neighbouring an enemy.
+						for(int rm = 0;rm<arrayOfPrevCoordinatesX.size();rm++)
+						{
+							// Gets rid of the rest of the highlights for the other pieces that had potential to capture enemy pieces.
+							// It works the way I hoped it to.
+							removeHighlights(arrayOfPrevCoordinatesX.get(rm), arrayOfPrevCoordinatesY.get(rm));
+						}
+						
+						// THIS IS A TEST - This should clear the master ArrayLists - ENABLE ABOVE CODE IF THIS DOESN'T WORK.
+						clearMasterLists();	
+						// I have just realised that I have not cleared xPrevAxis and yPrevAis ArrayList so, I'll do that now.
 						clearHelperArrays();
+						// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
+						displayTurn(playerTurn, opponentNo);
 						// Handover the turn to opponent.
 						playerOneTurn = playerTurn;
-						// Erm, I am so lost.
+						// Since there are no adjacent enemies, we make it false.
 						isEnemyAdjacent = false;
-						// I think I would need to remove the highlights too.
 						// Display the player's turn.
-						playerInfo.setText("Player " + opponentNo + "'s Turn");
-					}						
+					}
+					else
+					{
+						// There is another neighbouring enemy at our new location so, next time this entire method is called again, thanks...
+						// ...To the isEnemyAdjacent == true, if statement.
+						// Debug purposes.
+						// System.out.println("There is another neighbouring enemy at the new location. So, we don't stop until a move is made.");
+						
+						// Hopefully, this should sort out problem 3... Yup, it sorted problem 3 :)
+						for(int rm = 0;rm<arrayOfPrevCoordinatesX.size();rm++)
+						{
+							// Gets rid of the rest of the highlights for the other pieces that had potential to capture enemy pieces.
+							// It works the way I hoped it to.
+							removeHighlights(arrayOfPrevCoordinatesX.get(rm), arrayOfPrevCoordinatesY.get(rm));
+						}
+						//...Well, hopefully.
+
+						// This should clear the master ArrayLists
+						clearMasterLists();
+						// This should add the ArrayLists to the master ArrayLists 
+						addToMasterLists(xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis);	
+						// We apply the highlights to the eligable squares...
+						addHighlight(arrayOfPrevCoordinatesX.get(0), arrayOfPrevCoordinatesY.get(0));
+						// Clear the standard ArrayLists.
+						clearHelperArrays();
+						// Since there are adjacent enemies, we make it true. That way, if(isEnemyAdjacent == true) will call this entire if statement again.
+						isEnemyAdjacent = true;
+					}
+					
 				}else
 				{
+					// Just a standard move so, we  will clear all the ArrayLists and handover our turn to the opponent.	
 					// Debug purposes.
-					System.out.println("We have not moved the piece to the new location. (from auto-generated highlights section) so, we do nothing until then.");
-				}					
-			}
+					System.out.println("This is just a standard move.");	
+					// THIS IS A TEST - This should clear the master ArrayLists - ENABLE ABOVE CODE IF THIS DOESN'T WORK.
+					clearMasterLists();	
+					// Clear the standard ArrayLists.
+					clearHelperArrays();
+					// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
+					displayTurn(playerTurn, opponentNo);
+					// Handover the turn to opponent.
+					playerOneTurn = playerTurn;
+					// Erm, I am so lost.
+					isEnemyAdjacent = false;
+					// I think I would need to remove the highlights too.
+					// Display the player's turn.			
+				}						
+			}else
+			{
+				// Debug purposes.
+				System.out.println("We have not moved the piece to the new location. (from auto-generated highlights section) so, we do nothing until then.");
+			}					
+		}
 	}	
 }
