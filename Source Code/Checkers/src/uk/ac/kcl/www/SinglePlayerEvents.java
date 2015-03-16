@@ -153,8 +153,10 @@ public class SinglePlayerEvents implements View.OnClickListener
 								clearHelperArrays();
 							}
 						}
-						else // if no enemies have been seen yet, then this section corresponds to a normal move that will be made later on.
+						else if(xPrevAxis.size() > 0) 
 						{
+							// if no enemies have been seen yet, then this section corresponds to a normal move that will be made later on.
+							// Also, it also needs to be a piece that can actually make a move whereas before, I forgot to add that validation.
 							// Add the coordinates to the master ArrayLists
 							addToMasterLists(xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis);	
 							// Clear the standard ArrayLists.
@@ -164,14 +166,13 @@ public class SinglePlayerEvents implements View.OnClickListener
 				}
 			}
 			
+			
 			// Now, we can create the nodes here, I think.
 		
 			for(int e = 0;e < arrayOfPrevCoordinatesX.size();e++)
 			{
 				// Save a copy of the state for each piece seen but, will later be modified...
 				String[][] potentialState = passStrCheckersBoard;
-				// A dummy ImageView[][] that will mean nothing to us.
-				ImageView[][] dummyImageOfSquares = new ImageView[8][8];
 				
 				// Grab the coordinates of the highlighted squares and the enemy pieces, if there are any enemies. 
 				ArrayList<Integer> autoPrevX = arrayOfPrevCoordinatesX.get(e);
@@ -194,20 +195,29 @@ public class SinglePlayerEvents implements View.OnClickListener
 				
 				for(int eachSquare = 1;eachSquare < autoPrevX.size();eachSquare++)
 				{
+					// Create a state for each move preserving the original state.
+					String[][] newLocationState = potentialState;
 					// This section is where each move made, it will then create a new state (node).
 					int xAxisOfDest = autoPrevX.get(eachSquare).intValue();
 					int yAxisOfDest = autoPrevY.get(eachSquare).intValue();
 					
+					// Debug purposes.
+					// System.out.println("State " + eachSquare + " of piece number " + e);
 					// Moves the checkers piece to the new location - passing imageOfSquares into the method has not caused any problems.
-					movePiece(potentialState, dummyImageOfSquares, xAxisOfDest, yAxisOfDest, upOrDown, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, 0, 0, true);
+					// movePiece(newLocationState, imageOfSquares, xAxisOfDest, yAxisOfDest, upOrDown, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, 0, 0, true);
 					// This method does not modifiy checkers board because x and y does not equal xprev and yprev within the method so, it does not run.
+					
+					// At the moment it makes the moves but, the states are not being preserved. In other words, it gets overwritten as we go along.
+					// Debug purposes.
+					System.out.println("Master List " + e + ": xAxisOfDest.get(" +eachSquare + ")=" + xAxisOfDest + "and yAxisOfDest.get(" + eachSquare + ")=" + yAxisOfDest);
+
 					
 					try
 					{
 						// Adds the potential move to the current state node. This does not work as intended. NEEDS FIXING!
-						stateTree.add(passStrCheckersBoard, potentialState);
+						stateTree.add(potentialState, newLocationState);
 						
-						// Debug purposes.
+						/*// Debug purposes.
 						System.out.println("State " + eachSquare + " of piece number " + e);
 						// --- Debug Purposes --- //
 						for(int c = 0;c <8;c++)
@@ -220,7 +230,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 						}
 						System.out.println("|----------|");
 						// --- Debug Purposes --- //
-						
+						*/
 					}
 					catch(NodeNotFoundException nnfe)
 					{
@@ -231,8 +241,10 @@ public class SinglePlayerEvents implements View.OnClickListener
 			}
 			// ------- Yup, here dawg ----- //
 			
-			// End of initial check before player makes a move (except for consecutive captures)
-		}	
+			// Debug purposes. - Just as I though, initally it says the size is 12 but, really it should be 4. 
+			System.out.println("The size of arrayOfPrevCoordinatesX = " + arrayOfPrevCoordinatesX.size());
+			
+		}	// End of initial check before player makes a move (except for consecutive captures)
 	}
 	
 	
@@ -279,7 +291,8 @@ public class SinglePlayerEvents implements View.OnClickListener
 			System.out.println("The size of the the testTree is " + testTree.size());
 			// And it prints out 3 which is true.
 			System.out.println("And the depth of the tree is " + testTree.depth());
-			
+			//
+			System.out.println("The size of the the stateTree is " + stateTree.size());
 		}
 		
 		
@@ -316,10 +329,10 @@ public class SinglePlayerEvents implements View.OnClickListener
 						else
 						{
 							// The AI Code will go here... Now, where to begin.	
-							//computerTurn("2");
+							computerTurn("2");
 									
 							// We move our pieces as normal.
-							playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1", noOfPiecesPlayerOne);	// Nice, it works.		
+							//playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1", noOfPiecesPlayerOne);	// Nice, it works.		
 						}
 				}// if(squaresOfBoard[x][y].equals(v))
 		}		
