@@ -2,6 +2,7 @@ package uk.ac.kcl.www;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
 import android.util.Log;
 import android.app.Activity;
@@ -51,7 +52,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 	// AI Tree of States
 	public ArrayListTree<String[][]> stateTree;
 	// The state of the game represented as a multidimensional array of Strings.
-	public String[][] currentState;
+	// public String[][] currentState;
 	
 	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent, isNewKing;
 	
@@ -171,9 +172,6 @@ public class SinglePlayerEvents implements View.OnClickListener
 		
 			for(int e = 0;e < arrayOfPrevCoordinatesX.size();e++)
 			{
-				// Save a copy of the state for each piece seen but, will later be modified...
-				String[][] potentialState = passStrCheckersBoard;
-				
 				// Grab the coordinates of the highlighted squares and the enemy pieces, if there are any enemies. 
 				ArrayList<Integer> autoPrevX = arrayOfPrevCoordinatesX.get(e);
 				ArrayList<Integer> autoPrevY = arrayOfPrevCoordinatesY.get(e);
@@ -196,41 +194,31 @@ public class SinglePlayerEvents implements View.OnClickListener
 				for(int eachSquare = 1;eachSquare < autoPrevX.size();eachSquare++)
 				{
 					// Create a state for each move preserving the original state.
-					String[][] newLocationState = potentialState;
+					String[][] newLocationState = new String[8][8];
+					// Copy the contents of the state (possibly the current state, or a level up) into the new array, which we will modify to
+					// ...Create a new state. Okay, this works fine. Yay :)
+					duplicateArray(passStrCheckersBoard, newLocationState);
 					// This section is where each move made, it will then create a new state (node).
 					int xAxisOfDest = autoPrevX.get(eachSquare).intValue();
 					int yAxisOfDest = autoPrevY.get(eachSquare).intValue();
 					
 					// Debug purposes.
-					// System.out.println("State " + eachSquare + " of piece number " + e);
-					// Moves the checkers piece to the new location - passing imageOfSquares into the method has not caused any problems.
-					// movePiece(newLocationState, imageOfSquares, xAxisOfDest, yAxisOfDest, upOrDown, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, 0, 0, true);
-					// This method does not modifiy checkers board because x and y does not equal xprev and yprev within the method so, it does not run.
-					
+					System.out.println("State " + eachSquare + " of piece number " + e);
 					// At the moment it makes the moves but, the states are not being preserved. In other words, it gets overwritten as we go along.
 					// Debug purposes.
-					System.out.println("Master List " + e + ": xAxisOfDest.get(" +eachSquare + ")=" + xAxisOfDest + "and yAxisOfDest.get(" + eachSquare + ")=" + yAxisOfDest);
-
+					System.out.println("Master List " + e + ": autoPrevX.get(" +eachSquare + ")=" + xAxisOfDest + "and autoPrevY.get(" + eachSquare + ")=" + yAxisOfDest);
+					// Moves the checkers piece to the new location - passing imageOfSquares into the method has not caused any problems.
+					// movePiece reads in the coordinates correctly, is just that the MD-array is not being altered.
+					// I don't think the data actually gets copied into the new array but, instead, the new Array is a reference to the old array...
+					// hat is why it only looks as if it is using only the one array :/ - I WILL LOOK INTO THIS FURTHER WHEN I HAVE HAD SLEEP.
+					movePiece(newLocationState, imageOfSquares, xAxisOfDest, yAxisOfDest, upOrDown, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, 0, 0, true);
+					// This method does not modifiy checkers board because x and y does not equal xprev and yprev within the method so, it does not run.
 					
 					try
 					{
+						// The ArrayListTree cannot add duplicate value so, this might cause problems in the future.
 						// Adds the potential move to the current state node. This does not work as intended. NEEDS FIXING!
-						stateTree.add(potentialState, newLocationState);
-						
-						/*// Debug purposes.
-						System.out.println("State " + eachSquare + " of piece number " + e);
-						// --- Debug Purposes --- //
-						for(int c = 0;c <8;c++)
-						{
-							for(int d=0;d<8;d++)
-							{
-								System.out.print(passStrCheckersBoard[c][d]);
-							}
-							System.out.println("");
-						}
-						System.out.println("|----------|");
-						// --- Debug Purposes --- //
-						*/
+						stateTree.add(passStrCheckersBoard, newLocationState);
 					}
 					catch(NodeNotFoundException nnfe)
 					{
@@ -247,13 +235,30 @@ public class SinglePlayerEvents implements View.OnClickListener
 		}	// End of initial check before player makes a move (except for consecutive captures)
 	}
 	
+	public void duplicateArray(String[][] source, String[][] destination)
+	{
+		// When simply copying an array by re-assigning it to a new copy (theorectically, it would copy the contents) but, really it...
+		// only copies the location of the array in memory so, if we modified array B, it would also modifiy array A. This method tackles this problem.
+		
+		for(int a = 0; a < 8;a++)
+		{
+			for(int b = 0; b < 8; b++)
+			{
+				// An actual copy. Okay, this did job. I will write a method.
+				destination[a][b] = source[a][b];
+			}
+		}
+	}
 	
 	public void computerTurn(String playerNo)
 	{
 		// Create the Tree... Yippee so, far so good.
 		stateTree = new ArrayListTree<String[][]>();
+		// This will later hold a copy of the current state.
+		String[][] currentState = new String[8][8];
 		// Copy the contents of the checkers board into a temporary array which corresponds to the current state.
-		currentState = strCheckersBoard;
+		duplicateArray(strCheckersBoard, currentState);
+		
 		// Make the current state the root node of our 'stateTree'
 		stateTree.add(currentState);
 		// Now, we must loop through each square, and see if it can make a move. Each valid piece found, we create a node for it, yeah.
@@ -277,7 +282,6 @@ public class SinglePlayerEvents implements View.OnClickListener
 				testTree.add("1", "1.2");
 				testTree.add("1", "1.3");
 				
-				testTree.add("2", "2.1");
 				// It does not add duplicates! Maybe, that's why my code is not working as expected.
 				testTree.add("2", "2.1");
 				testTree.add("2", "2.2");
@@ -293,6 +297,26 @@ public class SinglePlayerEvents implements View.OnClickListener
 			System.out.println("And the depth of the tree is " + testTree.depth());
 			//
 			System.out.println("The size of the the stateTree is " + stateTree.size());
+			//
+			System.out.println("And the depth of the stateTree is " + stateTree.depth());
+			
+			// --- Debug Purposes --- //
+			// The strCheckersBoard[][] ends up getting modified through the currentState[][] array which brings me to the conclusion,
+			// that when assigning an old array to a new array, it does not copy the contents over but, instead, it justs store the location
+			// of the old array so, if we modified the new array, it would actually be modifying the old array.
+			// Also
+				System.out.println("This is the actual strCheckersBoard[][] md array...");
+					
+				for(int c = 0;c <8;c++)
+				{
+					for(int d=0;d<8;d++)
+					{
+						System.out.print(strCheckersBoard[c][d]);
+					}
+					System.out.println("");
+				}
+				System.out.println("|----------|");
+			
 		}
 		
 		
@@ -800,6 +824,8 @@ public class SinglePlayerEvents implements View.OnClickListener
 				removeHighlights(passListOfRows, passListOfColumns);
 				
 				// --- Debug Purposes --- //
+				System.out.println("We have succesfully moved the piece. The values of the successful move were...");
+					
 				for(int c = 0;c <8;c++)
 				{
 					for(int d=0;d<8;d++)
@@ -810,11 +836,15 @@ public class SinglePlayerEvents implements View.OnClickListener
 				}
 				System.out.println("|----------|");
 				// --- Debug Purposes --- //
+				System.out.println("x= " + x + "and y= " + y + ". prevX= " + prevX + "and prevY= " + prevY);
+				System.out.println("===========================================================================================");
 				
 			}else
 			{
 				// Debug purposes.
-				System.out.println("We did not make a move because x and y did not equal prevX and prevY :(");
+				System.out.println("We did not make a move because x and y did not equal prevX and prevY. Their values were...");
+				System.out.println("x= " + x + "and y= " + y + ". prevX= " + prevX + "and prevY= " + prevY);
+				System.out.println("===========================================================================================");
 				// Debug purposes.
 				// System.out.println("We do nothing because an opposing piece was clicked or it was an invalid move.");
 			}
