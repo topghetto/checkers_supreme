@@ -103,9 +103,23 @@ public class SinglePlayerEvents implements View.OnClickListener
 		
 		
 	}
-	
+	public void checkPlayerAndAdd(String[][] passStrCheckersBoard, int row, int column, int upOrDown, String opponentNo, String playerNo)
+	{
+		if(playerNo == "1")
+		{
+			// Debug purposes.
+			// System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
+			highlightSquares(passStrCheckersBoard, row >= 1 && row <=7, row, column, upOrDown, row >=2, opponentNo, playerNo);
+		}
+		else if(playerNo == "2")
+		{
+			// Debug purposes.
+			// System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
+			highlightSquares(passStrCheckersBoard, row >= 0 && row <= 6, row, column, upOrDown, row <=5, opponentNo, playerNo);
+		}		
+	}
 	// The code for the AI will be written here...
-	public void initialEnemyCheckForBot(String passStrCheckersBoard[][], String playerNo, String opponentNo, int upOrDown, boolean firstCondition, boolean attackConstraint)
+	public void initialEnemyCheckForBot(String passStrCheckersBoard[][], String playerNo, String opponentNo, int upOrDown)
 	{
 		
 		// ------- Paste in Here ------ \\
@@ -113,9 +127,10 @@ public class SinglePlayerEvents implements View.OnClickListener
 		if(arrayOfPrevCoordinatesX.size() <= 0)
 		{	
 			// Debug purposes.
-			// System.out.println("The initial statement that checks for adjacent enemies has just started.");
+			int notSeenCount = 0, seenCount = 0;
 			// Prepares the correct string for playerX.
 			String strKing = "K" + playerNo;
+			
 			
 			for(int row = 0; row < 8;row++)
 			{
@@ -127,12 +142,35 @@ public class SinglePlayerEvents implements View.OnClickListener
 						// Debug purposes.
 						// System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
 						// Within the method, it checks whether piece can make any valid moves, captures, etc - Adds the coordinates to the ArrayLists.
-						highlightSquares(passStrCheckersBoard, firstCondition, row, column, upOrDown, attackConstraint, opponentNo, playerNo);
+						// highlightSquares(passStrCheckersBoard, firstCondition, row, column, upOrDown, attackConstraint, opponentNo, playerNo);
+						// Debug purposes.
+						
+						// ---- I probably should enclose this in a method later on. Did it. Seems okay :) ----- //
+						// checks which player's turn it is before calling the highlightSquares() method within in the method below.
+						checkPlayerAndAdd(passStrCheckersBoard, row, column, upOrDown, opponentNo, playerNo);
+						
+						/*if(playerNo == "1")
+						{
+							// Debug purposes.
+							// System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
+							highlightSquares(passStrCheckersBoard, row >= 1 && row <=7, row, column, upOrDown, row >=2, opponentNo, playerNo);
+						}
+						else if(playerNo == "2")
+						{
+							// Debug purposes.
+							// System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
+							highlightSquares(passStrCheckersBoard, row >= 0 && row <= 6, row, column, upOrDown, row <=5, opponentNo, playerNo);
+						}*/		
+						// --- Yup ----- //
+						
+						seenCount++;
+						// Outputs zero. Is there something I am missing? Maybe, I need to look into the highlightSquares() method.
+						System.out.println("Within the initialCheck...() method, the size of xPrevAxis.size() is " + xPrevAxis.size());
 						
 						if(xEnemyAxis.size() > 0)
 						{
 							// There is an adjacent enemy.
-							isEnemyAdjacent = true;
+							// isEnemyAdjacent = true;
 							
 							// I modifed the addToMasterLists() method so, that it only adds x/yEnemyAxis to the corresponding ArrayList only when...
 							// the ArrayList x/yEnemyAxis has data - i.e. an enemy. And everything seems to be working fine with the new modification...
@@ -148,14 +186,19 @@ public class SinglePlayerEvents implements View.OnClickListener
 								
 							}else if(arrayOfEnemyCoordinatesX.size() > 0)
 							{
+								// Debug purposes.
+								System.out.println("else if(arrayOfEnemyCoordinatesX.size() > 0) is true");
 								// Appends the coordinates to the master ArrayLists
 								addToMasterLists(xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis);	
 								// Then clear the standard ArrayLists and repeat.
 								clearHelperArrays();
 							}
 						}
-						else if(xPrevAxis.size() > 0) 
+						else if(xPrevAxis.size() > 0 && arrayOfEnemyCoordinatesX.size() <= 0) 
 						{
+							// Missing the arrayOfEnemyCoordinatesX.size() <= 0 condition so, if we didn't see another enemy, this would get run anyway, which we don't.
+							// Debug purposes.
+							System.out.println("else if(xPrevAxis.size() >0) is true");
 							// if no enemies have been seen yet, then this section corresponds to a normal move that will be made later on.
 							// Also, it also needs to be a piece that can actually make a move whereas before, I forgot to add that validation.
 							// Add the coordinates to the master ArrayLists
@@ -163,10 +206,18 @@ public class SinglePlayerEvents implements View.OnClickListener
 							// Clear the standard ArrayLists.
 							clearHelperArrays();
 						}	
+					}else
+					{
+						// Debug purposes.
+						notSeenCount++;
 					}
 				}
 			}
 			
+			// Debug purposes.
+			System.out.println("The number of pieces that we have not seen for player " + playerNo + " is " + notSeenCount);
+			// Debug purposes.
+			System.out.println("The number of pieces that we have seen for player " + playerNo + " is " + seenCount);
 			
 			// Now, we can create the nodes here, I think.
 		
@@ -207,17 +258,38 @@ public class SinglePlayerEvents implements View.OnClickListener
 					// At the moment it makes the moves but, the states are not being preserved. In other words, it gets overwritten as we go along.
 					// Debug purposes.
 					System.out.println("Master List " + e + ": autoPrevX.get(" +eachSquare + ")=" + xAxisOfDest + "and autoPrevY.get(" + eachSquare + ")=" + yAxisOfDest);
-					// Moves the checkers piece to the new location - passing imageOfSquares into the method has not caused any problems.
-					// movePiece reads in the coordinates correctly, is just that the MD-array is not being altered.
-					// I don't think the data actually gets copied into the new array but, instead, the new Array is a reference to the old array...
-					// hat is why it only looks as if it is using only the one array :/ - I WILL LOOK INTO THIS FURTHER WHEN I HAVE HAD SLEEP.
+					// This will create the state with the potential move.
 					movePiece(newLocationState, imageOfSquares, xAxisOfDest, yAxisOfDest, upOrDown, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, 0, 0, true);
-					// This method does not modifiy checkers board because x and y does not equal xprev and yprev within the method so, it does not run.
+					
+					// I will need to check if it is a potential enemy capture, after capture is made, it must check if the piece (that made the capture)
+					// at the new location is adjacent to another enemy, we will check using the highlightSquares() method that does all the hard work :)
+					// if so, we will call movePiece() with different variables passed into the parameter.
+					
+					/*
+					// checks which player's turn it is before calling the highlightSquares() method within in the method below.
+					// checkPlayerAndAdd(passStrCheckersBoard, xAxisOfDest, yAxisOfDest, upOrDown, opponentNo, playerNo);
+					
+					if(xEnemyAxis.size() > 0)
+					{
+						// Yada.
+						isEnemyAdjacent = true;
+						
+						while(isEnemyAdjacent == true)
+						{
+							// This will create the state with the potential move.
+							movePiece(newLocationState, imageOfSquares, xAxisOfDest, yAxisOfDest, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, 0, 0, true);
+							// Assuming that we have made the (potential) capture, we check again if the piece is adjacent to another enemy at our new-new location.
+							checkPlayerAndAdd(passStrCheckersBoard, xAxisOfDest, yAxisOfDest, upOrDown, opponentNo, playerNo);					
+						}
+						
+					}
+					
+					*/
 					
 					try
 					{
 						// The ArrayListTree cannot add duplicate value so, this might cause problems in the future.
-						// Adds the potential move to the current state node. This does not work as intended. NEEDS FIXING!
+						// Adds the potential move to the current state node. 
 						stateTree.add(passStrCheckersBoard, newLocationState);
 					}
 					catch(NodeNotFoundException nnfe)
@@ -227,10 +299,12 @@ public class SinglePlayerEvents implements View.OnClickListener
 					}				
 				}
 			}
-			// ------- Yup, here dawg ----- //
-			
 			// Debug purposes. - Just as I though, initally it says the size is 12 but, really it should be 4. 
 			System.out.println("The size of arrayOfPrevCoordinatesX = " + arrayOfPrevCoordinatesX.size());
+			// Make sure I clear the Master ArrayLists.
+			clearMasterLists();
+			
+			// ------- Yup, here dawg ----- //
 			
 		}	// End of initial check before player makes a move (except for consecutive captures)
 	}
@@ -257,19 +331,69 @@ public class SinglePlayerEvents implements View.OnClickListener
 		// This will later hold a copy of the current state.
 		String[][] currentState = new String[8][8];
 		// Copy the contents of the checkers board into a temporary array which corresponds to the current state.
-		duplicateArray(strCheckersBoard, currentState);
-		
+		duplicateArray(strCheckersBoard, currentState);	
 		// Make the current state the root node of our 'stateTree'
 		stateTree.add(currentState);
-		// Now, we must loop through each square, and see if it can make a move. Each valid piece found, we create a node for it, yeah.
-		// Okay, how do I go about this... 
-		
-		// -------- Paste code in here ---- ///
 		
 		if(playerNo == "2")
 		{
-			initialEnemyCheckForBot(currentState, playerNo, "1", 1 , row >= 0 && row <= 6, row <= 5);
+			// This will correspond to the root MAX node...
+			initialEnemyCheckForBot(currentState, "2", "1", 1);
 			
+			// if i < 4, it creates at least 12485 nodes in the stateTree which takes 5 minutes to generate but, then again,
+			// that might be because System.out.println() can be time consuming. I should remember to comment all my System.out... to speed things up.
+			// if i < 2, it creates at least 332 nodes in the state tree which takes around 10 seconds to generate.
+			// Now, it creates at least 292 nodes in the state tree which nows takes only 7 seconds to generate. I achieved this by writing the code
+			// so that if a piece was adjacent to an enemy, it will create a state only if it is adjacent to an enemy, otherwise making other states
+			// for standard moves would be useless because when a piece is adjacent to an enemy, it is compulsory to make a capture so those states
+			// will never be used.
+			
+			for(int i = 0; i < 2;i++)
+			{
+				// ---- Paste in here cuz... ---- //
+				
+				// Grab the current list of children.
+				List<String[][]> children = (List<String[][]>) stateTree.leaves();
+				// Debug purposes
+				int currentDepth = stateTree.depth();
+				// Debug purposes.
+				System.out.println("The size of the children at depth " + currentDepth +" is " + children.size());
+					
+				for(int addToState = 0; addToState < children.size();addToState++)
+				{
+					// This will be used to create another set of states, where this (child) node will be the parent of the next new states.
+					String[][] nextState = children.get(addToState);
+					// Debug purposes. Take note that the depth will change as soon as we iterate at least once through this for-loop
+					System.out.println("The contents of the nextState-" + addToState + " MD-array at depth " + currentDepth + "...");
+						
+					for(int c = 0;c <8;c++)
+					{
+						for(int d=0;d<8;d++)
+						{
+							System.out.print(nextState[c][d]);
+						}
+						System.out.println("");
+					}
+					System.out.println("|----------|");
+					
+					// This will correspond to the Min node at depth 1, 3, 5, and so forth... The opponent's turn.
+					if((i+1)% 2 == 1)
+					{
+						// This will correspond to the root MIN node... The opponent's turn. Well, this seems to be working fine.
+						// the nextState-0 MD-array at first iteration of this loop creates the right states. the nextState-1 MD-array also
+						// creates the right states. It would take a while to check the rest so, I will just assume the rest are okay. So, far so good.
+						initialEnemyCheckForBot(nextState, "1", "2", -1);
+					}
+					// This will correspond to the Max node at depth 0, 2, 4, and so forth... The computer's turn.
+					else if((i+1) % 2 == 0)
+					{
+						// This will correspond to the root MAX node... Enable this later on.
+						initialEnemyCheckForBot(nextState, "2", "1", 1);
+					}				
+				}
+			}
+			
+			// Debug purposes...
 			ArrayListTree<String> testTree = new ArrayListTree<String>();	
 			try
 			{
@@ -305,6 +429,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 			// that when assigning an old array to a new array, it does not copy the contents over but, instead, it justs store the location
 			// of the old array so, if we modified the new array, it would actually be modifying the old array.
 			// Also
+				
 				System.out.println("This is the actual strCheckersBoard[][] md array...");
 					
 				for(int c = 0;c <8;c++)
