@@ -55,6 +55,8 @@ public class SinglePlayerEvents implements View.OnClickListener
 	public Tree<String[][]> decisionTree;
 	// Keeps track of the number of nodes in the tree
 	public int sizeOfTree;
+	// An experiment to return the move we should take.
+	// public Tree<String[][]> resultNode;
 	
 	// The state of the game represented as a multidimensional array of Strings.
 	// public String[][] currentState;
@@ -106,29 +108,101 @@ public class SinglePlayerEvents implements View.OnClickListener
 		noOfPiecesPlayerTwo = 12;
 		
 	}
-	public int minimax(Tree<String[][]> passNode, boolean maximisingPlayer, int depth, int min, int max)
+	public double minimax(Tree<String[][]> passNode, int depth, boolean maximisingPlayer)
 	{
-		if(depth == 0)
+		// I don't know whether I declare bestValue here or within the if statement. I will try doing it within in the if statements.
+		// Debug purposes.
+		System.out.println("Minimax got called."); // Well, the recursive call gets called.
+		
+		if(depth == 0 || passNode.isLeaf())
 		{
+			// An experiment.
+			/*if()
+			{
+				// This should give us the root... I hope.
+				System.out.println("This is the node I wish to visit...");
+				// Debug purposes.
+				printCheckersBoard(passNode.getValue());
+			}*/
+			// Debug purposes.
+			System.out.println("Minimax got called at depth == 0"); // Well, the recursive call gets called.
+			// Evaluation will go here.
+			String[][] state = passNode.getValue();
+			// The number of pieces on the board that player one (the human) has ...
+			int noOfPlayerOne = 0;
+			// The number of pieces on the board that player two (the computer) has...
+			int noOfPlayerTwo = 0;
+			
+			for(int row = 0;row < 8; row++)
+			{
+				for(int column=((row+1)%2); column<8; column+=2)
+				{
+					if(state[row][column].contains("1"))
+					{
+						noOfPlayerOne++;
+					}
+					else if(state[row][column].contains("2"))
+					{
+						noOfPlayerTwo++;
+					}
+				}
+			}
+			printCheckersBoard(state);
+			System.out.println("The number of pieces left for player one is " + noOfPlayerOne);
+			System.out.println("The number of pieces left for player two is " + noOfPlayerTwo);
+			
+			// Evaluate the difference and store it.
+			double result = noOfPlayerTwo - noOfPlayerOne;
+			// Debug purposes.
+			System.out.println("The result of the leaf node is " + result);
+			
 			// Return the heuristic value.
+			return result;
 		}
 		if(maximisingPlayer == true)
 		{
-			// If it is a MAX node...
-			
+			// If it is a MAX node...	
 			// Initially negative infinity.
-			int bestValue = min;
-				
-		}else if(maximisingPlayer = false)
+			double bestValue = Double.NEGATIVE_INFINITY;
+			// Grab the children of the node passed in.
+			ArrayList<Tree<String[][]>> children = passNode.children();
+			// For each child of the (parent) node
+			for(Tree<String[][]> child : children)
+			{
+				// Recursion call, y'all.
+				double value = minimax(child, depth-1, false);
+				// Debug purposes.
+				System.out.print("max(" + bestValue + ", ");
+				// If the new value obtained is larger than the previous bestValue, update the 'bestValue' with the new value.
+				bestValue = Math.max(bestValue, value);			
+				// Debug purposes.
+				System.out.println(value + ") is " + bestValue);
+			}
+			// Return the overall result.
+			return bestValue;	
+			
+		}else //if(maximisingPlayer = false)
 		{
 			// If it is a MIN node...
-			
 			// Initially positive infinity.
-			int bestValue = max;
+			double bestValue = Double.POSITIVE_INFINITY;
+			// Grab the children of the node passed in.
+			ArrayList<Tree<String[][]>> children = passNode.children();
+			// For each child of the (parent) node
+			for(Tree<String[][]> child : children)
+			{
+				// A recursive call that will eventually assign the result of that call into 'value'.
+				double value = minimax(child, depth-1, true);
+				// Debug purposes.
+				System.out.print("min(" + bestValue + ", ");
+				// If the new value obtained is smaller than the previous bestValue, update the 'bestValue' with the new value.
+				bestValue = Math.min(bestValue, value);
+				// Debug purposes.
+				System.out.println(value + ") is " + bestValue);
+			}
+			// Return the overall result.
+			return bestValue;
 		}
-		
-		// I will need to get rid of this. It is only there to keep the compiler happy, of course.
-		return 1;
 	}
 	public void printCheckersBoard(String[][] passCheckersBoard)
 	{
@@ -189,8 +263,6 @@ public class SinglePlayerEvents implements View.OnClickListener
 						checkPlayerAndAdd(theParentState, row, column, upOrDown, opponentNo, playerNo);
 						// Debug purposes.
 						seenCount++;
-						// Outputs zero. Is there something I am missing? Maybe, I need to look into the highlightSquares() method.
-						System.out.println("Within the initialCheck...() method, the size of xPrevAxis.size() is " + xPrevAxis.size());
 						
 						if(xEnemyAxis.size() > 0)
 						{
@@ -424,7 +496,12 @@ public class SinglePlayerEvents implements View.OnClickListener
 			// Debug purposes.	
 			System.out.println("This is the actual strCheckersBoard[][] md array...");
 			// Prints out the text representation of the checkers board 
-			printCheckersBoard(strCheckersBoard);	
+			printCheckersBoard(strCheckersBoard);
+			
+			// Debug purposes.
+			double heuristicValue = minimax(decisionTree, 3, true);
+			// Debug purposes.
+			System.out.println("The heuristic value of the minimax algorithm is " + heuristicValue);
 								
 		}		
 	}
@@ -460,7 +537,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 							computerTurn("2");
 									
 							// We move our pieces as normal.
-							//playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1", noOfPiecesPlayerOne);	// Nice, it works.		
+							// playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1", noOfPiecesPlayerOne);	// Nice, it works.		
 						}
 				}// if(squaresOfBoard[x][y].equals(v))
 		}		
