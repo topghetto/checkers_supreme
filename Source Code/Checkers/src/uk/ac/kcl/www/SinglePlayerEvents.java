@@ -56,7 +56,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 	// Keeps track of the number of nodes in the tree
 	public int sizeOfTree;
 	// An experiment to return the move we should take.
-	// public Tree<String[][]> resultNode;
+	public Tree<String[][]> bestestMove;
 	
 	// The state of the game represented as a multidimensional array of Strings.
 	// public String[][] currentState;
@@ -161,7 +161,9 @@ public class SinglePlayerEvents implements View.OnClickListener
 		}
 		if(maximisingPlayer == true)
 		{
-			// If it is a MAX node...	
+			// If it is a MAX node...
+			// An experiment
+			Tree<String[][]> bestMove = null;
 			// Initially negative infinity.
 			double bestValue = Double.NEGATIVE_INFINITY;
 			// Grab the children of the node passed in.
@@ -174,16 +176,37 @@ public class SinglePlayerEvents implements View.OnClickListener
 				// Debug purposes.
 				System.out.print("max(" + bestValue + ", ");
 				// If the new value obtained is larger than the previous bestValue, update the 'bestValue' with the new value.
-				bestValue = Math.max(bestValue, value);			
+				// bestValue = Math.max(bestValue, value);
+				
+				if(value > bestValue)
+				{
+					bestValue = value;
+					// Store the best move... I hope.
+					bestMove = passNode;
+				}
+				
 				// Debug purposes.
 				System.out.println(value + ") is " + bestValue);
 			}
+			
+			// An attempt to grab the best move. I think it works but, maybe my static evaluator needs works.
+			ArrayList<Tree<String[][]>> checkChildren = decisionTree.children();
+			for(int b = 0; b < checkChildren.size();b++)
+			{
+				if(passNode.equals(checkChildren.get(b)))
+				{
+					// An experiment.
+					bestestMove = bestMove;
+				}
+			}	
 			// Return the overall result.
-			return bestValue;	
+			return bestValue;
 			
 		}else //if(maximisingPlayer = false)
 		{
 			// If it is a MIN node...
+			// An experiment
+			Tree<String[][]> bestMove = null;
 			// Initially positive infinity.
 			double bestValue = Double.POSITIVE_INFINITY;
 			// Grab the children of the node passed in.
@@ -196,10 +219,29 @@ public class SinglePlayerEvents implements View.OnClickListener
 				// Debug purposes.
 				System.out.print("min(" + bestValue + ", ");
 				// If the new value obtained is smaller than the previous bestValue, update the 'bestValue' with the new value.
-				bestValue = Math.min(bestValue, value);
+				// bestValue = Math.min(bestValue, value);
+				
+				if(value < bestValue)
+				{
+					bestValue = value;
+					// Store the best move... I hope.
+					bestMove = passNode;
+				}
 				// Debug purposes.
 				System.out.println(value + ") is " + bestValue);
 			}
+			
+			// An attempt to grab the best move.
+			ArrayList<Tree<String[][]>> checkChildren = decisionTree.children();
+			
+			for(int b = 0; b < checkChildren.size();b++)
+			{
+				if(passNode.equals(checkChildren.get(b)))
+				{
+					// An experiment.
+					bestestMove = bestMove;
+				}
+			}	
 			// Return the overall result.
 			return bestValue;
 		}
@@ -502,8 +544,14 @@ public class SinglePlayerEvents implements View.OnClickListener
 			double heuristicValue = minimax(decisionTree, 3, true);
 			// Debug purposes.
 			System.out.println("The heuristic value of the minimax algorithm is " + heuristicValue);
-								
-		}		
+			System.out.println("The bestest move to make is...");
+			printCheckersBoard(bestestMove.getValue());
+			
+			ArrayList<Tree<String[][]>> overAllChildren = decisionTree.children();
+			// Returns 7, which is cool. Those 7 children have children of their own.
+			System.out.println("The decisionTree has " + overAllChildren.size() + " children");
+		}
+		
 	}
 
 	
@@ -537,7 +585,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 							computerTurn("2");
 									
 							// We move our pieces as normal.
-							// playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1", noOfPiecesPlayerOne);	// Nice, it works.		
+							playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1", noOfPiecesPlayerOne);	// Nice, it works.		
 						}
 				}// if(squaresOfBoard[x][y].equals(v))
 		}		
