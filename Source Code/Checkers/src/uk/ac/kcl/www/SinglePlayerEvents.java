@@ -489,8 +489,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 			
 			
 			// Okay, it does look better.
-			
-			
+			/*
 			for(int n = 0; n < children.size(); n++)
 			{
 				// Each child of the previous node.
@@ -528,12 +527,18 @@ public class SinglePlayerEvents implements View.OnClickListener
 					initialEnemyCheckForBot(nextNextState, "2", "1", 1);
 					
 				}
-			}
+			}*/
+			
+			// Debug purposes.
+			System.out.println("Let's start the recursive call...");
+			// Recursion - Well, it outputs a size of 292 nodes, which is correct. I just need to check if the states are being printed correctly.
+			generateStates(children, 2);
 			
 			// I need to double check whether the output of the size is indeed correct. This returns 55 but, before using the new Tree class
 			// I think I got value of 61. However, this might have been before implementing the state pruning if an enemy is adjacent to a piece.
 			// Only called initialEnemyCheckForBot() twice so, this corresponds to a depth of 3.
-			// Calling initialEnemyCheckForBot() three times yields 292 nodes which was the same when I used the other ArrayListTree data structure.
+			// Calling initialEnemyCheckForBot() three times yields 292 nodes which was the same value
+			// I obtained when I used the other ArrayListTree data structure.
 			System.out.println("The size of the decisionTree is " + sizeOfTree);
 			// Debug purposes.	
 			System.out.println("This is the actual strCheckersBoard[][] md array...");
@@ -541,7 +546,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 			printCheckersBoard(strCheckersBoard);
 			
 			// Debug purposes.
-			double heuristicValue = minimax(decisionTree, 3, true);
+			/*double heuristicValue = minimax(decisionTree, 3, true);
 			// Debug purposes.
 			System.out.println("The heuristic value of the minimax algorithm is " + heuristicValue);
 			System.out.println("The bestest move to make is...");
@@ -549,13 +554,67 @@ public class SinglePlayerEvents implements View.OnClickListener
 			
 			ArrayList<Tree<String[][]>> overAllChildren = decisionTree.children();
 			// Returns 7, which is cool. Those 7 children have children of their own.
-			System.out.println("The decisionTree has " + overAllChildren.size() + " children");
+			System.out.println("The decisionTree has " + overAllChildren.size() + " children");*/
 		}
 		
 	}
-
-	
-	// ...Oh, boy.
+	// I will try generating the tree by using recursion as I believe this would be the only way.
+	public void generateStates(ArrayList<Tree<String[][]>> passChildren, int noOfLevels)
+	{
+		if(noOfLevels == 0)
+		{
+			// Terminate the recursive call.
+		}
+		else
+		{
+			for(int n = 0; n < passChildren.size(); n++)
+			{
+				// Each child of the previous node.
+				// This will be used to create another set of states, where this (child) node will become the parent of the next new (nodes) states.
+				Tree<String[][]> nextState = passChildren.get(n);
+				// This does not print out the total of levels in the tree but, what level the node is at :)
+				int currentDepth = nextState.depth();
+				
+				// Now, I need to determine how to differentiate whether it is a min node or a max node. I think I can use the .depth() method.
+					
+				if(currentDepth % 2 == 1)
+				{
+					// Debug purposes. Take note that the depth will change as soon as we iterate at least once through this for-loop
+					System.out.println("Min's turn - The contents of the nextState-" + n + " MD-array at depth " + currentDepth + "...");		
+					// Prints out the text representation of the checkers board (depending on the state)
+					printCheckersBoard(nextState.getValue());
+					// The new states will be created in the method below. This corresponds to the MIN Nodes which will create MAX nodes.
+					initialEnemyCheckForBot(nextState, "1", "2", -1);
+				
+					if(noOfLevels > 1)
+					{
+						// Only creates more children if we say it should.
+						ArrayList<Tree<String[][]>> newChildren = nextState.children();
+						// A recursive call which will add new children to the node.
+						generateStates(newChildren, noOfLevels-1);
+					}
+					// Otherwise, we will not create any more children for these children. i.e. these will be the leaf nodes.
+				}
+				else if(currentDepth % 2 == 0)
+				{
+					// Debug purposes. Take note that the depth will change as soon as we iterate at least once through this for-loop
+					System.out.println("Max's turn - The contents of the nextNextState-" + n + " MD-array at depth " + currentDepth + "...");
+					// Prints out the text representation of the checkers board (depending on the state)
+					printCheckersBoard(nextState.getValue());
+					// This will correspond to the MAX nodes which lastly create MIN nodes... 
+					initialEnemyCheckForBot(nextState, "2", "1", 1);
+					
+					if(noOfLevels > 1)
+					{
+						// Only creates more children if we say it should.
+						ArrayList<Tree<String[][]>> newChildren = nextState.children();
+						// A recursive call which will add new children to the node.
+						generateStates(newChildren, noOfLevels-1);
+					}	
+				}			
+			}
+		}
+	}
 	
 	// I declared this method as synchronised hoping the code runs one at a time otherwise,if I clicked ib two buttons at the same time, I have a hunch
 	// that it may cause a series of problems.
@@ -585,7 +644,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 							computerTurn("2");
 									
 							// We move our pieces as normal.
-							playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1", noOfPiecesPlayerOne);	// Nice, it works.		
+							//playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1", noOfPiecesPlayerOne);	// Nice, it works.		
 						}
 				}// if(squaresOfBoard[x][y].equals(v))
 		}		
