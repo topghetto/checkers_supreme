@@ -51,6 +51,13 @@ public class SinglePlayerEvents implements View.OnClickListener
 	
 	// AI Tree of States
 	public ArrayListTree<String[][]> stateTree;
+	// The Tree of possible states that the AI can go to.
+	public Tree<String[][]> decisionTree;
+	// Keeps track of the number of nodes in the tree
+	public int sizeOfTree;
+	// An experiment to return the move we should take.
+	public Tree<String[][]> greatestMove;
+	
 	// The state of the game represented as a multidimensional array of Strings.
 	// public String[][] currentState;
 	
@@ -100,36 +107,149 @@ public class SinglePlayerEvents implements View.OnClickListener
 		noOfPiecesPlayerOne = 12;
 		noOfPiecesPlayerTwo = 12;
 		
-		// This seems to work.
-		// Tree<String[][]> newTree = new Tree(new String[8][8]);
-		
 	}
-	public int minimax(Tree<String[][]> passNode, boolean maximisingPlayer, int depth, int min, int max)
+	public double minimax(Tree<String[][]> passNode, int depth, boolean maximisingPlayer)
 	{
-		if(depth == 0)
+		// I don't know whether I declare bestValue here or within the if statement. I will try doing it within in the if statements.
+		// Debug purposes.
+		System.out.println("Minimax got called."); // Well, the recursive call gets called.
+		
+		
+		if(depth == 0 || passNode.isLeaf())
 		{
+			// try if(decisionTree.depth() == 0) then this is indeed the root node.
+			
+			// An experiment.
+			/*if()
+			{
+				// This should give us the root... I hope.
+				System.out.println("This is the node I wish to visit...");
+				// Debug purposes.
+				//printCheckersBoard(passNode.getValue());
+			}*/
+			// Debug purposes.
+			System.out.println("Minimax got called at depth == 0"); // Well, the recursive call gets called.
+			// Evaluation will go here.
+			String[][] state = passNode.getValue();
+			// The number of pieces on the board that player one (the human) has ...
+			int noOfPlayerOne = 0;
+			// The number of pieces on the board that player two (the computer) has...
+			int noOfPlayerTwo = 0;
+			
+			// If I can ever get this section properly, in the static evaluation, I can check for consecutive attack opportunities, blah blah.
+			// 
+			
+			for(int row = 0;row < 8; row++)
+			{
+				for(int column=((row+1)%2); column<8; column+=2)
+				{
+					if(state[row][column].contains("1"))
+					{
+						noOfPlayerOne++;
+					}
+					else if(state[row][column].contains("2"))
+					{
+						noOfPlayerTwo++;
+					}
+				}
+			}
+			//printCheckersBoard(state);
+			System.out.println("The number of pieces left for player one is " + noOfPlayerOne);
+			System.out.println("The number of pieces left for player two is " + noOfPlayerTwo);
+			
+			// Evaluate the difference and store it.
+			double result = noOfPlayerTwo - noOfPlayerOne;
+			// Debug purposes.
+			System.out.println("The result of the leaf node is " + result);
+			
 			// Return the heuristic value.
+			return result;
 		}
 		if(maximisingPlayer == true)
 		{
 			// If it is a MAX node...
-			
+			// An experiment
+			Tree<String[][]> bestMove = null;
 			// Initially negative infinity.
-			int bestValue = min;
+			double bestValue = Double.NEGATIVE_INFINITY;
+			// Grab the children of the node passed in.
+			ArrayList<Tree<String[][]>> children = passNode.children();
+			// For each child of the (parent) node
+			for(Tree<String[][]> child : children)
+			{
+				// Recursion call, y'all.
+				double value = minimax(child, depth-1, false);
+				// Debug purposes.
+				System.out.println("The depth of the node ")
+				System.out.print("max(" + bestValue + ", ");
+				// If the new value obtained is larger than the previous bestValue, update the 'bestValue' with the new value.
+				// bestValue = Math.max(bestValue, value);
+				
+				if(value > bestValue)
+				{
+					bestValue = value;
+					// Store the best move... I hope. All this time I have been saving passNode not 'child'... Hopefully, it works now.
+					bestMove = child;
+				}
+				
+				// Debug purposes.
+				System.out.println(value + ") is " + bestValue);
+			}
+			// An experiment.
+			// greatestMove = bestMove;
+			// Return the overall result.
+			return bestValue;
 			
-			
-			
-		}else if(maximisingPlayer = false)
+		}else //if(maximisingPlayer = false)
 		{
 			// If it is a MIN node...
-			
+			// An experiment
+			Tree<String[][]> bestMove = null;
 			// Initially positive infinity.
-			int bestValue = max;
+			double bestValue = Double.POSITIVE_INFINITY;
+			// Grab the children of the node passed in.
+			ArrayList<Tree<String[][]>> children = passNode.children();
+			// For each child of the (parent) node
+			for(Tree<String[][]> child : children)
+			{
+				// A recursive call that will eventually assign the result of that call into 'value'.
+				double value = minimax(child, depth-1, true);
+				// Debug purposes.
+				System.out.print("min(" + bestValue + ", ");
+				// If the new value obtained is smaller than the previous bestValue, update the 'bestValue' with the new value.
+				// bestValue = Math.min(bestValue, value);
+				
+				if(value < bestValue)
+				{
+					bestValue = value;
+					// Store the best move... I hope. Oh, shit, I think I am passing in the wrong node.
+					bestMove = child;
+				}
+				// Debug purposes.
+				System.out.println(value + ") is " + bestValue);
+			}
+			
+			// An experiment.
+			// greatestMove = bestMove;
+			// Return the overall result.
+			return bestValue;
 		}
+	}
+	public void printCheckersBoard(String[][] passCheckersBoard)
+	{
+		// Debug Purposes - This will print out a text representation of the checkers board. 
 		
+		System.out.println("|----------|");
+		for(int c = 0;c <8;c++)
+		{
+			for(int d=0;d<8;d++)
+			{
+				System.out.print(passCheckersBoard[c][d]);
+			}
+			System.out.println("");
+		}
+		System.out.println("|----------|");
 		
-		// I will need to get rid of this. It is only there to keep the compiler happy, of course.
-		return 1;
 	}
 	public void checkPlayerAndAdd(String[][] passStrCheckersBoard, int row, int column, int upOrDown, String opponentNo, String playerNo)
 	{
@@ -147,11 +267,12 @@ public class SinglePlayerEvents implements View.OnClickListener
 		}		
 	}
 	// The code for the AI will be written here...
-	public void initialEnemyCheckForBot(String passStrCheckersBoard[][], String playerNo, String opponentNo, int upOrDown)
+	public void initialEnemyCheckForBot(Tree<String[][]> passNode, String playerNo, String opponentNo, int upOrDown)
 	{
+		// Gets the checkersboard of the (current) state.
+		String[][] theParentState = passNode.getValue();
 		
-		// ------- Paste in Here ------ \\
-		
+		// Only run this when it is empty...
 		if(arrayOfPrevCoordinatesX.size() <= 0)
 		{	
 			// Debug purposes.
@@ -165,35 +286,14 @@ public class SinglePlayerEvents implements View.OnClickListener
 				for(int column=((row+1)%2); column<8; column+=2)
 				{
 					// Checks whether there are any pieces neighbouring any enemy pieces.
-					if(passStrCheckersBoard[row][column] == playerNo || passStrCheckersBoard[row][column].contains(strKing))
+					if(theParentState[row][column] == playerNo || theParentState[row][column].contains(strKing))
 					{
-						// Debug purposes.
-						// System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
-						// Within the method, it checks whether piece can make any valid moves, captures, etc - Adds the coordinates to the ArrayLists.
-						// highlightSquares(passStrCheckersBoard, firstCondition, row, column, upOrDown, attackConstraint, opponentNo, playerNo);
-						// Debug purposes.
 						
 						// ---- I probably should enclose this in a method later on. Did it. Seems okay :) ----- //
 						// checks which player's turn it is before calling the highlightSquares() method within in the method below.
-						checkPlayerAndAdd(passStrCheckersBoard, row, column, upOrDown, opponentNo, playerNo);
-						
-						/*if(playerNo == "1")
-						{
-							// Debug purposes.
-							// System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
-							highlightSquares(passStrCheckersBoard, row >= 1 && row <=7, row, column, upOrDown, row >=2, opponentNo, playerNo);
-						}
-						else if(playerNo == "2")
-						{
-							// Debug purposes.
-							// System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
-							highlightSquares(passStrCheckersBoard, row >= 0 && row <= 6, row, column, upOrDown, row <=5, opponentNo, playerNo);
-						}*/		
-						// --- Yup ----- //
-						
+						checkPlayerAndAdd(theParentState, row, column, upOrDown, opponentNo, playerNo);
+						// Debug purposes.
 						seenCount++;
-						// Outputs zero. Is there something I am missing? Maybe, I need to look into the highlightSquares() method.
-						System.out.println("Within the initialCheck...() method, the size of xPrevAxis.size() is " + xPrevAxis.size());
 						
 						if(xEnemyAxis.size() > 0)
 						{
@@ -215,7 +315,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 							}else if(arrayOfEnemyCoordinatesX.size() > 0)
 							{
 								// Debug purposes.
-								System.out.println("else if(arrayOfEnemyCoordinatesX.size() > 0) is true");
+								// System.out.println("else if(arrayOfEnemyCoordinatesX.size() > 0) is true");
 								// Appends the coordinates to the master ArrayLists
 								addToMasterLists(xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis);	
 								// Then clear the standard ArrayLists and repeat.
@@ -226,7 +326,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 						{
 							// Missing the arrayOfEnemyCoordinatesX.size() <= 0 condition so, if we didn't see another enemy, this would get run anyway, which we don't.
 							// Debug purposes.
-							System.out.println("else if(xPrevAxis.size() >0) is true");
+							// System.out.println("else if(xPrevAxis.size() >0) is true");
 							// if no enemies have been seen yet, then this section corresponds to a normal move that will be made later on.
 							// Also, it also needs to be a piece that can actually make a move whereas before, I forgot to add that validation.
 							// Add the coordinates to the master ArrayLists
@@ -243,9 +343,9 @@ public class SinglePlayerEvents implements View.OnClickListener
 			}
 			
 			// Debug purposes.
-			System.out.println("The number of pieces that we have not seen for player " + playerNo + " is " + notSeenCount);
+			// System.out.println("The number of pieces that we have not seen for player " + playerNo + " is " + notSeenCount);
 			// Debug purposes.
-			System.out.println("The number of pieces that we have seen for player " + playerNo + " is " + seenCount);
+			// System.out.println("The number of pieces that we have seen for player " + playerNo + " is " + seenCount);
 			
 			// Now, we can create the nodes here, I think.
 		
@@ -274,72 +374,31 @@ public class SinglePlayerEvents implements View.OnClickListener
 				{
 					// Create a state for each move preserving the original state.
 					String[][] newLocationState = new String[8][8];
+					// Grabs the String[][] representation of the parent state.
+					// String[][] theParentState = passNode.getValue();
 					// Copy the contents of the state (possibly the current state, or a level up) into the new array, which we will modify to
 					// ...Create a new state. Okay, this works fine. Yay :)
-					duplicateArray(passStrCheckersBoard, newLocationState);
+					duplicateArray(theParentState, newLocationState);
 					// This section is where each move made, it will then create a new state (node).
 					int xAxisOfDest = autoPrevX.get(eachSquare).intValue();
 					int yAxisOfDest = autoPrevY.get(eachSquare).intValue();
 					
 					// Debug purposes.
-					System.out.println("State " + eachSquare + " of piece number " + e);
+					// System.out.println("State " + eachSquare + " of piece number " + e);
 					// At the moment it makes the moves but, the states are not being preserved. In other words, it gets overwritten as we go along.
 					// Debug purposes.
-					System.out.println("Master List " + e + ": autoPrevX.get(" +eachSquare + ")=" + xAxisOfDest + "and autoPrevY.get(" + eachSquare + ")=" + yAxisOfDest);
+					// System.out.println("Master List " + e + ": autoPrevX.get(" +eachSquare + ")=" + xAxisOfDest + "and autoPrevY.get(" + eachSquare + ")=" + yAxisOfDest);
 					// This will create the state with the potential move.
 					movePiece(newLocationState, imageOfSquares, xAxisOfDest, yAxisOfDest, upOrDown, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, 0, 0, true);
 					
-					// I will need to check if it is a potential enemy capture, after capture is made, it must check if the piece (that made the capture)
-					// at the new location is adjacent to another enemy, we will check using the highlightSquares() method that does all the hard work :)
-					// if so, we will call movePiece() with different variables passed into the parameter.
-					
-					/*
-					// checks which player's turn it is before calling the highlightSquares() method within in the method below.
-					// checkPlayerAndAdd(passStrCheckersBoard, xAxisOfDest, yAxisOfDest, upOrDown, opponentNo, playerNo);
-					
-					if(xEnemyAxis.size() > 0)
-					{
-						// Yada.
-						isEnemyAdjacent = true;
-						
-						while(isEnemyAdjacent == true)
-						{
-							// This will create the state with the potential move.
-							movePiece(newLocationState, imageOfSquares, xAxisOfDest, yAxisOfDest, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, 0, 0, true);
-							// Assuming that we have made the (potential) capture, we check again if the piece is adjacent to another enemy at our new-new location.
-							checkPlayerAndAdd(passStrCheckersBoard, xAxisOfDest, yAxisOfDest, upOrDown, opponentNo, playerNo);
-							
-							if(xEnemyAxis.size() >= 0)
-							{
-								isEnemyAdjacent = true;
-							}
-							else
-							{
-								isEnemyAdjacent = false;
-							}
-						}
-						
-					}
-					
-					*/
-					
-					try
-					{
-						// The ArrayListTree cannot add duplicate value so, this might cause problems in the future.
-						// Adds the potential move to the current state node. 
-						stateTree.add(passStrCheckersBoard, newLocationState);
-						// Our new tree thang.
-						
-					}
-					catch(NodeNotFoundException nnfe)
-					{
-						// An actual debug :P
-						System.out.println(nnfe);
-					}				
+					// Our new tree thang.
+					passNode.addChild(new Tree(newLocationState));
+					// Increment the size of the tree by 1.
+					sizeOfTree++;			
 				}
 			}
 			// Debug purposes. - Just as I though, initally it says the size is 12 but, really it should be 4. 
-			System.out.println("The size of arrayOfPrevCoordinatesX = " + arrayOfPrevCoordinatesX.size());
+			// System.out.println("The size of arrayOfPrevCoordinatesX = " + arrayOfPrevCoordinatesX.size());
 			// Make sure I clear the Master ArrayLists.
 			clearMasterLists();
 			
@@ -347,7 +406,6 @@ public class SinglePlayerEvents implements View.OnClickListener
 			
 		}	// End of initial check before player makes a move (except for consecutive captures)
 	}
-	
 	public void duplicateArray(String[][] source, String[][] destination)
 	{
 		// When simply copying an array by re-assigning it to a new copy (theorectically, it would copy the contents) but, really it...
@@ -362,137 +420,170 @@ public class SinglePlayerEvents implements View.OnClickListener
 			}
 		}
 	}
-	
 	public void computerTurn(String playerNo)
 	{
-		// Create the Tree... Yippee so, far so good.
-		stateTree = new ArrayListTree<String[][]>();
 		// This will later hold a copy of the current state.
 		String[][] currentState = new String[8][8];
 		// Copy the contents of the checkers board into a temporary array which corresponds to the current state.
-		duplicateArray(strCheckersBoard, currentState);	
-		// Make the current state the root node of our 'stateTree'
-		stateTree.add(currentState);
-		// Using a different Tree data structure.
-		
+		duplicateArray(strCheckersBoard, currentState);
+		// Using a different Tree data structure - I am assuming this initialises the tree with the current state as the root.
+		decisionTree = new Tree(currentState);
+		// An attempt to track the total number of nodes.
+		sizeOfTree = 1;
+
+		// I will try to generate the tree within the minimax method instead.
 		
 		if(playerNo == "2")
 		{
-			// This will correspond to the root MAX node...
-			initialEnemyCheckForBot(currentState, "2", "1", 1);
+			// This will correspond to the root MAX node which will create MIN nodes... This works okay.
+			initialEnemyCheckForBot(decisionTree, "2", "1", 1);
+			// Debug purposes. - So far, so good.
+			System.out.println("The decisionTree now has " + decisionTree.children().size() + " child nodes.");
+			System.out.println("The decisionTree root a is at depth " + decisionTree.depth());
+			// Now, I must pass in the children (which is 7 assuming that I moved the black the piece on the top-leftmost square to the left.)
+			ArrayList<Tree<String[][]>> children = decisionTree.children();
 			
-			// if i < 4, it creates at least 12485 nodes in the stateTree which takes 5 minutes to generate but, then again,
-			// that might be because System.out.println() can be time consuming. I should remember to comment all my System.out... to speed things up.
-			// if i < 2, it creates at least 332 nodes in the state tree which takes around 10 seconds to generate.
-			// Now, it creates at least 292 nodes in the state tree which nows takes only 7 seconds to generate. I achieved this by writing the code
-			// so that if a piece was adjacent to an enemy, it will create a state only if it is adjacent to an enemy, otherwise making other states
-			// for standard moves would be useless because when a piece is adjacent to an enemy, it is compulsory to make a capture so those states
-			// will never be used.
 			
-			for(int i = 0; i < 2;i++)
+			// Okay, it does look better.
+			/*
+			for(int n = 0; n < children.size(); n++)
 			{
-				// ---- Paste in here cuz... ---- //
-				
-				// Grab the current list of children.
-				List<String[][]> children = (List<String[][]>) stateTree.leaves();
-				// Debug purposes
-				int currentDepth = stateTree.depth();
-				// Debug purposes.
-				System.out.println("The size of the children at depth " + currentDepth +" is " + children.size());
-					
-				for(int addToState = 0; addToState < children.size();addToState++)
-				{
-					// This will be used to create another set of states, where this (child) node will be the parent of the next new states.
-					String[][] nextState = children.get(addToState);
-					// Debug purposes. Take note that the depth will change as soon as we iterate at least once through this for-loop
-					System.out.println("The contents of the nextState-" + addToState + " MD-array at depth " + currentDepth + "...");
+				// Each child of the previous node.
+				// This will be used to create another set of states, where this (child) node will become the parent of the next new (nodes) states.
+				Tree<String[][]> nextState = children.get(n);
+				// This does not print out the total of levels in the tree but, what level the node is at :)
+				int currentDepth = nextState.depth();
+				// Debug purposes. Take note that the depth will change as soon as we iterate at least once through this for-loop
+				System.out.println("Min's turn - The contents of the nextState-" + n + " MD-array at depth " + currentDepth + "...");
 						
-					for(int c = 0;c <8;c++)
-					{
-						for(int d=0;d<8;d++)
-						{
-							System.out.print(nextState[c][d]);
-						}
-						System.out.println("");
-					}
-					System.out.println("|----------|");
-					
-					// This will correspond to the Min node at depth 1, 3, 5, and so forth... The opponent's turn.
-					if((i+1)% 2 == 1)
-					{
-						// This will correspond to the root MIN node... The opponent's turn. Well, this seems to be working fine.
-						// the nextState-0 MD-array at first iteration of this loop creates the right states. the nextState-1 MD-array also
-						// creates the right states. It would take a while to check the rest so, I will just assume the rest are okay. So, far so good.
-						initialEnemyCheckForBot(nextState, "1", "2", -1);
-					}
-					// This will correspond to the Max node at depth 0, 2, 4, and so forth... The computer's turn.
-					else if((i+1) % 2 == 0)
-					{
-						// This will correspond to the root MAX node... Enable this later on.
-						initialEnemyCheckForBot(nextState, "2", "1", 1);
-					}				
-				}
-			}
-			
-			// Debug purposes...
-			ArrayListTree<String> testTree = new ArrayListTree<String>();	
-			try
-			{
-				testTree.add("Root");
-				testTree.add("Root", "1");
-				testTree.add("Root", "2");
-				testTree.add("Root", "3");
+				// Prints out the text representation of the checkers board (depending on the state)
+				//printCheckersBoard(nextState.getValue());
 				
-				testTree.add("1", "1.1");
-				testTree.add("1", "1.2");
-				testTree.add("1", "1.3");
+				// The new states will be created in the method below. This corresponds to the MIN Nodes which will create MAX nodes. This works okay :)
+				initialEnemyCheckForBot(nextState, "1", "2", -1);
 				
-				// It does not add duplicates! Maybe, that's why my code is not working as expected.
-				testTree.add("2", "2.1");
-				testTree.add("2", "2.2");
-				testTree.add("2", "2.3");
-			}catch(NodeNotFoundException nnfe)
-			{
-				// Print the error.
-				System.err.println(nnfe);
-			}
-			// Yup, it prints out 10. 	
-			System.out.println("The size of the the testTree is " + testTree.size());
-			// And it prints out 3 which is true.
-			System.out.println("And the depth of the tree is " + testTree.depth());
-			//
-			System.out.println("The size of the the stateTree is " + stateTree.size());
-			//
-			System.out.println("And the depth of the stateTree is " + stateTree.depth());
-			
-			// --- Debug Purposes --- //
-			// The strCheckersBoard[][] ends up getting modified through the currentState[][] array which brings me to the conclusion,
-			// that when assigning an old array to a new array, it does not copy the contents over but, instead, it justs store the location
-			// of the old array so, if we modified the new array, it would actually be modifying the old array.
-			// Also
+				// Children's children.
+				ArrayList<Tree<String[][]>> newChildren = nextState.children();
 				
-				System.out.println("This is the actual strCheckersBoard[][] md array...");
-					
-				for(int c = 0;c <8;c++)
+				for(int ns = 0; ns < newChildren.size();ns++)
 				{
-					for(int d=0;d<8;d++)
-					{
-						System.out.print(strCheckersBoard[c][d]);
-					}
-					System.out.println("");
+					// This will be used to create another set of states based on the new children we recently acquired.
+					Tree<String[][]> nextNextState = newChildren.get(ns);
+					// This does not print out the total of levels in the tree but, what level the node is at :)
+					currentDepth = nextNextState.depth();
+					// Debug purposes. Take note that the depth will change as soon as we iterate at least once through this for-loop
+					System.out.println("Max's turn - The contents of the nextNextState-" + ns + " MD-array at depth " + currentDepth + "...");
+					
+					// --- Print for-loop code goes here --- //
+					
+					// Prints out the text representation of the checkers board (depending on the state)
+					printCheckersBoard(nextNextState.getValue());
+					
+					// This will correspond to the MAX nodes which lastly create MIN nodes... This works okay.
+					initialEnemyCheckForBot(nextNextState, "2", "1", 1);
+					
 				}
-				System.out.println("|----------|");
+			}*/
 			
+			// Debug purposes.
+			System.out.println("Let's start the recursive call...");
+			// Recursion - Well, it outputs a size of 292 nodes, which is correct. I just need to check if the states are being printed correctly.
+			generateStates(children, 2);
+			
+			// I need to double check whether the output of the size is indeed correct. This returns 55 but, before using the new Tree class
+			// I think I got value of 61. However, this might have been before implementing the state pruning if an enemy is adjacent to a piece.
+			// Only called initialEnemyCheckForBot() twice so, this corresponds to a depth of 3.
+			// Calling initialEnemyCheckForBot() three times yields 292 nodes which was the same value
+			// I obtained when I used the other ArrayListTree data structure.
+			System.out.println("The size of the decisionTree is " + sizeOfTree);
+			// Debug purposes.	
+			// System.out.println("This is the actual strCheckersBoard[][] md array...");
+			// Prints out the text representation of the checkers board 
+			//printCheckersBoard(strCheckersBoard);
+			
+			// Debug purposes. - Oh, shit, I forgot to change the depth to 5...
+			double heuristicValue = minimax(decisionTree, 3, true);
+			// Debug purposes.
+			System.out.println("The heuristic value of the minimax algorithm is " + heuristicValue);
+			//int depthOfGreatestMove = greatestMove.depth();
+			//System.out.println("The greatest move to make is and its depth is " + depthOfGreatestMove + " ...");
+			
+			// I guess this works in a sense that it returns the parent of the node but, the greatestMove node is the problem itsel
+			// while(depthOfGreatestMove > 1)
+			//{
+			//	greatestMove = greatestMove.parent();
+			//	depthOfGreatestMove--;
+			//}
+			
+			//printCheckersBoard(greatestMove.getValue());
+			
+			ArrayList<Tree<String[][]>> overAllChildren = decisionTree.children();
+			// Returns 7, which is cool. Those 7 children have children of their own.
+			System.out.println("The decisionTree has " + overAllChildren.size() + " children");
 		}
 		
-		
-		
-		// ======== Paste code in here ---- ///
-		
 	}
-
-	
-	// ...Oh, boy.
+	// I will try generating the tree by using recursion as I believe this would be the only way.
+	public void generateStates(ArrayList<Tree<String[][]>> passChildren, int noOfLevels)
+	{
+		if(noOfLevels == 0)
+		{
+			// Terminate the recursive call.
+		}
+		else
+		{
+			for(int n = 0; n < passChildren.size(); n++)
+			{
+				// Each child of the previous node.
+				// This will be used to create another set of states, where this (child) node will become the parent of the next new (nodes) states.
+				Tree<String[][]> nextState = passChildren.get(n);
+				// This does not print out the total of levels in the tree but, what level the node is at :)
+				int currentDepth = nextState.depth();
+				
+				// Now, I need to determine how to differentiate whether it is a min node or a max node. I think I can use the .depth() method.
+					
+				if(currentDepth % 2 == 1)
+				{
+					// Debug purposes. Take note that the depth will change as soon as we iterate at least once through this for-loop
+					// System.out.println("Min's turn - The contents of the nextState-" + n + " MD-array at depth " + currentDepth + "...");		
+					// Prints out the text representation of the checkers board (depending on the state)
+					// printCheckersBoard(nextState.getValue());
+					// The new states will be created in the method below. This corresponds to the MIN Nodes which will create MAX nodes.
+					initialEnemyCheckForBot(nextState, "1", "2", -1);
+				
+					if(noOfLevels > 1)
+					{
+						// We only grab the list of children if they are within the specified number of levels.
+						ArrayList<Tree<String[][]>> newChildren = nextState.children();
+						// The size of the new children...
+						// System.out.println("The size of the new children is " + newChildren.size());
+						// A recursive call which will add new children to the node.
+						generateStates(newChildren, noOfLevels-1);
+					}
+					// Otherwise, we will not create any more children for these children. i.e. these will be the leaf nodes.
+				}
+				else if(currentDepth % 2 == 0)
+				{
+					// Debug purposes. Take note that the depth will change as soon as we iterate at least once through this for-loop
+					//System.out.println("Max's turn - The contents of the nextNextState-" + n + " MD-array at depth " + currentDepth + "...");
+					// Prints out the text representation of the checkers board (depending on the state)
+					//printCheckersBoard(nextState.getValue());
+					// This will correspond to the MAX nodes which lastly create MIN nodes... 
+					initialEnemyCheckForBot(nextState, "2", "1", 1);
+					
+					if(noOfLevels > 1)
+					{
+						// Only creates more children if we say it should.
+						ArrayList<Tree<String[][]>> newChildren = nextState.children();
+						// The size of the new children...
+						//System.out.println("The size of the new children is " + newChildren.size());
+						// A recursive call which will add new children to the node.
+						generateStates(newChildren, noOfLevels-1);
+					}	
+				}			
+			}
+		}
+	}
 	
 	// I declared this method as synchronised hoping the code runs one at a time otherwise,if I clicked ib two buttons at the same time, I have a hunch
 	// that it may cause a series of problems.
@@ -522,7 +613,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 							computerTurn("2");
 									
 							// We move our pieces as normal.
-							//playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1", noOfPiecesPlayerOne);	// Nice, it works.		
+							playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1", noOfPiecesPlayerOne);	// Nice, it works.		
 						}
 				}// if(squaresOfBoard[x][y].equals(v))
 		}		
@@ -573,7 +664,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 				addCoordinatesToLists(x, y, upOrDown, leftOrRight);
 			}
 			// Debug purposes.
-			System.out.println("First entire 'if' statment went through");
+			// System.out.println("First entire 'if' statment went through");
 		}
 		else if(secondCondition)	// If neighbouring square is an empty one, prepare an highlight.
 		{
@@ -596,7 +687,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 				yPrevAxis.add(y+leftOrRight);
 			}	
 			// Debug purposes.
-			System.out.println("Second entire 'if' statment went through");				
+			// System.out.println("Second entire 'if' statment went through");				
 		}		
 	}
 	public void highlightSquares(String[][] passStrCheckersBoard, boolean passCondition, int passX, int passY, int upOrDown, boolean attackConstraint, String opponentNo, String playerNo)
@@ -990,29 +1081,21 @@ public class SinglePlayerEvents implements View.OnClickListener
 				removeHighlights(passListOfRows, passListOfColumns);
 				
 				// --- Debug Purposes --- //
-				System.out.println("We have succesfully moved the piece. The values of the successful move were...");
-					
-				for(int c = 0;c <8;c++)
-				{
-					for(int d=0;d<8;d++)
-					{
-						System.out.print(passStrCheckersBoard[c][d]);
-					}
-					System.out.println("");
-				}
-				System.out.println("|----------|");
+				/*System.out.println("We have succesfully moved the piece. The values of the successful move were...");		
+				// Prints out the text representation of the checkers board 
+				printCheckersBoard(passStrCheckersBoard);
 				// --- Debug Purposes --- //
 				System.out.println("x= " + x + "and y= " + y + ". prevX= " + prevX + "and prevY= " + prevY);
-				System.out.println("===========================================================================================");
+				System.out.println("===========================================================================================");*/
 				
 			}else
 			{
-				// Debug purposes.
+				/*// Debug purposes.
 				System.out.println("We did not make a move because x and y did not equal prevX and prevY. Their values were...");
 				System.out.println("x= " + x + "and y= " + y + ". prevX= " + prevX + "and prevY= " + prevY);
 				System.out.println("===========================================================================================");
 				// Debug purposes.
-				// System.out.println("We do nothing because an opposing piece was clicked or it was an invalid move.");
+				// System.out.println("We do nothing because an opposing piece was clicked or it was an invalid move.");*/
 			}
 		}							
 	}
