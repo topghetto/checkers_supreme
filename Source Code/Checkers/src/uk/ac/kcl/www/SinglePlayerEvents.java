@@ -119,15 +119,19 @@ public class SinglePlayerEvents implements View.OnClickListener
 		// The number of pieces on the board that player two (the computer) has...
 		int noOfPlayerTwo = 0;
 		// 3. calculate how many pieces are close to becoming kings. The total number of pieces in 0,1,2 for player 1 and 5,6,&7 for player 2.
-		int playerOneOffense = 0, playerTwoOffense = 0;
+		double playerOneOffense = 0, playerTwoOffense = 0;
+		// 4. A sum total of protected pieces so, count number of pieces that have a neighbour of itself, and exclude the piece itself from the sum.
+		double playerOneDefense = 0, playerTwoDefense = 0;
 		
 		// If I can ever get this section properly, in the static evaluation, I can check for consecutive attack opportunities, blah blah.
-		// 1. Counts the number of player two's (CPU) pieces to player one's (Human) piece, and also takes the number of kings into consideration.
+		
 		
 		for(int row = 0;row < 8; row++)
 		{
 			for(int column=((row+1)%2); column<8; column+=2)
 			{
+				// 1. Counts the number of player two's (CPU) pieces to player one's (Human) piece,
+				// and also takes the number of kings into consideration.
 				if(state[row][column].equals("1"))
 				{
 					// If it is a standard piece, increase the heuristic.
@@ -164,9 +168,52 @@ public class SinglePlayerEvents implements View.OnClickListener
 					}
 				}
 			}
+			// 4. A sum total of protected pieces so, count number of pieces that have a neighbour of itself, and exclude the piece itself from the sum.
+			if(state[row][column].contains("1"))
+			{
+				// Player one...
+				if(row <= 1 && row <= 7 && column >= 1 && column <= 6 && state[row-1][column-1].contains("1") && state[row-1][column+1].contains("1"))
+				{
+					// Increase the number of pieces that are well protected for player one.
+					playerOneDefense = playerOneDefense + 0.20;
+				}
+				// 5. Defense against kings. I probably should change row >= 0 to 1 instead but, I will look into this.
+				if(row >= 0 && row <= 6 && column >= 1 && column <= 6 && state[row+1][column-1].contains("1") && state[row+1][column+1].contains("1"))
+				{
+					// Increase the number of pieces that are well protected for player one.
+					playerOneDefense = playerOneDefense + 0.10;
+				}
+				// 6. Defense - pieces on the side of the board.
+				if(column == 0 || column == 7)
+				{
+					// Increase the number of pieces that are well protected for player one.
+					playerOneDefense = playerOneDefense + 0.20;
+				}
+			}
+			if(state[row][column].contains("2"))
+			{
+				// Player two...
+				if(row >= 0 && row <= 6 && column >= 1 && column <= 6 && state[row+1][column-1].contains("2") && state[row+1][column+1].contains("2"))
+				{
+					// Increase the number of pieces that are well protected for player two.
+					playerTwoDefense = playerTwoDefense + 0.20;
+				}
+				// 5. Defense against kings. 
+				if(row >= 1 && row <= 7 && column >= 1 && column <= 6 && state[row-1][column-1].contains("2") && state[row-1][column+1].contains("2"))
+				{
+					// Increase the number of pieces that are well protected for player two.
+					playerTwoDefense = playerTwoDefense + 0.10;
+				}
+				// 6. Defense - pieces on the side of the board.
+				if(column == 0 || column == 7)
+				{
+					// Increase the number of pieces that are well protected for player one.
+					playerTwoDefense = playerTwoDefense + 0.20;
+				}
+			}
 		}
 			
-		// 4. A sum total of protected pieces so, count number of pieces that have a neighbour of itself, and exclude the piece itself from the sum.
+		
 		
 					
 		//printCheckersBoard(state);
