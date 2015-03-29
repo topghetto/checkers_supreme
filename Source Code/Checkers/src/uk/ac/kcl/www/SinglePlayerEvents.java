@@ -264,16 +264,18 @@ public class SinglePlayerEvents implements View.OnClickListener
 				if(value > bestValue)
 				{
 					bestValue = value;
-					// Store the best move... I hope. All this time I have been saving passNode not 'child'... Hopefully, it works now.
-					// bestMove = child;
-					
-					// An experiment.
-					System.out.println("The value of this state...");
-					printCheckersBoard(child.getValue());
-					System.out.println("Is better (MAX) than the old best value:");
-					printCheckersBoard(greatestMove.getValue());
-					// Lala
-					greatestMove = child;		
+					// Store the best move... I hope. All this time I have been saving passNode not 'child'... Hopefully, it works now.	
+					// An experiment. using 'passNode' always picks the last moveable piece in the tree.		
+					if(passNode.isRoot())
+					{
+						// Well, it picks sometimes first child, and even second child. It may actually be working now. I'll run some more tests.
+						// Debug purposes.
+						System.out.println("This is the root node within in the minimax recursive stack and here are the contents of one child from root:");
+						// Print the board, yup.
+						printCheckersBoard(child.getValue());
+						// Store the greatest move.
+						greatestMove = child;	
+					}	
 				}
 				
 				// Debug purposes.
@@ -307,15 +309,16 @@ public class SinglePlayerEvents implements View.OnClickListener
 				{
 					bestValue = value;
 					// Store the best move... I hope. Oh, shit, I think I am passing in the wrong node.
-					// bestMove = child;
-					
-					// An experiment.
-					System.out.println("The value of this state:");
-					printCheckersBoard(child.getValue());
-					System.out.println("Is better (MIN) than the old best value:");
-					printCheckersBoard(greatestMove.getValue());
-					// Lala
-					greatestMove = child;		
+					// An experiment. using 'passNode' always picks the last moveable piece in the tree.		
+					if(passNode.isRoot())
+					{
+						// Debug purposes.
+						System.out.println("This is the root node within in the minimax recursive stack and here are the contents of one child from root:");
+						// Print the board, yup.
+						printCheckersBoard(child.getValue());
+						// Store the greatest move.
+						greatestMove = child;	
+					}	
 				}
 				// Debug purposes.
 				System.out.println(value + ") is " + bestValue);
@@ -539,7 +542,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 			// A huge take on generating the states as we go along.
 			minimax(decisionTree, 3, true);
 			// Debug purposes - it prints out 292 nodes for a depth of 3, which is correct and I will assume that the correct states are being created.
-			System.out.println("The size of the decisionTree after the minimax operation is " + sizeOfTree);
+			System.out.println("The size of the decisionTree after the minimax operation is " + sizeOfTree + " and the greatest move is ");
 			
 			/*int depthOfGreatestMove = greatestMove.depth();
 			while(depthOfGreatestMove > 1)
@@ -548,7 +551,11 @@ public class SinglePlayerEvents implements View.OnClickListener
 				depthOfGreatestMove--;
 			}*/
 			
-			printCheckersBoard(greatestMove.getValue());
+			printCheckersBoard(greatestMove.getValue()); // So far, it grabs the states at depth 3 (which are the states at the cut-off depth). 
+			
+			//System.out.println("By using an experimental technique, the move that we obtain is...");
+			// Prints the contents of the root node.
+			//printCheckersBoard(decisionTree.getValue()); // Well, I need get back to this. Modify the node swap code within the minimax method.
 			
 			// Okay, it does look better.
 			/*
