@@ -108,9 +108,120 @@ public class SinglePlayerEvents implements View.OnClickListener
 		noOfPiecesPlayerTwo = 12;
 		
 	}
-	public void determinePiece(Tree<String[][]> passNode, String playerNo, String opponentNo, boolean forDecisionTree)
+	public void determinePiece(Tree<String[][]> passNode, String[][] state, String playerNo, String opponentNo, boolean forDecisionTree, int upOrDown, int destImg, int passImgOfKing)
 	{
 		// This will find out which piece was actually moved.
+		
+		// We grab the state of the parent node.
+		String[][] parentState = passNode.parent().getValue();
+		
+		for(int row = 0;row < 8; row++)
+		{
+			for(int column=((row+1)%2); column<8; column+=2)
+			{
+				// If the coordinates of both the parentState and the current state do not match, it is safe to assume that was the piece that was moved.
+				// I will need more conditions within this statement. Yeah, this might actually be long, aha.
+				// I need this to work for both directions, and shit.
+				if(parentState[row][column] != state[row][column])
+				{
+					// This should work for both directions... I hope. The OR operation is a shortcut to check the vice-versa instead of having to iterate until we reach the opposite side. I'll explain this in a bit. || (parentState[row][column].contains("0") && state[row][column].contains("2"))
+					if((state[row][column].contains("0") && parentState[row][column].contains(playerNo)))
+					{
+						// This piece moved on its accord (i.e. it was not captured by the opponent). I think that should be okay for now.
+						// Store the coordinates of the piece that was moved.
+						int xOfPiece = row, yOfPiece = column;
+						
+						// Duplicate the parent state.
+						String[][] copyParentState = new String[8][8];
+						duplicateArray(parentState, copyParentState);
+						// We need to check if it was a standard move or a capture. 
+						highlightSquares(copyParentState, xOfPiece, yOfPiece, upOrDown, opponentNo, playerNo);
+						// We also need to grab the coordinates of the new location...
+						int destinationX = 0;
+						int destinationY = 0;
+						
+						for(int l = 1; l < xPrevAxis.size();l++)
+						{
+							// The coordinates to test.
+							destinationX = xPrevAxis.get(l).intValue();
+							destinationY = yPrevAxis.get(l).intValue();
+							
+							// I think I will need better validations placed but, for now, I will use this. 
+							if(state[destinationX][destinationY].contains(playerNo))
+							{
+								// Make it the last iteration.
+								l = xPrevAxis.size();
+								// We got the coordinates. Well, I hope we did.
+							}
+						}	
+						// Now, that we have the correct coordinates of the piece moved, we must also check if within the state, whether a capture was performed.
+						// if a capture was performed then do the following...
+						if(xEnemyAxis.size() > 0)
+						{
+							// Debug purposes.
+							System.out.println("Within the state at the cut-off depth, a capture was performed by player " + playerNo);
+							printCheckersBoard(parentState);
+							System.out.println("Here is the state after the capture was performed by player " + playerNo);
+							printCheckersBoard(state);
+							
+							// We need a condition here so, that when it is an actual move we want to perform on the board.
+							// We make state[][] = parentState[][] so, the actual board itself gets modified. forDecisionTree = false should also do the trick.
+							if(forDecisionTree == false)
+							{
+								// If we are performing an actual move (by the AI bot), then we want to modify the contents of the actual checkersboard.
+								// So, whenever we modify the 'state' we are actually modifying the 'parentState' which is also the actual checkersboard ;) 
+								state = parentState;
+							}
+							
+							// This piece performed a capture so, we see if it is adjacent to an enemy at the new location.
+							boolean adjacentToEnemy = true;
+							// It is more explicit for me if I use == true instead of just the variable name itself as the condition.
+							while(adjacentToEnemy == true)
+							{
+								// Clear the helper ArrayLists.
+								clearHelperArrays();
+								// Creates the necessary coordinates, and their ArrayLists too.
+								highlightSquares(state, destinationX, destinationY, upOrDown, opponentNo, playerNo);
+								
+								if(xEnemyAxis.size() > 0)
+								{
+									// Updates the destination coordinates with the newly obtained ones. Automatically, picks the first move-capture.
+									destinationX = xPrevAxis.get(1).intValue();
+									destinationY = yPrevAxis.get(1).intValue();
+									// It is adjacent so, we perform the move, yada yada yada. REMEMBER TO PASS IN THE RESOURCE IMAGES INTO THE METHOD BELOW!!!
+									movePiece(state, imageOfSquares, destinationX, destinationY, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
+									// Debug purposes. Insert variable later on. This went into an infinite loop. I forgot to re-assign destinationX/Y
+									System.out.println("Another capture was made, making this a consecutive capture performed by player " + playerNo);
+									printCheckersBoard(state);
+								}
+								else // no more adjacent enemies.
+								{
+									// Clear the helper ArrayLists.
+									clearHelperArrays();
+									// No more.
+									adjacentToEnemy = false;
+								}
+							}	
+						}
+						else
+						{
+							// We need an if statement here because we may use this method to actually move the piece for the AI. forDecisionTree == true should suffice
+							if(forDecisionTree == false)
+							{
+								// Which means this is an actual move the computer is about to make... We move the piece
+								// movePiece(state, imageOfSquares, destinationX, destinationY, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
+								//hand over our turn to the opponent (i.e. the human).
+								// playerOneTurn == true;
+							}
+							// It was just a standard move...
+							clearHelperArrays();		
+						}	
+						// Makes sure this is the last iteration of the for-loop.
+						row = 8; column = 8;
+					}					
+				}		
+			}
+		}	
 	}
 	public double evaluateNode(Tree<String[][]> passNode)
 	{
@@ -127,11 +238,13 @@ public class SinglePlayerEvents implements View.OnClickListener
 		// 4. A sum total of protected pieces so, count number of pieces that have a neighbour of itself, and exclude the piece itself from the sum.
 		double playerOneDefense = 0, playerTwoDefense = 0;
 		
-		// If I can ever get this section properly, in the static evaluation, I can check for consecutive attack opportunities, blah blah.
 		
-		// Determine whether it is an enemy capture (and check for consecutive captures).
+		// Determine whether it is an enemy capture (and also checks for consecutive captures).
+		// In a sense of evaluating the states at the cut-off depth, it seems to be working well.
+		determinePiece(passNode, state, "2", "1", true, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece);
+		// After the CPU has performed consecutive captures, for even better accuracy, I should call this method again but, from the perspective of the opponent. I shall implement soon... I hope.
 		
-		String[][] parentState = passNode.parent().getValue();
+		/*String[][] parentState = passNode.parent().getValue();
 		
 		for(int row = 0;row < 8; row++)
 		{
@@ -219,7 +332,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 				}		
 			}
 		}	
-	
+		*/
 		// End of checking whether the state was a state where consecutive captures could be made.
 		
 		for(int row = 0;row < 8; row++)
@@ -815,7 +928,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 						else
 						{
 							// The AI Code will go here... Now, where to begin.	
-							//computerTurn("2");
+							computerTurn("2");
 									
 							// We move our pieces as normal.
 							playerTurn("2", strCheckersBoard, v, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, "1", noOfPiecesPlayerOne);	// Nice, it works.
