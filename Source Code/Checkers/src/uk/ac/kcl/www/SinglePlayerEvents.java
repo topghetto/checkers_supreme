@@ -108,7 +108,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 		noOfPiecesPlayerTwo = 12;
 		
 	}
-	public void determinePiece(Tree<String[][]> passNode, String[][] state, String playerNo, String opponentNo, boolean forDecisionTree, int upOrDown, int destImg, int passImgOfKing)
+	public void determinePieceAndMove(Tree<String[][]> passNode, String[][] state, String playerNo, String opponentNo, boolean forDecisionTree, int upOrDown, int destImg, int passImgOfKing)
 	{
 		// This will find out which piece was actually moved.
 		
@@ -164,7 +164,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 							System.out.println("Here is the state after the capture was performed by player " + playerNo);
 							printCheckersBoard(state);
 							
-							// We need a condition here so, that when it is an actual move we want to perform on the board.
+							// We need a condition here so, that when it is an actual move we want to perform on the board, we do it.
 							// We make state[][] = parentState[][] so, the actual board itself gets modified. forDecisionTree = false should also do the trick.
 							if(forDecisionTree == false)
 							{
@@ -241,7 +241,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 		
 		// Determine whether it is an enemy capture (and also checks for consecutive captures).
 		// In a sense of evaluating the states at the cut-off depth, it seems to be working well.
-		determinePiece(passNode, state, "2", "1", true, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece);
+		determinePieceAndMove(passNode, state, "2", "1", true, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece);
 		// After the CPU has performed consecutive captures, for even better accuracy, I should call this method again but, from the perspective of the opponent. I shall implement soon... I hope.
 		
 		/*String[][] parentState = passNode.parent().getValue();
