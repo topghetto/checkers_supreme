@@ -125,6 +125,97 @@ public class SinglePlayerEvents implements View.OnClickListener
 		
 		// If I can ever get this section properly, in the static evaluation, I can check for consecutive attack opportunities, blah blah.
 		
+		// Determine whether it is an enemy capture (and check for consecutive captures).
+		
+		String[][] parentState = passNode.parent().getValue();
+		
+		for(int row = 0;row < 8; row++)
+		{
+			for(int column=((row+1)%2); column<8; column+=2)
+			{
+				// If the coordinates of both the parentState and the current state do not match, it is safe to assume that was the piece that was moved.
+				// I will need more conditions within this statement. Yeah, this might actually be long, aha.
+				// I need this to work for both directions, and shit.
+				if(parentState[row][column] != state[row][column])
+				{
+					// This should work for both directions... I hope. The OR operation is a shortcut to check the vice-versa instead of having to iterate until we reach the opposite side. I'll explain this in a bit. || (parentState[row][column].contains("0") && state[row][column].contains("2"))
+					if((state[row][column].contains("0") && parentState[row][column].contains("2")))
+					{
+						// This piece moved on its accord (i.e. it was not captured by the opponent). I think that should be okay for now.
+						// Store the coordinates of the piece that was moved.
+						int xOfPiece = row, yOfPiece = column;
+						
+						// Duplicate the parent state.
+						String[][] copyParentState = new String[8][8];
+						duplicateArray(parentState, copyParentState);
+						
+						// We need to check if it was a standard move or a capture. 
+						highlightSquares(copyParentState, xOfPiece >= 0 && xOfPiece <= 6, xOfPiece, yOfPiece, 1, xOfPiece <= 5, "1", "2");
+						// We also need to grab the coordinates of the new location...
+						int destinationX = 0;
+						int destinationY = 0;
+						
+						for(int l = 1; l < xPrevAxis.size();l++)
+						{
+							// The coordinates to test.
+							destinationX = xPrevAxis.get(l).intValue();
+							destinationY = yPrevAxis.get(l).intValue();
+							
+							// F88k, I am so lost now lol. I think I will need better validations placed but, for now, I will use this. 
+							if(state[destinationX][destinationY].contains("2"))
+							{
+								// Make it the last iteration.
+								l = xPrevAxis.size();
+								// We got the coordinates. Well, I hope we did.
+							}
+						}	
+						// Now, we check if it was a capture performed.
+						if(xEnemyAxis.size() > 0)
+						{
+							// Debug purposes. Insert variable later on.
+							System.out.println("Within the state at the cut-off depth, a capture was performed by player " + 2);
+							// This piece performed a capture so, we see if it is adjacent to an enemy at the new location.
+							boolean adjacentToEnemy = true;
+							// It is more explicit for me if I use == true instead of just the variable name itself as the condition.
+							while(adjacentToEnemy == true)
+							{
+								// Clear the helper ArrayLists.
+								clearHelperArrays();
+								// Creates the necessary coordinates, and their ArrayLists too.
+								highlightSquares(state, destinationX >= 0 && destinationX <= 6, destinationX, destinationY, 1, destinationX <= 5, "1", "2");
+								
+								if(xEnemyAxis.size() > 0)
+								{
+									// Updates the destination coordinates with the newly obtained ones. Automatically, picks the first move-capture.
+									destinationX = xPrevAxis.get(1).intValue();
+									destinationY = yPrevAxis.get(1).intValue();
+									// It is adjacent so, we perform the move, yada yada yada.
+									movePiece(state, imageOfSquares, destinationX, destinationY, 1, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, "2", "1", 0, 0, true);
+									// Debug purposes. Insert variable later on. This went into an infinite loop. I forgot to re-assign destinationX/Y
+									System.out.println("Within the state at the cut-off depth, a consecutive capture was performed by player " + 2);
+								}
+								else // no more adjacent enemies.
+								{
+									// Clear the helper ArrayLists.
+									clearHelperArrays();
+									// No more.
+									adjacentToEnemy = false;
+								}
+							}	
+						}
+						else
+						{
+							// It was just a standard move...
+							clearHelperArrays();
+						}	
+						// Makes sure this is the last iteration of the for-loop.
+						row = 8; column = 8;
+					}					
+				}		
+			}
+		}	
+	
+		// End of checking whether the state was a state where consecutive captures could be made.
 		
 		for(int row = 0;row < 8; row++)
 		{
@@ -269,6 +360,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 					if(passNode.isRoot())
 					{
 						// Well, it picks sometimes first child, and even second child. It may actually be working now. I'll run some more tests.
+						// It cleverly avoided the pieces when the CPU had only one piece left.
 						// Debug purposes.
 						System.out.println("This is the root node within in the minimax recursive stack and here are the contents of one child from root:");
 						// Print the board, yup.
