@@ -108,6 +108,10 @@ public class SinglePlayerEvents implements View.OnClickListener
 		noOfPiecesPlayerTwo = 12;
 		
 	}
+	public void determinePiece(Tree<String[][]> passNode, String playerNo, String opponentNo, boolean forDecisionTree)
+	{
+		// This will find out which piece was actually moved.
+	}
 	public double evaluateNode(Tree<String[][]> passNode)
 	{
 		// Debug purposes.
@@ -148,9 +152,8 @@ public class SinglePlayerEvents implements View.OnClickListener
 						// Duplicate the parent state.
 						String[][] copyParentState = new String[8][8];
 						duplicateArray(parentState, copyParentState);
-						
 						// We need to check if it was a standard move or a capture. 
-						highlightSquares(copyParentState, xOfPiece >= 0 && xOfPiece <= 6, xOfPiece, yOfPiece, 1, xOfPiece <= 5, "1", "2");
+						highlightSquares(copyParentState, xOfPiece, yOfPiece, 1, "1", "2");
 						// We also need to grab the coordinates of the new location...
 						int destinationX = 0;
 						int destinationY = 0;
@@ -161,7 +164,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 							destinationX = xPrevAxis.get(l).intValue();
 							destinationY = yPrevAxis.get(l).intValue();
 							
-							// F88k, I am so lost now lol. I think I will need better validations placed but, for now, I will use this. 
+							// I think I will need better validations placed but, for now, I will use this. 
 							if(state[destinationX][destinationY].contains("2"))
 							{
 								// Make it the last iteration.
@@ -169,11 +172,12 @@ public class SinglePlayerEvents implements View.OnClickListener
 								// We got the coordinates. Well, I hope we did.
 							}
 						}	
-						// Now, we check if it was a capture performed.
+						// Now, we check if the state is where a capture was performed.
 						if(xEnemyAxis.size() > 0)
 						{
 							// Debug purposes. Insert variable later on.
 							System.out.println("Within the state at the cut-off depth, a capture was performed by player " + 2);
+							printCheckersBoard(parentState);
 							// This piece performed a capture so, we see if it is adjacent to an enemy at the new location.
 							boolean adjacentToEnemy = true;
 							// It is more explicit for me if I use == true instead of just the variable name itself as the condition.
@@ -182,7 +186,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 								// Clear the helper ArrayLists.
 								clearHelperArrays();
 								// Creates the necessary coordinates, and their ArrayLists too.
-								highlightSquares(state, destinationX >= 0 && destinationX <= 6, destinationX, destinationY, 1, destinationX <= 5, "1", "2");
+								highlightSquares(state, destinationX, destinationY, 1, "1", "2");
 								
 								if(xEnemyAxis.size() > 0)
 								{
@@ -193,6 +197,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 									movePiece(state, imageOfSquares, destinationX, destinationY, 1, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, "2", "1", 0, 0, true);
 									// Debug purposes. Insert variable later on. This went into an infinite loop. I forgot to re-assign destinationX/Y
 									System.out.println("Within the state at the cut-off depth, a consecutive capture was performed by player " + 2);
+									printCheckersBoard(state);
 								}
 								else // no more adjacent enemies.
 								{
@@ -441,13 +446,13 @@ public class SinglePlayerEvents implements View.OnClickListener
 		{
 			// Debug purposes.
 			// System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
-			highlightSquares(passStrCheckersBoard, row >= 1 && row <=7, row, column, upOrDown, row >=2, opponentNo, playerNo);
+			highlightSquares(passStrCheckersBoard, row, column, upOrDown, opponentNo, playerNo);
 		}
 		else if(playerNo == "2")
 		{
 			// Debug purposes.
 			// System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
-			highlightSquares(passStrCheckersBoard, row >= 0 && row <= 6, row, column, upOrDown, row <=5, opponentNo, playerNo);
+			highlightSquares(passStrCheckersBoard, row, column, upOrDown, opponentNo, playerNo);
 		}		
 	}
 	// The code for the AI will be written here...
@@ -632,18 +637,12 @@ public class SinglePlayerEvents implements View.OnClickListener
 			
 			System.out.println("The fact that the decisionTree is a leaf is " + decisionTree.isLeaf());
 			// A huge take on generating the states as we go along.
-			minimax(decisionTree, 3, true);
+			double heuristicValue = minimax(decisionTree, 3, true);
 			// Debug purposes - it prints out 292 nodes for a depth of 3, which is correct and I will assume that the correct states are being created.
-			System.out.println("The size of the decisionTree after the minimax operation is " + sizeOfTree + " and the greatest move is ");
-			
-			/*int depthOfGreatestMove = greatestMove.depth();
-			while(depthOfGreatestMove > 1)
-			{
-				greatestMove = greatestMove.parent();
-				depthOfGreatestMove--;
-			}*/
-			
+			System.out.println("The size of the decisionTree after the minimax operation is " + sizeOfTree + " and the greatest move is ");		
+			// Debug purposes.
 			printCheckersBoard(greatestMove.getValue()); // So far, it grabs the states at depth 3 (which are the states at the cut-off depth). 
+			System.out.println("The overall heuristic value of the minimax algorithm is: " + heuristicValue);
 			
 			//System.out.println("By using an experimental technique, the move that we obtain is...");
 			// Prints the contents of the root node.
@@ -810,15 +809,17 @@ public class SinglePlayerEvents implements View.OnClickListener
 						if(playerOneTurn == true)
 						{
 							// We move our pieces as normal.
-							playerTurn("1", strCheckersBoard, v, x >= 1 && x <= 7, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, false, x >= 2, "2", noOfPiecesPlayerTwo);		// Nice, it works.
+							playerTurn("1", strCheckersBoard, v, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, false, "2", noOfPiecesPlayerTwo);		// Nice, it works.
+							//playerTurn("1", strCheckersBoard, v, x >= 1 && x <= 7, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, false, x >= 2, "2", noOfPiecesPlayerTwo);		// Nice, it works.
 						}
 						else
 						{
 							// The AI Code will go here... Now, where to begin.	
-							computerTurn("2");
+							//computerTurn("2");
 									
 							// We move our pieces as normal.
-							playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1", noOfPiecesPlayerOne);	// Nice, it works.		
+							playerTurn("2", strCheckersBoard, v, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, "1", noOfPiecesPlayerOne);	// Nice, it works.
+							//playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1", noOfPiecesPlayerOne);	// Nice, it works.		
 						}
 				}// if(squaresOfBoard[x][y].equals(v))
 		}		
@@ -895,10 +896,25 @@ public class SinglePlayerEvents implements View.OnClickListener
 			// System.out.println("Second entire 'if' statment went through");				
 		}		
 	}
-	public void highlightSquares(String[][] passStrCheckersBoard, boolean passCondition, int passX, int passY, int upOrDown, boolean attackConstraint, String opponentNo, String playerNo)
+	public void highlightSquares(String[][] passStrCheckersBoard, int passX, int passY, int upOrDown, String opponentNo, String playerNo)
 	{
+		// Store the coordinates, and whatnot.
 		int x = passX;
 		int y = passY;
+		
+		// This will hold the generated conditions that we will compute shortly.
+		boolean precondition = false, attackConstraint = false;
+		// Dynamically, create the conditions based on the player number.
+		if(playerNo.contains("1"))
+		{
+			precondition = (x >= 1 && x <= 7);
+			attackConstraint = (x >= 2);
+		}
+		else if(playerNo.contains("2"))
+		{
+			precondition = (x >= 0 && x <= 6);
+			attackConstraint = (x <= 5);
+		}
 		
 		// Dynamically creates the correct string that will hold the value K1 or K2, depending on the player number.
 		String strKing = "K" + playerNo;
@@ -937,11 +953,11 @@ public class SinglePlayerEvents implements View.OnClickListener
 												 y >= 0 && y <= 6 && passStrCheckersBoard[x+(1)][y+1] == "0", x, y, 1, 1);	
 			}		
 		}
-		else if(passStrCheckersBoard[x][y] == playerNo && passCondition)
+		else if(passStrCheckersBoard[x][y] == playerNo && precondition)
 		{
 			// If it is just a standard piece then...
 			// Debug purposes.
-			// System.out.println("else if(passStrCheckersBoard[x][y] == playerNo && passCondition) AND passStrCheckersBoard[" + x + "][" + y + "] = " + passStrCheckersBoard[x][y]);
+			// System.out.println("else if(passStrCheckersBoard[x][y] == playerNo && precondition) AND passStrCheckersBoard[" + x + "][" + y + "] = " + passStrCheckersBoard[x][y]);
 			// I think it works fine. I accidentally put a [y+2] and a [y-2] for both of the second conditions of the 'prepareHighlight'
 			// Checks the left side and decides whether it should highlight the squre or not.
 			prepareHighlight(passStrCheckersBoard, y >= 2 && attackConstraint && passStrCheckersBoard[x+(upOrDown)][y-1].contains(opponentNo),
@@ -954,7 +970,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 		}
 		
 		/*
-		if(passCondition)
+		if(precondition)
 		{
 			// I think it works fine. I accidentally put a [y+2] and a [y-2] for both of the second conditions of the 'prepareHighlight'
 			// Checks the left side and decides whether it should highlight the squre or not.
@@ -1075,7 +1091,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 	}
 	public void movePiece(String[][] passStrCheckersBoard, ImageView[][] passImageOfSquares, int passX, int passY, int upOrDown, ArrayList<Integer> passListOfRows, ArrayList<Integer> passListOfColumns,
 												ArrayList<Integer> passEnemyX, ArrayList<Integer> passEnemyY, String strDest, String opponentNo, int destImg,
-												int passImgOfKing, boolean forStateTree)
+												int passImgOfKing, boolean forDecisionTree)
 	{
 		// Clear the old values.
 		xOfNewDest = 0;
@@ -1200,7 +1216,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 						}					
 					}
 					// If this move is an actual move (not a potential move), then we set the corresponding square's new image.
-					if(forStateTree == false)
+					if(forDecisionTree == false)
 					{
 						// We clear the space (visually) i.e. take the piece
 						passImageOfSquares[actualEnemyX][actualEnemyY].setImageResource(0);			
@@ -1252,7 +1268,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 					// Moves it to the new location...
 					passStrCheckersBoard[x][y] = strKing;
 					// If this is for the purposes of an actual move (not a potential move for the AI state tree - i.e. in other words, if it is the humans turn)...
-					if(forStateTree == false)
+					if(forDecisionTree == false)
 					{
 						// Clear the image of the piece that occupied the location of the old square.
 						passImageOfSquares[parentPrevX][parentPrevY].setImageResource(0);
@@ -1268,7 +1284,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 					// This is an ordinary piece, then it will just be a simple (only one direction) capture/move.
 					passStrCheckersBoard[x][y] = strSource;
 					// If this is for the purposes of an actual move (not a potential move for the AI state tree - i.e. in other words, if it is the humans turn)...
-					if(forStateTree == false)
+					if(forDecisionTree == false)
 					{			
 						// Clear the image of the piece that occupied the location of the old square.
 						passImageOfSquares[parentPrevX][parentPrevY].setImageResource(0);	
@@ -1304,7 +1320,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 			}
 		}							
 	}
-	public void playerTurn(String playerNo, String[][] passStrCheckersBoard, View v, boolean passCondition, int passX, int passY, int upOrDown, int passImgId, int passImgOfKing, boolean playerTurn, boolean attackConstraint, String opponentNo, int passNoOfPieces)
+	public void playerTurn(String playerNo, String[][] passStrCheckersBoard, View v, int passX, int passY, int upOrDown, int passImgId, int passImgOfKing, boolean playerTurn,String opponentNo, int passNoOfPieces)
 	{	
 		// The coordinates of the currently selected square.
 		int x = passX, y = passY;
@@ -1337,13 +1353,13 @@ public class SinglePlayerEvents implements View.OnClickListener
 						{
 							// Debug purposes.
 							// System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
-							highlightSquares(passStrCheckersBoard, row >= 1 && row <=7, row, column, upOrDown, row >=2, opponentNo, playerNo);
+							highlightSquares(passStrCheckersBoard, row, column, upOrDown, opponentNo, playerNo);
 						}
 						else if(playerNo == "2")
 						{
 							// Debug purposes.
 							// System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
-							highlightSquares(passStrCheckersBoard, row >= 0 && row <= 6, row, column, upOrDown, row <=5, opponentNo, playerNo);
+							highlightSquares(passStrCheckersBoard, row, column, upOrDown, opponentNo, playerNo);
 						}		
 						noOfTimes++;
 						// Debug purposes. - This does not even run... I guess that's why the code does not break any more... Lol
@@ -1417,7 +1433,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 			// Debug purposes.
 			// System.out.println("if(isEnemyAdjacent == true) just ran so, a capture needs to be performed.");
 			// This will determine what type of move (standard or a capture) it should make, and also make the move.
-			performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, attackConstraint, passCondition, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing, playerTurn, passNoOfPieces);
+			performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing, playerTurn, passNoOfPieces);
 			
 		}else
 		{
@@ -1445,7 +1461,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 				// Debug purposes.
 				// System.out.println("and the selected square does contain the player's checkers piece, then we highlight it and its neighbours.");
 				// Add new highlights for the newly selected square.
-				highlightSquares(passStrCheckersBoard, passCondition, x, y, upOrDown, attackConstraint, opponentNo, playerNo); // upOrDown = 1 so, x-1 i.e, go from bottom to the top of the checkersboard.
+				highlightSquares(passStrCheckersBoard, x, y, upOrDown, opponentNo, playerNo); // upOrDown = 1 so, x-1 i.e, go from bottom to the top of the checkersboard.
 				// Add the ArrayLists to the master ArrayList... Aha.
 				arrayOfPrevCoordinatesX.add(xPrevAxis);
 				arrayOfPrevCoordinatesY.add(yPrevAxis);
@@ -1462,7 +1478,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 				// Debug purposes.
 				// System.out.println("else if(passStrCheckersBoard[x][y] == 0 && isHighlighted == true) just ran but, failed miserably.");
 				// This will determine what type of move (standard or a capture) it should make, and also make the move.
-				performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, attackConstraint, passCondition, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing, playerTurn, passNoOfPieces);
+				performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing, playerTurn, passNoOfPieces);
 			}
 		}	
 	}
@@ -1529,7 +1545,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 			}							
 		}
 	}
-	public void performMoveAndCheckAdjacent(String[][] passStrCheckersBoard, int passX, int passY, boolean attackConstraint, boolean passCondition, int upOrDown, String playerNo, String opponentNo, int passImgId, int passImgOfKing, boolean playerTurn, int passNoOfPieces)
+	public void performMoveAndCheckAdjacent(String[][] passStrCheckersBoard, int passX, int passY, int upOrDown, String playerNo, String opponentNo, int passImgId, int passImgOfKing, boolean playerTurn, int passNoOfPieces)
 	{
 		// Debug purposes.
 		// System.out.println("arrayOfPrevCoordinatesX.size() > 0 if statement just ran. (using our new function)");
@@ -1588,7 +1604,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 					else
 					{
 						// We can use this method to later check whether the piece at the new location is neighbouring an enemy.
-						highlightSquares(passStrCheckersBoard, passCondition, xOfNewDest, yOfNewDest, upOrDown, attackConstraint, opponentNo, playerNo);
+						highlightSquares(passStrCheckersBoard, xOfNewDest, yOfNewDest, upOrDown, opponentNo, playerNo);
 						// Debug purposes.
 						System.out.println("Hello, no new king here so, yaaaah.");
 					}
