@@ -111,9 +111,20 @@ public class SinglePlayerEvents implements View.OnClickListener
 	public void determinePieceAndMove(Tree<String[][]> passNode, String[][] state, String playerNo, String opponentNo, boolean forDecisionTree, int upOrDown, int destImg, int passImgOfKing)
 	{
 		// This will find out which piece was actually moved.
-		
+
 		// We grab the state of the parent node.
-		String[][] parentState = passNode.parent().getValue();
+		String[][] parentState;
+		
+		if(forDecisionTree == true)
+		{
+			// If this is for the purpose of evaluation the decision tree...
+			parentState = passNode.parent().getValue();
+		}
+		else //if(forDecisionTree == false)
+		{
+			// If this is for the purpose of moving the actual checkers on the board, grab the actual strCheckersBoard variable.
+			parentState = strCheckersBoard;
+		}
 		
 		for(int row = 0;row < 8; row++)
 		{
@@ -153,25 +164,52 @@ public class SinglePlayerEvents implements View.OnClickListener
 								l = xPrevAxis.size();
 								// We got the coordinates. Well, I hope we did.
 							}
-						}	
-						// Now, that we have the correct coordinates of the piece moved, we must also check if within the state, whether a capture was performed.
-						// if a capture was performed then do the following...
+						}
+						
+						// ---- I'll test it within here --- //
+						String[][] copyState = new String[8][8];
+						duplicateArray(state, copyState);
+						if(forDecisionTree == false)
+						{
+							// If we are performing an actual move (by the AI bot), then we want to modify the contents of the actual checkersboard.
+							//System.out.println("Before we switch the states, the value of 'state' is:");
+							//printCheckersBoard(state);
+							//System.out.println("Before we switch the states, the value of 'parentState' is:");
+							//printCheckersBoard(parentState);
+							// So, whenever we modify the 'state' we are actually modifying the 'parentState' which is also the actual checkersboard ;)
+							System.out.println("The parent state does get switched.");
+							
+							state = parentState;	
+						}
+						// --------------------------------- //
+						
+						// At the duplicate state 'copyParentState' and simulate, in order to determine whether the 'state' was a capture or a standard move.
+						// We will use the coordinates that we recently obtained.
 						if(xEnemyAxis.size() > 0)
 						{
 							// Debug purposes.
-							System.out.println("Within the state at the cut-off depth, a capture was performed by player " + playerNo);
+							System.out.println("Computing on the copyParentState, a capture was performed by player " + playerNo);
 							printCheckersBoard(parentState);
+							System.out.println("Now, we know the type of move made was a capture so, now we will actually perform the capture");
 							System.out.println("Here is the state after the capture was performed by player " + playerNo);
-							printCheckersBoard(state);
+							printCheckersBoard(copyState);
 							
 							// We need a condition here so, that when it is an actual move we want to perform on the board, we do it.
 							// We make state[][] = parentState[][] so, the actual board itself gets modified. forDecisionTree = false should also do the trick.
+							
+							// I need an if statement here somewhere. If we are actually moving the piece, and assuming that we switch the state to the
+							// actual checkersboard, then trying to highlight a square on the current board with destinationX/Y would be wrong as, that
+							// would be empty on the current state of the checkers board. We need a way to change the destinationX/Y if necessary.
+							// Maybe, I CAN DO IT HERE...
+							
 							if(forDecisionTree == false)
 							{
-								// If we are performing an actual move (by the AI bot), then we want to modify the contents of the actual checkersboard.
-								// So, whenever we modify the 'state' we are actually modifying the 'parentState' which is also the actual checkersboard ;) 
-								state = parentState;
+								// If the AI is performing an actual physical move, we must make the initial destinationX/Y the current location ;) I hope.
+								// It can now capture but, it has two turns, which is weird.
+								destinationX = xOfPiece;
+								destinationY = yOfPiece;
 							}
+							
 							
 							// This piece performed a capture so, we see if it is adjacent to an enemy at the new location.
 							boolean adjacentToEnemy = true;
@@ -180,22 +218,40 @@ public class SinglePlayerEvents implements View.OnClickListener
 							{
 								// Clear the helper ArrayLists.
 								clearHelperArrays();
+								
+								
 								// Creates the necessary coordinates, and their ArrayLists too.
 								highlightSquares(state, destinationX, destinationY, upOrDown, opponentNo, playerNo);
 								
+								
+								
 								if(xEnemyAxis.size() > 0)
-								{
+								{	
 									// Updates the destination coordinates with the newly obtained ones. Automatically, picks the first move-capture.
 									destinationX = xPrevAxis.get(1).intValue();
 									destinationY = yPrevAxis.get(1).intValue();
 									// It is adjacent so, we perform the move, yada yada yada. REMEMBER TO PASS IN THE RESOURCE IMAGES INTO THE METHOD BELOW!!!
 									movePiece(state, imageOfSquares, destinationX, destinationY, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
 									// Debug purposes. Insert variable later on. This went into an infinite loop. I forgot to re-assign destinationX/Y
+									
 									System.out.println("Another capture was made, making this a consecutive capture performed by player " + playerNo);
 									printCheckersBoard(state);
 								}
 								else // no more adjacent enemies.
 								{
+									if(forDecisionTree == false)
+									{
+										// Insert code here...
+										// Updates the destination coordinates with the newly obtained ones. Automatically, picks the first move-capture
+										//destinationX = xPrevAxis.get(1).intValue(); // I get out of bounds errors, the fuck.
+										//destinationY = yPrevAxis.get(1).intValue();
+										System.out.println("No more adjacent enemies that follow!");
+										// It is adjacent so, we perform the move, yada yada yada. REMEMBER TO PASS IN THE RESOURCE IMAGES INTO THE METHOD BELOW!!!
+										movePiece(state, imageOfSquares, destinationX, destinationY, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
+										// hand over its turn to the opponent (i.e. the human).
+										playerOneTurn = true;
+									}
+									// I need to add movePiece here as well.
 									// Clear the helper ArrayLists.
 									clearHelperArrays();
 									// No more.
@@ -208,10 +264,13 @@ public class SinglePlayerEvents implements View.OnClickListener
 							// We need an if statement here because we may use this method to actually move the piece for the AI. forDecisionTree == true should suffice
 							if(forDecisionTree == false)
 							{
+								System.out.println("Computation on copyParentState resulted in a standard move.");
+								// Oh shit, I think I know what's up. We don't switch here as well... Whoops, hopefully it will work now.
+								// state = parentState;
 								// Which means this is an actual move the computer is about to make... We move the piece
-								// movePiece(state, imageOfSquares, destinationX, destinationY, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
+								movePiece(state, imageOfSquares, destinationX, destinationY, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
 								//hand over our turn to the opponent (i.e. the human).
-								// playerOneTurn == true;
+								playerOneTurn = true;
 							}
 							// It was just a standard move...
 							clearHelperArrays();		
@@ -751,11 +810,40 @@ public class SinglePlayerEvents implements View.OnClickListener
 			System.out.println("The fact that the decisionTree is a leaf is " + decisionTree.isLeaf());
 			// A huge take on generating the states as we go along.
 			double heuristicValue = minimax(decisionTree, 3, true);
+			// Clarity.
+			String[][] greatestMoveState = greatestMove.getValue();
 			// Debug purposes - it prints out 292 nodes for a depth of 3, which is correct and I will assume that the correct states are being created.
 			System.out.println("The size of the decisionTree after the minimax operation is " + sizeOfTree + " and the greatest move is ");		
 			// Debug purposes.
-			printCheckersBoard(greatestMove.getValue()); // So far, it grabs the states at depth 3 (which are the states at the cut-off depth). 
+			printCheckersBoard(greatestMoveState); // So far, it grabs the states at depth 3 (which are the states at the cut-off depth). 
 			System.out.println("The overall heuristic value of the minimax algorithm is: " + heuristicValue);
+			
+			/*// An experiment.
+			System.out.println("The contents of the greatestMove.parent() should match the current state:");
+			printCheckersBoard(greatestMove.parent().getValue());
+			System.out.println("The contents of the greatestMove.parent().setValue(strCheckersBoard) should match the current state:");
+			greatestMove.parent().setValue(strCheckersBoard);
+			printCheckersBoard(greatestMove.parent().getValue());*/
+			
+			// Debug.
+			System.out.println("The contents of strCheckersBoard[][] before the Bot moved its piece is:");
+			printCheckersBoard(strCheckersBoard);
+			
+			// I will finally try and get the AI to move the piece itself. Inshallah, it works well.
+			// This did not work, probably because the root is only a copy of the current state so, I need to figure out how to
+			// pass in the actual checkersboard, which is strCheckersBoard.
+			// I also forgot to enable the movePiece() method within the section where it only makes a standard move... lol.
+			// Well, it moves now but, sometimes a new pieces pop out of thin air. The strCheckersBoard never gets modified. That bit is sorted... I think
+			// Erm, it seems to move by itself but, when it is adjacent to an enemy, it does not do anything so, the problem lies in the code of the enemy thang.
+			determinePieceAndMove(greatestMove, greatestMoveState, "2", "1", false, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece);
+			
+			// Debug.
+			System.out.println("The contents of strCheckersBoard[][] after the Bot moved its piece is:");
+			printCheckersBoard(strCheckersBoard);
+			
+			// I HAVE ALSO NOTICED THAT WHEN THERE IS ONLY PIECE FOR THE CPU LEFT FOR THE CPU, AND ITS CORNERED
+			// THE VALUE OF GREATESTMOVE IS ALL NULL AND THE MINIMAX ALGORITHM RETURNS -INFINITY AND LATELY
+			// BECAUSE I'M ACTUALLY MOVING THE PIECES, IT CRASHES THE PROGRAM.
 			
 			//System.out.println("By using an experimental technique, the move that we obtain is...");
 			// Prints the contents of the root node.
@@ -931,7 +1019,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 							computerTurn("2");
 									
 							// We move our pieces as normal.
-							playerTurn("2", strCheckersBoard, v, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, "1", noOfPiecesPlayerOne);	// Nice, it works.
+							//playerTurn("2", strCheckersBoard, v, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, "1", noOfPiecesPlayerOne);	// Nice, it works.
 							//playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1", noOfPiecesPlayerOne);	// Nice, it works.		
 						}
 				}// if(squaresOfBoard[x][y].equals(v))
