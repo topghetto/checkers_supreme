@@ -1,5 +1,7 @@
 package uk.ac.kcl.www;
 
+import android.os.CountDownTimer;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
@@ -124,6 +126,66 @@ public class SinglePlayerEvents implements View.OnClickListener
 		noOfPiecesPlayerTwo = 12;
 		
 	}
+	public boolean performEnemyCapture(String[][] passState, int passX, int passY, int upOrDown, String playerNo, String opponentNo, int destImg, int passImgOfKing, boolean forDecisionTree)
+	{
+		// Store the coordinates in a more convenient variable, yup.
+		int destinationX = passX; int destinationY = passY;
+				
+		if(xEnemyAxis.size() > 0)
+		{	
+			// Updates the destination coordinates with the newly obtained ones. Automatically, picks the first move-capture.
+			destinationX = xPrevAxis.get(1).intValue();
+			destinationY = yPrevAxis.get(1).intValue();
+			// It is adjacent so, we perform the move, yada yada yada. REMEMBER TO PASS IN THE RESOURCE IMAGES INTO THE METHOD BELOW!!!
+			movePiece(passState, imageOfSquares, destinationX, destinationY, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
+			// Debug purposes. Insert variable later on. This went into an infinite loop. I forgot to re-assign destinationX/Y
+			
+			System.out.println("Another capture was made, making this a consecutive capture performed by player " + playerNo);
+			printCheckersBoard(passState);
+			
+			// An experiment
+			return true;
+		}
+		else // no more adjacent enemies.
+		{
+			// This does not need to be here... Okay, it does.
+			// If this is for an actual checkers piece that was moved by the AI bot, then we also hand over our turn to the opponent.
+			// No need to run this if it is for the purpose of evaluating the cut-off nodes.
+			if(forDecisionTree == false)
+			{
+				// Display player information.
+				// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
+				displayTurn(playerOneTurn, opponentNo);
+				// hand over its turn to the opponent (i.e. the human).
+				playerOneTurn = true;
+			}
+			// Clear the helper ArrayLists.
+			clearHelperArrays();
+			// No more.
+			// adjacentToEnemy = false;
+			
+			// An experiment.
+			return false;
+		}
+	}
+	class CountDownTimer
+	{
+		// Constructor.
+		public CountDownTimer(long millisInFuture, long countDownInterval)
+		{
+			
+		}
+		public void onTick(long millisUntilFinished)
+		{
+			// Debug purposes.
+			System.out.println("Seconds remaining: " + millisUntilFinished / 1000);
+		}
+		public void onFinish(long millisUntilFinished)
+		{
+			// Debug purposes.
+			System.out.println("All done. The piece is now ready to be moved.");
+		}
+	}
 	public void determinePieceAndMove(Tree<String[][]> passNode, String[][] state, String playerNo, String opponentNo, boolean forDecisionTree, int upOrDown, int destImg, int passImgOfKing)
 	{
 		// This will find out which piece was actually moved.
@@ -231,6 +293,20 @@ public class SinglePlayerEvents implements View.OnClickListener
 								clearHelperArrays();
 								// Creates the necessary coordinates, and their ArrayLists too.
 								highlightSquares(state, destinationX, destinationY, upOrDown, opponentNo, playerNo);
+								
+								/*// A fat experiment.
+								if(forDecisionTree == false)
+								{
+									// We will attempt to add a 3 second delay before we each capture.
+									// Call the clock countdown thing...
+									adjacentToEnemy = performEnemyCapture(state, destinationX, destinationY, upOrDown, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
+								}
+								else // if we are working with just the decision tree.
+								{
+										// Just generate the decision tree as normal.
+										adjacentToEnemy = performEnemyCapture(state, destinationX, destinationY, upOrDown, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
+								}
+								*/
 								
 								if(xEnemyAxis.size() > 0)
 								{	
@@ -509,7 +585,9 @@ public class SinglePlayerEvents implements View.OnClickListener
 		
 		// I got rid of the || passNode.isLeaf() part because we are now generating the states within the method instead.
 		// Removing it caused problems so, I added it back in with an extra condition that checks if passNode.isRoot();
-		if(depth == 0 || (passNode.isLeaf() && passNode.isRoot() != true))
+		// Adding it back in does not create the right number of state nodes, I almost had a panic attack man because the AI bot
+		// was not making logical decisions. It was literally picking the first piece that can move. i.e. the first immediate child of the root.
+		if(depth == 0)
 		{
 			// Calculate and return the heuristic value.
 			return evaluateNode(passNode);
