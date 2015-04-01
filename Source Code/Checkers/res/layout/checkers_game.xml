@@ -2,38 +2,42 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-		android:background="#80206DB4"
+		android:background="#80444411"
     >
-	
-	<!--<LinearLayout android:layout_width="130dp"
-								android:layout_height="fill_parent"
-								android:orientation="vertical"
-								android:layout_alignParentLeft="true"
-								android:background="#FFCC66">
-		
-		<TextView android:id="@+id/playerInfo"
-						android:layout_width="fill_parent"
-						android:layout_height="40dp"
-						android:layout_gravity="center_horizontal"
-						android:text="Player's Info"/>
-		
-		<ImageView android:id="@+id/playerImg"
-						 android:layout_width="42.93dp"
-						 android:layout_height="36.5dp"
-						 android:layout_gravity="center_horizontal"
-						 />
-		
-	</LinearLayout>-->
-	
-	<!-- Look into android:layout_weight="" -->
-	
-	<TextView android:id="@+id/playerInfo"
+  
+  <!-- Remember the disable the colour for the LinearLayout below -->
+  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:layout_width="125dp"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_alignParentLeft="true"
+    android:background="#80206DB4">
+    
+    <TextView android:id="@+id/playerInfo"
 						android:layout_width="match_parent"
 						android:layout_height="90dp"
 						android:layout_marginTop="50dp"
-						android:layout_marginLeft="10dp"
+						android:layout_marginLeft="30dp"
 						android:textSize="15sp"
 						android:text="Player's Info"/>
+    
+    <ImageView android:id="@+id/player_image"
+				android:layout_width="42.93dp"
+				android:layout_height="36.5dp"
+				android:layout_marginLeft="30dp"
+				android:background="#A820F4"/>
+    
+  </LinearLayout>
+  
+	<!-- This colour green is perfect for this game. I randomly typed in random numbers and got this :) android:background="#80444411" --> 
+  
+  <!-- View cannot be casted to ViewGroup -->
+  <!--
+  <ProgressBar android:id="@+id/progress_bar_for_bot"
+        style="@android:style/Widget.ProgressBar.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true" />-->
 	
 	<!--<View android:id="@+id/playerImg"
 				android:layout_width="42.93dp"
@@ -51,38 +55,32 @@
 		android:rowCount="8"
 		android:columnCount="8"
 		android:background="@drawable/checkers_board">
-	<!--
-	<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
-		android:id="@+id/checkersboard_gridlayout"
-		android:layout_width="344.66666667dp"
-		android:layout_height="315.33333333dp"
-		android:layout_centerInParent="true"
-		android:rowCount="8"
-		android:columnCount="8"
-		android:background="@drawable/checkers_board">-->
-		
-		
-		<!--<ImageView android:layout_width="42.93dp"
-							 android:layout_height="36.5dp"
-							 android:gravity="center_horizontal"
-							 
-							 android:src="#A820F4"
-							/>
-		
-		<ImageView android:layout_width="42.93dp"
-							 android:layout_height="36.5dp"
-							 android:gravity="center_horizontal"
 	
-							 android:src="#A820B4"
-							/>
-		
-		<ImageView android:layout_width="42.93dp"
-							 android:layout_height="36.5dp"
-							 android:gravity="center_horizontal"
-							 android:src="#20B4A8"
-							/>-->
 	</GridLayout>
 	
-
+  <!-- Remember the disable the colour for the LinearLayout below -->
+  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:layout_width="125dp"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_alignParentRight="true"
+    android:background="#806699FF">
+    
+    <TextView android:id="@+id/loading_info"
+						android:layout_width="match_parent"
+						android:layout_height="90dp"
+						android:layout_marginTop="50dp"
+						android:layout_marginLeft="30dp"
+						android:textSize="15sp"
+						android:text="A.I.mee is waiting for you..."/>
+    
+    <ProgressBar android:id="@+id/progress_bar_for_bot"
+        style="@android:style/Widget.ProgressBar.Large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_centerHorizontal="true" />
+    
+  </LinearLayout>
 	
 </RelativeLayout>
