@@ -75,7 +75,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 	// The state of the game represented as a multidimensional array of Strings.
 	// public String[][] currentState;
 	
-	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent, isNewKing;
+	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent, isNewKing, adjacentToEnemy;
 	
 	public int highlightParentX, highlightParentY, xOfNewDest, yOfNewDest, erm;
 	
@@ -89,6 +89,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 		// the computer will never ever be able to click this, lol.
 		playerOneTurn = true;
 		isNewKing = false;
+		adjacentToEnemy = false;
 		
 		strCheckersBoard = passCheckersBoard;
 		squaresOfBoard = passSquares;
@@ -126,7 +127,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 		noOfPiecesPlayerTwo = 12;
 		
 	}
-	public boolean performEnemyCapture(String[][] passState, int passX, int passY, int upOrDown, String playerNo, String opponentNo, int destImg, int passImgOfKing, boolean forDecisionTree)
+	public void performEnemyCapture(String[][] passState, int passX, int passY, int upOrDown, String playerNo, String opponentNo, int destImg, int passImgOfKing, boolean forDecisionTree)
 	{
 		// Store the coordinates in a more convenient variable, yup.
 		int destinationX = passX; int destinationY = passY;
@@ -144,7 +145,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 			printCheckersBoard(passState);
 			
 			// An experiment
-			return true;
+			adjacentToEnemy = true;
 		}
 		else // no more adjacent enemies.
 		{
@@ -153,6 +154,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 			// No need to run this if it is for the purpose of evaluating the cut-off nodes.
 			if(forDecisionTree == false)
 			{
+				System.out.println("There are no more captures to make so, we hand over our turn to the opponent.");
 				// Display player information.
 				// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
 				displayTurn(playerOneTurn, opponentNo);
@@ -162,28 +164,47 @@ public class SinglePlayerEvents implements View.OnClickListener
 			// Clear the helper ArrayLists.
 			clearHelperArrays();
 			// No more.
-			// adjacentToEnemy = false;
-			
 			// An experiment.
-			return false;
+			adjacentToEnemy = false;
 		}
 	}
-	class CountDownTimer
+	// I need to get back to this.
+	public class CountDown extends CountDownTimer
 	{
-		// Constructor.
-		public CountDownTimer(long millisInFuture, long countDownInterval)
+		public int destinationX;
+		public int destinationY;
+		public int upOrDown;
+		public String[][] state;
+		public String playerNo, opponentNo;
+		public int destImg, imgOfKing;
+		public boolean forDecisionTree;
+		
+		public CountDown(long startTime, long interval, String[][] passState, int passX, int passY, int passUpOrDown, String passPlayerNo, String passOpponentNo, int passDestImg, int passImgOfKing, boolean passForDecisionTree)
 		{
+			// Passes it into the base constructor of 'CountDownTimer'
+			super(startTime, interval);
+			// Properly store the coordinates.
+			destinationX = passX;
+			destinationY = passY;
+			upOrDown = passUpOrDown;
+			state= passState;
+			playerNo = passPlayerNo; opponentNo = passOpponentNo;
+			destImg = passDestImg; imgOfKing = passImgOfKing;
+			forDecisionTree = passForDecisionTree;
 			
 		}
+		@Override
 		public void onTick(long millisUntilFinished)
 		{
-			// Debug purposes.
-			System.out.println("Seconds remaining: " + millisUntilFinished / 1000);
+			System.out.println("seconds remaining: " + millisUntilFinished / 1000);
 		}
-		public void onFinish(long millisUntilFinished)
+		@Override
+		public void onFinish()
 		{
-			// Debug purposes.
-			System.out.println("All done. The piece is now ready to be moved.");
+			System.out.println("Time's up, let's move");
+			// The clock code will go here, along with the movePiece() method.
+			// It is adjacent so, we perform the move, yada yada yada. REMEMBER TO PASS IN THE RESOURCE IMAGES INTO THE METHOD BELOW!!!
+			movePiece(state, imageOfSquares, destinationX, destinationY, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, destImg, imgOfKing, forDecisionTree);
 		}
 	}
 	public void determinePieceAndMove(Tree<String[][]> passNode, String[][] state, String playerNo, String opponentNo, boolean forDecisionTree, int upOrDown, int destImg, int passImgOfKing)
@@ -282,7 +303,8 @@ public class SinglePlayerEvents implements View.OnClickListener
 							printCheckersBoard(copyState);
 							
 							// This piece performed a capture so, we see if it is adjacent to an enemy at the new location.
-							boolean adjacentToEnemy = true;
+							// boolean adjacentToEnemy = true;
+							adjacentToEnemy = true;
 							
 							// Initially, on the first iteration, this will perform the capture that yields the state 'state' from 'parentState'
 							// Then, at the 'state' it will check for consecutive captures.
@@ -294,19 +316,6 @@ public class SinglePlayerEvents implements View.OnClickListener
 								// Creates the necessary coordinates, and their ArrayLists too.
 								highlightSquares(state, destinationX, destinationY, upOrDown, opponentNo, playerNo);
 								
-								/*// A fat experiment.
-								if(forDecisionTree == false)
-								{
-									// We will attempt to add a 3 second delay before we each capture.
-									// Call the clock countdown thing...
-									adjacentToEnemy = performEnemyCapture(state, destinationX, destinationY, upOrDown, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
-								}
-								else // if we are working with just the decision tree.
-								{
-										// Just generate the decision tree as normal.
-										adjacentToEnemy = performEnemyCapture(state, destinationX, destinationY, upOrDown, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
-								}
-								*/
 								
 								if(xEnemyAxis.size() > 0)
 								{	
@@ -338,6 +347,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 									// No more.
 									adjacentToEnemy = false;
 								}
+								
 							}	
 						}
 						else
@@ -587,6 +597,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 		// Removing it caused problems so, I added it back in with an extra condition that checks if passNode.isRoot();
 		// Adding it back in does not create the right number of state nodes, I almost had a panic attack man because the AI bot
 		// was not making logical decisions. It was literally picking the first piece that can move. i.e. the first immediate child of the root.
+		// NEXT TIME, I SHOULD TRY || (passNode.isLeaf() && passNode != decisionTree)
 		if(depth == 0)
 		{
 			// Calculate and return the heuristic value.
