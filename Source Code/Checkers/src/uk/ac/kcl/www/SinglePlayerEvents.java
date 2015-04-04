@@ -1135,8 +1135,8 @@ public class SinglePlayerEvents implements View.OnClickListener
 						if(playerOneTurn == true)
 						{
 							// We move our pieces as normal.
-							playerTurn("1", strCheckersBoard, v, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, "2", noOfPiecesPlayerTwo);		// Nice, it works.
-							//playerTurn("1", strCheckersBoard, v, x >= 1 && x <= 7, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, false, x >= 2, "2", noOfPiecesPlayerTwo);		// Nice, it works.
+							playerTurn("1", strCheckersBoard, v, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, "2");		// Nice, it works.
+							//playerTurn("1", strCheckersBoard, v, x >= 1 && x <= 7, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, false, x >= 2, "2");		// Nice, it works.
 						}
 						else
 						{
@@ -1144,8 +1144,8 @@ public class SinglePlayerEvents implements View.OnClickListener
 							//computerTurn("2");
 									
 							// We move our pieces as normal.
-							playerTurn("2", strCheckersBoard, v, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, "1", noOfPiecesPlayerOne);	// Nice, it works.
-							//playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1", noOfPiecesPlayerOne);	// Nice, it works.		
+							playerTurn("2", strCheckersBoard, v, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, "1");	// Nice, it works.
+							//playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1");	// Nice, it works.		
 						}
 				}// if(squaresOfBoard[x][y].equals(v))
 		}		
@@ -1646,7 +1646,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 			}
 		}							
 	}
-	public void playerTurn(String playerNo, String[][] passStrCheckersBoard, View v, int passX, int passY, int upOrDown, int passImgId, int passImgOfKing, String opponentNo, int passNoOfPieces)
+	public void playerTurn(String playerNo, String[][] passStrCheckersBoard, View v, int passX, int passY, int upOrDown, int passImgId, int passImgOfKing, String opponentNo)
 	{	
 		// The coordinates of the currently selected square.
 		int x = passX, y = passY;
@@ -1759,7 +1759,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 			// Debug purposes.
 			// System.out.println("if(isEnemyAdjacent == true) just ran so, a capture needs to be performed.");
 			// This will determine what type of move (standard or a capture) it should make, and also make the move.
-			performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing, passNoOfPieces);
+			performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing);
 			
 		}else
 		{
@@ -1804,7 +1804,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 				// Debug purposes.
 				// System.out.println("else if(passStrCheckersBoard[x][y] == 0 && isHighlighted == true) just ran but, failed miserably.");
 				// This will determine what type of move (standard or a capture) it should make, and also make the move.
-				performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing, passNoOfPieces);
+				performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing);
 			}
 		}	
 	}
@@ -1875,7 +1875,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 			}							
 		}
 	}
-	public void performMoveAndCheckAdjacent(String[][] passStrCheckersBoard, int passX, int passY, int upOrDown, String playerNo, String opponentNo, int passImgId, int passImgOfKing, int passNoOfPieces)
+	public void performMoveAndCheckAdjacent(String[][] passStrCheckersBoard, int passX, int passY, int upOrDown, String playerNo, String opponentNo, int passImgId, int passImgOfKing)
 	{
 		// Debug purposes.
 		// System.out.println("arrayOfPrevCoordinatesX.size() > 0 if statement just ran. (using our new function)");
