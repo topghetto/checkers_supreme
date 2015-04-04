@@ -157,9 +157,10 @@ public class SinglePlayerEvents implements View.OnClickListener
 				System.out.println("There are no more captures to make so, we hand over our turn to the opponent.");
 				// Display player information.
 				// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
-				displayTurn(playerOneTurn, opponentNo);
 				// hand over its turn to the opponent (i.e. the human).
-				playerOneTurn = true;
+				playerOneTurn = !playerOneTurn; 
+				// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
+				displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
 			}
 			// Clear the helper ArrayLists.
 			clearHelperArrays();
@@ -337,10 +338,11 @@ public class SinglePlayerEvents implements View.OnClickListener
 									if(forDecisionTree == false)
 									{
 										// Display player information.
-										// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
-										displayTurn(playerOneTurn, opponentNo);
+										
 										// hand over its turn to the opponent (i.e. the human).
-										playerOneTurn = true;
+										playerOneTurn = !playerOneTurn; 
+										// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
+										displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
 									}
 									// Clear the helper ArrayLists.
 									clearHelperArrays();
@@ -359,10 +361,10 @@ public class SinglePlayerEvents implements View.OnClickListener
 								// Which means this is an actual move the computer is about to make... We move the piece
 								movePiece(state, imageOfSquares, destinationX, destinationY, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
 								// Display player information.
-								// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!; Well, it seems to work fine.
-								displayTurn(playerOneTurn, opponentNo);
-								//hand over our turn to the opponent (i.e. the human).
-								playerOneTurn = true;
+								// hand over its turn to the opponent (i.e. the human).
+								playerOneTurn = !playerOneTurn; 
+								// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
+								displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
 							}
 							// It was just a standard move...
 							clearHelperArrays();		
@@ -1133,16 +1135,16 @@ public class SinglePlayerEvents implements View.OnClickListener
 						if(playerOneTurn == true)
 						{
 							// We move our pieces as normal.
-							playerTurn("1", strCheckersBoard, v, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, false, "2", noOfPiecesPlayerTwo);		// Nice, it works.
+							playerTurn("1", strCheckersBoard, v, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, "2", noOfPiecesPlayerTwo);		// Nice, it works.
 							//playerTurn("1", strCheckersBoard, v, x >= 1 && x <= 7, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, false, x >= 2, "2", noOfPiecesPlayerTwo);		// Nice, it works.
 						}
 						else
 						{
 							// The AI Code will go here... Now, where to begin.	
-							computerTurn("2");
+							//computerTurn("2");
 									
 							// We move our pieces as normal.
-							//playerTurn("2", strCheckersBoard, v, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, "1", noOfPiecesPlayerOne);	// Nice, it works.
+							playerTurn("2", strCheckersBoard, v, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, "1", noOfPiecesPlayerOne);	// Nice, it works.
 							//playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1", noOfPiecesPlayerOne);	// Nice, it works.		
 						}
 				}// if(squaresOfBoard[x][y].equals(v))
@@ -1481,7 +1483,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
-							if(strDest.contains("1")){--noOfPiecesPlayerTwo;}else if(strDest.contains("2")){--noOfPiecesPlayerOne;}
+							if(strDest.contains("1") && forDecisionTree != true){--noOfPiecesPlayerTwo;}else if(strDest.contains("2") && forDecisionTree != true){--noOfPiecesPlayerOne;}
 							
 						}
 						else if(checkBelow == enemyCoordinateX && (prevY-1) == enemyCoordinateY)
@@ -1500,7 +1502,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
-							if(strDest.contains("1")){--noOfPiecesPlayerTwo;}else if(strDest.contains("2")){--noOfPiecesPlayerOne;}
+							if(strDest.contains("1") && forDecisionTree != true){--noOfPiecesPlayerTwo;}else if(strDest.contains("2") && forDecisionTree != true){--noOfPiecesPlayerOne;}
 						}
 						else if(checkAbove == enemyCoordinateX && (prevY+1) == enemyCoordinateY)
 						{
@@ -1518,7 +1520,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
-							if(strDest.contains("1")){--noOfPiecesPlayerTwo;}else if(strDest.contains("2")){--noOfPiecesPlayerOne;}
+							if(strDest.contains("1") && forDecisionTree != true){--noOfPiecesPlayerTwo;}else if(strDest.contains("2") && forDecisionTree != true){--noOfPiecesPlayerOne;}
 						}
 						else if(checkAbove == enemyCoordinateX && (prevY-1) == enemyCoordinateY)
 						{
@@ -1536,7 +1538,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
-							if(strDest.contains("1")){--noOfPiecesPlayerTwo;}else if(strDest.contains("2")){--noOfPiecesPlayerOne;}
+							if(strDest.contains("1") && forDecisionTree != true){--noOfPiecesPlayerTwo;}else if(strDest.contains("2") && forDecisionTree != true){--noOfPiecesPlayerOne;}
 						}					
 					}
 					// If this move is an actual move (not a potential move), then we set the corresponding square's new image.
@@ -1644,7 +1646,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 			}
 		}							
 	}
-	public void playerTurn(String playerNo, String[][] passStrCheckersBoard, View v, int passX, int passY, int upOrDown, int passImgId, int passImgOfKing, boolean playerTurn,String opponentNo, int passNoOfPieces)
+	public void playerTurn(String playerNo, String[][] passStrCheckersBoard, View v, int passX, int passY, int upOrDown, int passImgId, int passImgOfKing, String opponentNo, int passNoOfPieces)
 	{	
 		// The coordinates of the currently selected square.
 		int x = passX, y = passY;
@@ -1757,7 +1759,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 			// Debug purposes.
 			// System.out.println("if(isEnemyAdjacent == true) just ran so, a capture needs to be performed.");
 			// This will determine what type of move (standard or a capture) it should make, and also make the move.
-			performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing, playerTurn, passNoOfPieces);
+			performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing, passNoOfPieces);
 			
 		}else
 		{
@@ -1802,7 +1804,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 				// Debug purposes.
 				// System.out.println("else if(passStrCheckersBoard[x][y] == 0 && isHighlighted == true) just ran but, failed miserably.");
 				// This will determine what type of move (standard or a capture) it should make, and also make the move.
-				performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing, playerTurn, passNoOfPieces);
+				performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing, passNoOfPieces);
 			}
 		}	
 	}
@@ -1836,7 +1838,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 		// this method is called after I change the player's turn so, it ends up calling the other if statement... Lol. I will make this better
 		// by putting it back to true, and call this method before I change the value of 'playerOneTurn' to the opponent's turn :)
 		
-		if(playerOneTurn == false) // If it is player two's turn...
+		if(playerOneTurn == false) // If it is player two's turn... This works fine for display the game message but, the other one, nope.
 		{
 			if(noOfPiecesPlayerTwo <= 0)
 			{
@@ -1854,9 +1856,9 @@ public class SinglePlayerEvents implements View.OnClickListener
 				System.out.println("The no of pieces left for Player 2 is " + noOfPiecesPlayerTwo);
 			}				
 		}
-		else
+		else // If it is player one's turn...
 		{
-		  // If it is player 2's turn...
+		  
 		  if(noOfPiecesPlayerOne <= 0)
 			{
 				// If the opponent has no more pieces then player 1 is the winner.
@@ -1873,7 +1875,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 			}							
 		}
 	}
-	public void performMoveAndCheckAdjacent(String[][] passStrCheckersBoard, int passX, int passY, int upOrDown, String playerNo, String opponentNo, int passImgId, int passImgOfKing, boolean playerTurn, int passNoOfPieces)
+	public void performMoveAndCheckAdjacent(String[][] passStrCheckersBoard, int passX, int passY, int upOrDown, String playerNo, String opponentNo, int passImgId, int passImgOfKing, int passNoOfPieces)
 	{
 		// Debug purposes.
 		// System.out.println("arrayOfPrevCoordinatesX.size() > 0 if statement just ran. (using our new function)");
@@ -1955,9 +1957,15 @@ public class SinglePlayerEvents implements View.OnClickListener
 						// I have just realised that I have not cleared xPrevAxis and yPrevAis ArrayList so, I'll do that now.
 						clearHelperArrays();
 						// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
-						displayTurn(playerTurn, opponentNo);
+						//displayTurn(playerTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
 						// Handover the turn to opponent.
-						playerOneTurn = playerTurn;
+						//playerOneTurn = playerTurn;
+						
+						// hand over its turn to the opponent (i.e. the human).
+						playerOneTurn = !playerOneTurn; 
+						// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
+						displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
+						
 						// Since there are no adjacent enemies, we make it false.
 						isEnemyAdjacent = false;
 						// Display the player's turn.
@@ -2003,9 +2011,15 @@ public class SinglePlayerEvents implements View.OnClickListener
 					// Clear the standard ArrayLists.
 					clearHelperArrays();
 					// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
-					displayTurn(playerTurn, opponentNo);
+					//displayTurn(playerTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
 					// Handover the turn to opponent.
-					playerOneTurn = playerTurn;
+					// playerOneTurn = playerTurn;
+					
+					// hand over its turn to the opponent (i.e. the human).
+					playerOneTurn = !playerOneTurn; 
+					// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
+					displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
+					
 					// Erm, I am so lost.
 					isEnemyAdjacent = false;
 					// I think I would need to remove the highlights too.
