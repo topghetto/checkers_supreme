@@ -1,8 +1,13 @@
 package uk.ac.kcl.www;
 
+import android.os.CountDownTimer;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+
+import java.lang.Thread;
+import java.lang.Runnable;
 
 import android.util.Log;
 import android.app.Activity;
@@ -21,9 +26,12 @@ import android.view.LayoutInflater;
 
 import 	android.graphics.drawable.ColorDrawable;
 
+import android.widget.ProgressBar;
+
 // Third party libraries.
 import com.gaurav.tree.ArrayListTree;
 import com.gaurav.tree.NodeNotFoundException;
+
 
 public class MultiplayerEvents implements View.OnClickListener
 {
@@ -34,6 +42,12 @@ public class MultiplayerEvents implements View.OnClickListener
 	public String[][] strCheckersBoard;
 	// Player information.
 	public TextView playerInfo;
+	// Image of the player's piece.
+	public ImageView playerImage;
+	// Information about the Bot.
+	public TextView loadingInfo;
+	// Loading wheel for AI.
+	public ProgressBar loadingWheel;
 	
 	// Keeps track of the selected square.
 	public int sizeOfPrev;
@@ -61,12 +75,12 @@ public class MultiplayerEvents implements View.OnClickListener
 	// The state of the game represented as a multidimensional array of Strings.
 	// public String[][] currentState;
 	
-	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent, isNewKing;
+	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent, isNewKing, adjacentToEnemy;
 	
 	public int highlightParentX, highlightParentY, xOfNewDest, yOfNewDest, erm;
 	
 	// Constructor
-	public MultiplayerEvents(View[][] passSquares, ImageView[][] passImgSquares, String[][] passCheckersBoard, TextView passTextView)
+	public MultiplayerEvents(View[][] passSquares, ImageView[][] passImgSquares, String[][] passCheckersBoard, TextView passTextView, TextView passLoadingInfo, ProgressBar passLoadingWheel, ImageView passPlayerImage)
 	{
 		// The first turn goes to player two.
 		// After each turn a player makes, a boolean variable will determine when it is the others players turn.
@@ -75,6 +89,7 @@ public class MultiplayerEvents implements View.OnClickListener
 		// the computer will never ever be able to click this, lol.
 		playerOneTurn = true;
 		isNewKing = false;
+		adjacentToEnemy = false;
 		
 		strCheckersBoard = passCheckersBoard;
 		squaresOfBoard = passSquares;
@@ -88,32 +103,130 @@ public class MultiplayerEvents implements View.OnClickListener
 		yOfNewDest = 0;
 		erm = 0;	
 		
-		// THIS IS A TEST
+		// Helper ArrayLists that will hold the ArrayLists of coordinates.
 		isEnemyAdjacent = false;
 		arrayOfPrevCoordinatesX = new ArrayList<ArrayList<Integer>>();
 		arrayOfPrevCoordinatesY = new ArrayList<ArrayList<Integer>>();
 		arrayOfEnemyCoordinatesX = new ArrayList<ArrayList<Integer>>();
 		arrayOfEnemyCoordinatesY = new ArrayList<ArrayList<Integer>>();
 		
-		// AI State Tree
-		
-		
-		// Another test... Aha.
+		// Initialise.
 		playerInfo = passTextView;
+		// Initialise the TextView for the display additional information with the loading wheel.
+    loadingInfo = passLoadingInfo;
+		// Initialise the ImageView
+		playerImage = passPlayerImage;
+		// Initialise the ProgressBar.		
+		loadingWheel = passLoadingWheel;
+		// We will hide the wheel on startup.
 		
 		// Display the player's turn. REMEMBER TO CHANGE THIS PARTICULAR SECTION WHEN I AUTOMATICALLY MAKE THE CODE DECIDE WHO GOES FIRST!!!
-		playerInfo.setText("Player " + 1 + "'s \n Turn.");
+		playerInfo.setText("Player " + 1 + "'s Turn");
+		// Set the image of the player image.
+		playerImage.setImageResource(R.drawable.dark_brown_piece);
 		// Keeps track of the number of pieces.
 		noOfPiecesPlayerOne = 12;
 		noOfPiecesPlayerTwo = 12;
 		
 	}
+	public void performEnemyCapture(String[][] passState, int passX, int passY, int upOrDown, String playerNo, String opponentNo, int destImg, int passImgOfKing, boolean forDecisionTree)
+	{
+		// Store the coordinates in a more convenient variable, yup.
+		int destinationX = passX; int destinationY = passY;
+				
+		if(xEnemyAxis.size() > 0)
+		{	
+			// Updates the destination coordinates with the newly obtained ones. Automatically, picks the first move-capture.
+			destinationX = xPrevAxis.get(1).intValue();
+			destinationY = yPrevAxis.get(1).intValue();
+			// It is adjacent so, we perform the move, yada yada yada. REMEMBER TO PASS IN THE RESOURCE IMAGES INTO THE METHOD BELOW!!!
+			movePiece(passState, imageOfSquares, destinationX, destinationY, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
+			// Debug purposes. Insert variable later on. This went into an infinite loop. I forgot to re-assign destinationX/Y
+			
+			System.out.println("Another capture was made, making this a consecutive capture performed by player " + playerNo);
+			printCheckersBoard(passState);
+			
+			// An experiment
+			adjacentToEnemy = true;
+		}
+		else // no more adjacent enemies.
+		{
+			// This does not need to be here... Okay, it does.
+			// If this is for an actual checkers piece that was moved by the AI bot, then we also hand over our turn to the opponent.
+			// No need to run this if it is for the purpose of evaluating the cut-off nodes.
+			if(forDecisionTree == false)
+			{
+				System.out.println("There are no more captures to make so, we hand over our turn to the opponent.");
+				// Display player information.
+				// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
+				// hand over its turn to the opponent (i.e. the human).
+				playerOneTurn = !playerOneTurn; 
+				// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
+				displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
+			}
+			// Clear the helper ArrayLists.
+			clearHelperArrays();
+			// No more.
+			// An experiment.
+			adjacentToEnemy = false;
+		}
+	}
+	// I need to get back to this.
+	public class CountDown extends CountDownTimer
+	{
+		public int destinationX;
+		public int destinationY;
+		public int upOrDown;
+		public String[][] state;
+		public String playerNo, opponentNo;
+		public int destImg, imgOfKing;
+		public boolean forDecisionTree;
+		
+		public CountDown(long startTime, long interval, String[][] passState, int passX, int passY, int passUpOrDown, String passPlayerNo, String passOpponentNo, int passDestImg, int passImgOfKing, boolean passForDecisionTree)
+		{
+			// Passes it into the base constructor of 'CountDownTimer'
+			super(startTime, interval);
+			// Properly store the coordinates.
+			destinationX = passX;
+			destinationY = passY;
+			upOrDown = passUpOrDown;
+			state= passState;
+			playerNo = passPlayerNo; opponentNo = passOpponentNo;
+			destImg = passDestImg; imgOfKing = passImgOfKing;
+			forDecisionTree = passForDecisionTree;
+			
+		}
+		@Override
+		public void onTick(long millisUntilFinished)
+		{
+			System.out.println("seconds remaining: " + millisUntilFinished / 1000);
+		}
+		@Override
+		public void onFinish()
+		{
+			System.out.println("Time's up, let's move");
+			// The clock code will go here, along with the movePiece() method.
+			// It is adjacent so, we perform the move, yada yada yada. REMEMBER TO PASS IN THE RESOURCE IMAGES INTO THE METHOD BELOW!!!
+			movePiece(state, imageOfSquares, destinationX, destinationY, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, destImg, imgOfKing, forDecisionTree);
+		}
+	}
 	public void determinePieceAndMove(Tree<String[][]> passNode, String[][] state, String playerNo, String opponentNo, boolean forDecisionTree, int upOrDown, int destImg, int passImgOfKing)
 	{
 		// This will find out which piece was actually moved.
-		
+
 		// We grab the state of the parent node.
-		String[][] parentState = passNode.parent().getValue();
+		String[][] parentState;
+		
+		if(forDecisionTree == true)
+		{
+			// If this is for the purpose of evaluation the decision tree...
+			parentState = passNode.parent().getValue();
+		}
+		else //if(forDecisionTree == false)
+		{
+			// If this is for the purpose of moving the actual checkers on the board, grab the actual strCheckersBoard 2D array.
+			parentState = strCheckersBoard;
+		}
 		
 		for(int row = 0;row < 8; row++)
 		{
@@ -134,12 +247,15 @@ public class MultiplayerEvents implements View.OnClickListener
 						// Duplicate the parent state.
 						String[][] copyParentState = new String[8][8];
 						duplicateArray(parentState, copyParentState);
-						// We need to check if it was a standard move or a capture. 
+						// We need to check if it was a standard move or a capture, which we will do shortly.
+						// We will use the method to generate the necessary coordinates ArrayLists based on the copy of our parent state. Leaving our...
+						// main parentState intact.
 						highlightSquares(copyParentState, xOfPiece, yOfPiece, upOrDown, opponentNo, playerNo);
-						// We also need to grab the coordinates of the new location...
-						int destinationX = 0;
-						int destinationY = 0;
+						// These coordinates will later hold the destination coordinates of where the piece will be going...
+						int destinationX = 0; int destinationY = 0;
 						
+						// Loop until we find the destination coordinates that match the piece at the child state (where we want to be)
+						// of the parent state (where we are currently at).
 						for(int l = 1; l < xPrevAxis.size();l++)
 						{
 							// The coordinates to test.
@@ -153,28 +269,48 @@ public class MultiplayerEvents implements View.OnClickListener
 								l = xPrevAxis.size();
 								// We got the coordinates. Well, I hope we did.
 							}
-						}	
-						// Now, that we have the correct coordinates of the piece moved, we must also check if within the state, whether a capture was performed.
-						// if a capture was performed then do the following...
+						}
+						// Make a copy of the child state and store it.
+						String[][] copyState = new String[8][8];
+						duplicateArray(state, copyState);
+						
+						// If this method is being called for the purpose of moving the actual piece on the checkrsboard then we assign
+						// ...Address of parentState to 'state' so, when we modify state, we are actually modifying 'parentState', which is also the actual...
+						// checkersboard.
+						if(forDecisionTree == false)
+						{
+							// The AI bot will be performing an actual move with the checkers piece on the 'parentState'.
+							// Debug purposes.
+							System.out.println("The parent state does get switched.");
+							// The state now becomes the actual checkersboard we wish to work with.
+							state = parentState;	
+						}						
+						// At the duplicate state 'copyParentState' and simulate, in order to determine whether the 'state' was a capture or a standard move.
+						// We will use the coordinates that we recently obtained.
 						if(xEnemyAxis.size() > 0)
 						{
-							// Debug purposes.
-							System.out.println("Within the state at the cut-off depth, a capture was performed by player " + playerNo);
-							printCheckersBoard(parentState);
-							System.out.println("Here is the state after the capture was performed by player " + playerNo);
-							printCheckersBoard(state);
-							
-							// We need a condition here so, that when it is an actual move we want to perform on the board, we do it.
-							// We make state[][] = parentState[][] so, the actual board itself gets modified. forDecisionTree = false should also do the trick.
+							// If the AI bot is performing an actual move.
 							if(forDecisionTree == false)
 							{
-								// If we are performing an actual move (by the AI bot), then we want to modify the contents of the actual checkersboard.
-								// So, whenever we modify the 'state' we are actually modifying the 'parentState' which is also the actual checkersboard ;) 
-								state = parentState;
+								// The AI bot will be performing an actual move with the checkers piece on the 'parentState'. This means that the current value we...
+								// have for destinationX/Y will not be suitable as the coordinates currently correspond to the location of the piece at the state.
+								// Where the state is where the piece moved to but, if we are actually moving the real piece, we need to start from parentState
+								// so, we make it that destinationX/Y is equal to the coordinates of the piece at the parentState (current).
+								destinationX = xOfPiece; destinationY = yOfPiece;
 							}
+							// Debug purposes.
+							System.out.println("Computing on the copyParentState, a capture was performed by player " + playerNo);
+							printCheckersBoard(parentState);
+							System.out.println("Now, we know the type of move made was a capture so, now we will actually perform the capture");
+							System.out.println("Here is the state after the capture was performed by player " + playerNo);
+							printCheckersBoard(copyState);
 							
 							// This piece performed a capture so, we see if it is adjacent to an enemy at the new location.
-							boolean adjacentToEnemy = true;
+							// boolean adjacentToEnemy = true;
+							adjacentToEnemy = true;
+							
+							// Initially, on the first iteration, this will perform the capture that yields the state 'state' from 'parentState'
+							// Then, at the 'state' it will check for consecutive captures.
 							// It is more explicit for me if I use == true instead of just the variable name itself as the condition.
 							while(adjacentToEnemy == true)
 							{
@@ -183,35 +319,54 @@ public class MultiplayerEvents implements View.OnClickListener
 								// Creates the necessary coordinates, and their ArrayLists too.
 								highlightSquares(state, destinationX, destinationY, upOrDown, opponentNo, playerNo);
 								
+								
 								if(xEnemyAxis.size() > 0)
-								{
+								{	
 									// Updates the destination coordinates with the newly obtained ones. Automatically, picks the first move-capture.
 									destinationX = xPrevAxis.get(1).intValue();
 									destinationY = yPrevAxis.get(1).intValue();
 									// It is adjacent so, we perform the move, yada yada yada. REMEMBER TO PASS IN THE RESOURCE IMAGES INTO THE METHOD BELOW!!!
 									movePiece(state, imageOfSquares, destinationX, destinationY, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
 									// Debug purposes. Insert variable later on. This went into an infinite loop. I forgot to re-assign destinationX/Y
+									
 									System.out.println("Another capture was made, making this a consecutive capture performed by player " + playerNo);
 									printCheckersBoard(state);
 								}
 								else // no more adjacent enemies.
 								{
+									// This does not need to be here... Okay, it does.
+									// If this is for an actual checkers piece that was moved by the AI bot, then we also hand over our turn to the opponent.
+									// No need to run this if it is for the purpose of evaluating the cut-off nodes.
+									if(forDecisionTree == false)
+									{
+										// Display player information.
+										
+										// hand over its turn to the opponent (i.e. the human).
+										playerOneTurn = !playerOneTurn; 
+										// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
+										displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
+									}
 									// Clear the helper ArrayLists.
 									clearHelperArrays();
 									// No more.
 									adjacentToEnemy = false;
 								}
+								
 							}	
 						}
 						else
 						{
-							// We need an if statement here because we may use this method to actually move the piece for the AI. forDecisionTree == true should suffice
+							// If an actual checkers piece is being moved by the AI bot, then we run the following piece of code.
 							if(forDecisionTree == false)
 							{
+								System.out.println("Computation on copyParentState resulted in a standard move.");
 								// Which means this is an actual move the computer is about to make... We move the piece
-								// movePiece(state, imageOfSquares, destinationX, destinationY, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
-								//hand over our turn to the opponent (i.e. the human).
-								// playerOneTurn == true;
+								movePiece(state, imageOfSquares, destinationX, destinationY, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
+								// Display player information.
+								// hand over its turn to the opponent (i.e. the human).
+								playerOneTurn = !playerOneTurn; 
+								// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
+								displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
 							}
 							// It was just a standard move...
 							clearHelperArrays();		
@@ -443,6 +598,10 @@ public class MultiplayerEvents implements View.OnClickListener
 		System.out.println("Minimax got called."); // Well, the recursive call gets called.
 		
 		// I got rid of the || passNode.isLeaf() part because we are now generating the states within the method instead.
+		// Removing it caused problems so, I added it back in with an extra condition that checks if passNode.isRoot();
+		// Adding it back in does not create the right number of state nodes, I almost had a panic attack man because the AI bot
+		// was not making logical decisions. It was literally picking the first piece that can move. i.e. the first immediate child of the root.
+		// NEXT TIME, I SHOULD TRY || (passNode.isLeaf() && passNode != decisionTree)
 		if(depth == 0)
 		{
 			// Calculate and return the heuristic value.
@@ -745,17 +904,73 @@ public class MultiplayerEvents implements View.OnClickListener
 			// Now, I must pass in the children (which is 7 assuming that I moved the black the piece on the top-leftmost square to the left.)
 			ArrayList<Tree<String[][]>> children = decisionTree.children();*/
 			
+			/*(new Thread(new Runnable(){
+				public void run()
+				{
+					// Insert code here foo!
+				}
+				})).start();*/
+			
+			// Yup. I need to come back to this.
+			//loadingInfo.setText("Well, A.I.mee is thinking...");
+			// Erm.
+			//loadingWheel.setVisibility(View.VISIBLE);
+						
+			
 			// Debug purposes.
 			greatestMove = new Tree(new String[8][8]);
 			
 			System.out.println("The fact that the decisionTree is a leaf is " + decisionTree.isLeaf());
 			// A huge take on generating the states as we go along.
 			double heuristicValue = minimax(decisionTree, 3, true);
+			// Clarity.
+			String[][] greatestMoveState = greatestMove.getValue();
 			// Debug purposes - it prints out 292 nodes for a depth of 3, which is correct and I will assume that the correct states are being created.
 			System.out.println("The size of the decisionTree after the minimax operation is " + sizeOfTree + " and the greatest move is ");		
 			// Debug purposes.
-			printCheckersBoard(greatestMove.getValue()); // So far, it grabs the states at depth 3 (which are the states at the cut-off depth). 
+			printCheckersBoard(greatestMoveState); // So far, it grabs the states at depth 3 (which are the states at the cut-off depth). 
 			System.out.println("The overall heuristic value of the minimax algorithm is: " + heuristicValue);
+			
+			/*// An experiment.
+			System.out.println("The contents of the greatestMove.parent() should match the current state:");
+			printCheckersBoard(greatestMove.parent().getValue());
+			System.out.println("The contents of the greatestMove.parent().setValue(strCheckersBoard) should match the current state:");
+			greatestMove.parent().setValue(strCheckersBoard);
+			printCheckersBoard(greatestMove.parent().getValue());*/
+			
+			// Debug.
+			System.out.println("The contents of strCheckersBoard[][] before the Bot moved its piece is:");
+			printCheckersBoard(strCheckersBoard);
+			
+			// I will finally try and get the AI to move the piece itself. Inshallah, it works well.
+			// This did not work, probably because the root is only a copy of the current state so, I need to figure out how to
+			// pass in the actual checkersboard, which is strCheckersBoard.
+			// I also forgot to enable the movePiece() method within the section where it only makes a standard move... lol.
+			// Well, it moves now but, sometimes a new pieces pop out of thin air. The strCheckersBoard never gets modified. That bit is sorted... I think
+			// Erm, it seems to move by itself but, when it is adjacent to an enemy, it does not do anything so, the problem lies in the code of the enemy thang.
+			determinePieceAndMove(greatestMove, greatestMoveState, "2", "1", false, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece);
+			
+			// Debug.
+			System.out.println("The contents of strCheckersBoard[][] after the Bot moved its piece is:");
+			printCheckersBoard(strCheckersBoard);
+			
+			// Yup.
+			//loadingInfo.setText("Well, A.I.mee is done thinking...");
+			// Erm.
+			//loadingWheel.setVisibility(View.INVISIBLE);
+			
+			// I HAVE ALSO NOTICED THAT WHEN THERE IS ONLY PIECE FOR THE CPU LEFT FOR THE CPU, AND ITS CORNERED
+			// THE VALUE OF GREATESTMOVE IS ALL NULL AND THE MINIMAX ALGORITHM RETURNS -INFINITY AND LATELY
+			// BECAUSE I'M ACTUALLY MOVING THE PIECES, IT CRASHES THE PROGRAM.
+			
+			/*
+			The reason why minimax() returns negative infinity on the last piece of the AI pieces that is also about to be captured is
+			because our cut-off depth only works with depth == 0 but, if we have a depth of 3 but, the piece gets captured at depth == 1,
+			it won't cut off so, I need to also add a isLeaf() condition to it. I originally had that but, removed it because when creating
+			the tree within the minimax algorithm, there is only one node when it is initially passed in, making it a leaf when passed in so,
+			nothing would get created if(depth == 0 || isLeaf()) but,
+			I think I can solve this by using if(depth == 0 || (isLeaf() && isRoot() != true)) :D
+			*/ 
 			
 			//System.out.println("By using an experimental technique, the move that we obtain is...");
 			// Prints the contents of the root node.
@@ -922,8 +1137,8 @@ public class MultiplayerEvents implements View.OnClickListener
 						if(playerOneTurn == true)
 						{
 							// We move our pieces as normal.
-							playerTurn("1", strCheckersBoard, v, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, false, "2", noOfPiecesPlayerTwo);		// Nice, it works.
-							//playerTurn("1", strCheckersBoard, v, x >= 1 && x <= 7, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, false, x >= 2, "2", noOfPiecesPlayerTwo);		// Nice, it works.
+							playerTurn("1", strCheckersBoard, v, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, "2");		// Nice, it works.
+							//playerTurn("1", strCheckersBoard, v, x >= 1 && x <= 7, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, false, x >= 2, "2");		// Nice, it works.
 						}
 						else
 						{
@@ -931,8 +1146,8 @@ public class MultiplayerEvents implements View.OnClickListener
 							//computerTurn("2");
 									
 							// We move our pieces as normal.
-							playerTurn("2", strCheckersBoard, v, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, "1", noOfPiecesPlayerOne);	// Nice, it works.
-							//playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1", noOfPiecesPlayerOne);	// Nice, it works.		
+							playerTurn("2", strCheckersBoard, v, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, "1");	// Nice, it works.
+							//playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1");	// Nice, it works.		
 						}
 				}// if(squaresOfBoard[x][y].equals(v))
 		}		
@@ -1270,7 +1485,7 @@ public class MultiplayerEvents implements View.OnClickListener
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
-							if(strDest.contains("1")){--noOfPiecesPlayerTwo;}else if(strDest.contains("2")){--noOfPiecesPlayerOne;}
+							if(strDest.contains("1") && forDecisionTree != true){--noOfPiecesPlayerTwo;}else if(strDest.contains("2") && forDecisionTree != true){--noOfPiecesPlayerOne;}
 							
 						}
 						else if(checkBelow == enemyCoordinateX && (prevY-1) == enemyCoordinateY)
@@ -1289,7 +1504,7 @@ public class MultiplayerEvents implements View.OnClickListener
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
-							if(strDest.contains("1")){--noOfPiecesPlayerTwo;}else if(strDest.contains("2")){--noOfPiecesPlayerOne;}
+							if(strDest.contains("1") && forDecisionTree != true){--noOfPiecesPlayerTwo;}else if(strDest.contains("2") && forDecisionTree != true){--noOfPiecesPlayerOne;}
 						}
 						else if(checkAbove == enemyCoordinateX && (prevY+1) == enemyCoordinateY)
 						{
@@ -1307,7 +1522,7 @@ public class MultiplayerEvents implements View.OnClickListener
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
-							if(strDest.contains("1")){--noOfPiecesPlayerTwo;}else if(strDest.contains("2")){--noOfPiecesPlayerOne;}
+							if(strDest.contains("1") && forDecisionTree != true){--noOfPiecesPlayerTwo;}else if(strDest.contains("2") && forDecisionTree != true){--noOfPiecesPlayerOne;}
 						}
 						else if(checkAbove == enemyCoordinateX && (prevY-1) == enemyCoordinateY)
 						{
@@ -1325,7 +1540,7 @@ public class MultiplayerEvents implements View.OnClickListener
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
-							if(strDest.contains("1")){--noOfPiecesPlayerTwo;}else if(strDest.contains("2")){--noOfPiecesPlayerOne;}
+							if(strDest.contains("1") && forDecisionTree != true){--noOfPiecesPlayerTwo;}else if(strDest.contains("2") && forDecisionTree != true){--noOfPiecesPlayerOne;}
 						}					
 					}
 					// If this move is an actual move (not a potential move), then we set the corresponding square's new image.
@@ -1433,7 +1648,7 @@ public class MultiplayerEvents implements View.OnClickListener
 			}
 		}							
 	}
-	public void playerTurn(String playerNo, String[][] passStrCheckersBoard, View v, int passX, int passY, int upOrDown, int passImgId, int passImgOfKing, boolean playerTurn,String opponentNo, int passNoOfPieces)
+	public void playerTurn(String playerNo, String[][] passStrCheckersBoard, View v, int passX, int passY, int upOrDown, int passImgId, int passImgOfKing, String opponentNo)
 	{	
 		// The coordinates of the currently selected square.
 		int x = passX, y = passY;
@@ -1546,7 +1761,7 @@ public class MultiplayerEvents implements View.OnClickListener
 			// Debug purposes.
 			// System.out.println("if(isEnemyAdjacent == true) just ran so, a capture needs to be performed.");
 			// This will determine what type of move (standard or a capture) it should make, and also make the move.
-			performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing, playerTurn, passNoOfPieces);
+			performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing);
 			
 		}else
 		{
@@ -1591,7 +1806,7 @@ public class MultiplayerEvents implements View.OnClickListener
 				// Debug purposes.
 				// System.out.println("else if(passStrCheckersBoard[x][y] == 0 && isHighlighted == true) just ran but, failed miserably.");
 				// This will determine what type of move (standard or a capture) it should make, and also make the move.
-				performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing, playerTurn, passNoOfPieces);
+				performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, upOrDown, playerNo, opponentNo, passImgId, passImgOfKing);
 			}
 		}	
 	}
@@ -1625,40 +1840,43 @@ public class MultiplayerEvents implements View.OnClickListener
 		// this method is called after I change the player's turn so, it ends up calling the other if statement... Lol. I will make this better
 		// by putting it back to true, and call this method before I change the value of 'playerOneTurn' to the opponent's turn :)
 		
-		if(playerOneTurn == false)
+		if(playerOneTurn == false) // Just before player two hands over its turn... 
 		{
 			if(noOfPiecesPlayerTwo <= 0)
 			{
 				// If the opponent has no more pieces then player 1 is the winner.
-				playerInfo.setText("Game Over!\nPlayer 1 is\n the Winner!");
+				playerInfo.setText("Game Over!\nPlayer 1 is\nthe Winner!");
 				
 			}
 			else
 			{
 				// Display the player's turn.
 				playerInfo.setText("Player " + opponentNo + "'s Turn");
+				// Set the player image.
+				playerImage.setImageResource(R.drawable.light_brown_piece);
 				// Debug.
 				System.out.println("The no of pieces left for Player 2 is " + noOfPiecesPlayerTwo);
 			}				
 		}
-		else
-		{
-		  // If it is player 2's turn...
+		else // Just before player one hands over its turn...
+		{  
 		  if(noOfPiecesPlayerOne <= 0)
 			{
 				// If the opponent has no more pieces then player 1 is the winner.
-				playerInfo.setText("Game Over!\nPlayer 2 is\n the Winner!");	
+				playerInfo.setText("Game Over!\nPlayer 2 is\nthe Winner!");	
 			}
 			else
 			{
 				// Display the player's turn.
 				playerInfo.setText("Player " + opponentNo + "'s Turn");
+				// Set the image of the player image.
+				playerImage.setImageResource(R.drawable.dark_brown_piece);
 				// Debug.
 				System.out.println("The no of pieces left for Player 1 is " + noOfPiecesPlayerOne);
 			}							
 		}
 	}
-	public void performMoveAndCheckAdjacent(String[][] passStrCheckersBoard, int passX, int passY, int upOrDown, String playerNo, String opponentNo, int passImgId, int passImgOfKing, boolean playerTurn, int passNoOfPieces)
+	public void performMoveAndCheckAdjacent(String[][] passStrCheckersBoard, int passX, int passY, int upOrDown, String playerNo, String opponentNo, int passImgId, int passImgOfKing)
 	{
 		// Debug purposes.
 		// System.out.println("arrayOfPrevCoordinatesX.size() > 0 if statement just ran. (using our new function)");
@@ -1740,12 +1958,21 @@ public class MultiplayerEvents implements View.OnClickListener
 						// I have just realised that I have not cleared xPrevAxis and yPrevAis ArrayList so, I'll do that now.
 						clearHelperArrays();
 						// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
-						displayTurn(playerTurn, opponentNo);
+						//displayTurn(playerTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
 						// Handover the turn to opponent.
-						playerOneTurn = playerTurn;
+						//playerOneTurn = playerTurn;
+						
+						// hand over its turn to the opponent (i.e. the human).
+						playerOneTurn = !playerOneTurn; 
+						// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
+						displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
+						
 						// Since there are no adjacent enemies, we make it false.
 						isEnemyAdjacent = false;
 						// Display the player's turn.
+						
+						// The AI bot will immediately takes its turn. I need to add a timer here because it does not wait until it visually moves player one's piece.
+						//computerTurn("2");
 					}
 					else
 					{
@@ -1785,13 +2012,22 @@ public class MultiplayerEvents implements View.OnClickListener
 					// Clear the standard ArrayLists.
 					clearHelperArrays();
 					// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
-					displayTurn(playerTurn, opponentNo);
+					//displayTurn(playerTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
 					// Handover the turn to opponent.
-					playerOneTurn = playerTurn;
+					// playerOneTurn = playerTurn;
+					
+					// hand over its turn to the opponent (i.e. the human).
+					playerOneTurn = !playerOneTurn; 
+					// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
+					displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
+					
 					// Erm, I am so lost.
 					isEnemyAdjacent = false;
 					// I think I would need to remove the highlights too.
-					// Display the player's turn.			
+					// Display the player's turn.
+					
+					// The AI bot will immediately takes its turn. I need to add a timer here because it does not wait until it visually moves player one's piece.
+					// computerTurn("2");
 				}						
 			}else
 			{

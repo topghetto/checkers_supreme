@@ -89,7 +89,7 @@ public class SinglePlayerGame extends Activity{
 		// Initialise the ProgressBar.		
 		loadingWheel = (ProgressBar) findViewById(R.id.progress_bar_for_bot);
 		// We will hide the wheel on startup.
-		loadingWheel.setVisibility(View.INVISIBLE); 
+		//loadingWheel.setVisibility(View.INVISIBLE); 
 		
 		// Create instiate the event class TextView passLoadingInfo, ProgressBar passLoadingWheel, ImageView passPlayerImage
 		playerEvents = new SinglePlayerEvents(imageOfSquares, imageOfSquares, strCheckersBoard, playerInfo, loadingInfo, loadingWheel, playerImage);

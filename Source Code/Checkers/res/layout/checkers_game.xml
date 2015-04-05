@@ -6,6 +6,7 @@
     >
   
   <!-- Remember the disable the colour for the LinearLayout below -->
+  <!-- The left side of the screen -->
   <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
     android:layout_width="125dp"
     android:layout_height="match_parent"
@@ -14,38 +15,24 @@
     android:background="#80206DB4">
     
     <TextView android:id="@+id/playerInfo"
-						android:layout_width="match_parent"
+						android:layout_width="wrap_content"
 						android:layout_height="90dp"
 						android:layout_marginTop="50dp"
-						android:layout_marginLeft="30dp"
+            android:layout_marginBottom="-20dp"
+						android:layout_gravity="center_horizontal"
 						android:textSize="15sp"
-						android:text="Player's Info"/>
+						android:text="Player Information"/>
     
     <ImageView android:id="@+id/player_image"
-				android:layout_width="42.93dp"
-				android:layout_height="36.5dp"
-				android:layout_marginLeft="30dp"
-				android:background="#A820F4"/>
+				android:layout_width="43dp"
+        android:layout_height="39.375dp"
+				android:layout_gravity="center_horizontal"
+				android:background="#C0C0C0"/>
     
   </LinearLayout>
   
 	<!-- This colour green is perfect for this game. I randomly typed in random numbers and got this :) android:background="#80444411" --> 
-  
-  <!-- View cannot be casted to ViewGroup -->
-  <!--
-  <ProgressBar android:id="@+id/progress_bar_for_bot"
-        style="@android:style/Widget.ProgressBar.Small"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true" />-->
-	
-	<!--<View android:id="@+id/playerImg"
-				android:layout_width="42.93dp"
-				android:layout_height="36.5dp"
-				android:layout_gravity="center_vertical"
-				android:layout_marginTop="30dp"
-				android:background="#A820F4"/>-->
-	
+  <!-- The checkers board -->	
 	<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
 		android:id="@+id/checkersboard_gridlayout"
 		android:layout_width="wrap_content"
@@ -59,6 +46,7 @@
 	</GridLayout>
 	
   <!-- Remember the disable the colour for the LinearLayout below -->
+  <!-- The right side of the screen -->
   <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
     android:layout_width="125dp"
     android:layout_height="match_parent"
@@ -67,19 +55,18 @@
     android:background="#806699FF">
     
     <TextView android:id="@+id/loading_info"
-						android:layout_width="match_parent"
+						android:layout_width="wrap_content"
 						android:layout_height="90dp"
 						android:layout_marginTop="50dp"
-						android:layout_marginLeft="30dp"
+            android:layout_gravity="center_horizontal"
 						android:textSize="15sp"
-						android:text="A.I.mee is waiting for you..."/>
+						android:text="A.I.mee is \nwaiting for you..."/>
     
     <ProgressBar android:id="@+id/progress_bar_for_bot"
         style="@android:style/Widget.ProgressBar.Large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_centerHorizontal="true" />
+        android:layout_gravity="center_horizontal"/>
     
   </LinearLayout>
 	

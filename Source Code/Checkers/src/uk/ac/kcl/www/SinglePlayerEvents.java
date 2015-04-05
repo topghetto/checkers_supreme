@@ -121,7 +121,9 @@ public class SinglePlayerEvents implements View.OnClickListener
 		// We will hide the wheel on startup.
 		
 		// Display the player's turn. REMEMBER TO CHANGE THIS PARTICULAR SECTION WHEN I AUTOMATICALLY MAKE THE CODE DECIDE WHO GOES FIRST!!!
-		playerInfo.setText("Player " + 1 + "'s \n Turn.");
+		playerInfo.setText("Player " + 1 + "'s Turn");
+		// Set the image of the player image.
+		playerImage.setImageResource(R.drawable.dark_brown_piece);
 		// Keeps track of the number of pieces.
 		noOfPiecesPlayerOne = 12;
 		noOfPiecesPlayerTwo = 12;
@@ -1838,12 +1840,12 @@ public class SinglePlayerEvents implements View.OnClickListener
 		// this method is called after I change the player's turn so, it ends up calling the other if statement... Lol. I will make this better
 		// by putting it back to true, and call this method before I change the value of 'playerOneTurn' to the opponent's turn :)
 		
-		if(playerOneTurn == false) // If it is player two's turn... This works fine for display the game message but, the other one, nope.
+		if(playerOneTurn == false) // Just before player two hands over its turn... 
 		{
 			if(noOfPiecesPlayerTwo <= 0)
 			{
 				// If the opponent has no more pieces then player 1 is the winner.
-				playerInfo.setText("Game Over!\nPlayer 1 is\n the Winner!");
+				playerInfo.setText("Game Over!\nPlayer 1 is\nthe Winner!");
 				
 			}
 			else
@@ -1851,25 +1853,24 @@ public class SinglePlayerEvents implements View.OnClickListener
 				// Display the player's turn.
 				playerInfo.setText("Player " + opponentNo + "'s Turn");
 				// Set the player image.
-				//playerImage.setImageResource(R.drawable.dark_brown_piece);
+				playerImage.setImageResource(R.drawable.light_brown_piece);
 				// Debug.
 				System.out.println("The no of pieces left for Player 2 is " + noOfPiecesPlayerTwo);
 			}				
 		}
-		else // If it is player one's turn...
-		{
-		  
+		else // Just before player one hands over its turn...
+		{  
 		  if(noOfPiecesPlayerOne <= 0)
 			{
 				// If the opponent has no more pieces then player 1 is the winner.
-				playerInfo.setText("Game Over!\nPlayer 2 is\n the Winner!");	
+				playerInfo.setText("Game Over!\nPlayer 2 is\nthe Winner!");	
 			}
 			else
 			{
 				// Display the player's turn.
 				playerInfo.setText("Player " + opponentNo + "'s Turn");
 				// Set the image of the player image.
-				//playerImage.setImageResource(R.drawable.light_brown_piece);
+				playerImage.setImageResource(R.drawable.dark_brown_piece);
 				// Debug.
 				System.out.println("The no of pieces left for Player 1 is " + noOfPiecesPlayerOne);
 			}							

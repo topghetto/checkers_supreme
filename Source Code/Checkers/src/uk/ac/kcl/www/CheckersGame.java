@@ -33,6 +33,7 @@ import android.view.LayoutInflater;
 
 import 	android.graphics.drawable.ColorDrawable;
 
+import android.widget.ProgressBar;
 
 // I forgot to declare the class as public, and in result, it could not load this activity from the main menu
 public class CheckersGame extends Activity{
@@ -45,8 +46,15 @@ public class CheckersGame extends Activity{
 	public String	strCheckersBoard[][];
   // Handles all the events.
 	public MultiplayerEvents playerEvents;
-	
+	// Displays whose turn it is.
 	public TextView playerInfo;
+	// Image of the player's piece.
+	public ImageView playerImage;
+	// Information about the Bot.
+	public TextView loadingInfo;
+	// Loading wheel for AI.
+	public ProgressBar loadingWheel;
+	
 	
 	
 	@Override
@@ -55,23 +63,36 @@ public class CheckersGame extends Activity{
 		// I need to create a different xml layout... Actually, I will do it now.
 		setContentView(R.layout.checkers_game);
 		// Grabs the layout of the checkersboard
-		GridLayout checkersBoardGL = (GridLayout) findViewById(R.id.checkersboard_gridlayout);
+		 checkersBoardGL = (GridLayout) findViewById(R.id.checkersboard_gridlayout);
+		
+		// AN IMPORTANT NOTE ! IF I GET A PROBLEM WHENEVER I ADD A NEW VIEW IN THE XML
+		// COMMENT checkersBoardGL --> Compile --> Run --> Enable checkersBoardGL --> Complie --> Run.
+		
 		// All the images of the squares of the checkers board will be stored in here.
 		imageOfSquares = new ImageView[8][8];
 		// All the layouts of the squares of the checkers board will be stored in here.
-		squaresOfBoard = new View[8][8];
+		squaresOfBoard = new ViewGroup[8][8];
 		// This will keep track of the entire board
 		strCheckersBoard = new String[8][8];
 		// This will state whose turn it is to make a move.
 		playerInfo = (TextView) findViewById(R.id.playerInfo);
-		// Create instiate the event class
-		playerEvents = new MultiplayerEvents(imageOfSquares, imageOfSquares, strCheckersBoard, playerInfo);
 		
 		// Grabs the ActionBar.
 		ActionBar actionBar = getActionBar();
 		// Hides the ActionBar.
 		actionBar.hide();
-
+		
+		// Initialise the TextView for the display additional information with the loading wheel.
+    loadingInfo = (TextView) findViewById(R.id.loading_info);
+		// Initialise the ImageView
+		playerImage = (ImageView) findViewById(R.id.player_image);
+		// Initialise the ProgressBar.		
+		loadingWheel = (ProgressBar) findViewById(R.id.progress_bar_for_bot);
+		// We will hide the wheel on startup.
+		loadingWheel.setVisibility(View.INVISIBLE); 
+		
+		// Create instiate the event class TextView passLoadingInfo, ProgressBar passLoadingWheel, ImageView passPlayerImage
+		playerEvents = new MultiplayerEvents(imageOfSquares, imageOfSquares, strCheckersBoard, playerInfo, loadingInfo, loadingWheel, playerImage);
 		
 		// ---- Initially Populates the Checkersboard and Adds the Events to the Squares ---- \\ 
 		// For each row of the checkersboard...
