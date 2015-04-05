@@ -1,6 +1,7 @@
 package uk.ac.kcl.www;
 
 import android.os.CountDownTimer;
+import android.app.Activity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,7 @@ import com.gaurav.tree.ArrayListTree;
 import com.gaurav.tree.NodeNotFoundException;
 
 
-public class SinglePlayerEvents implements View.OnClickListener
+public class SinglePlayerEvents extends Activity implements View.OnClickListener
 {
 	// Member Variables
 	public int row, column;
@@ -361,6 +362,22 @@ public class SinglePlayerEvents implements View.OnClickListener
 							{
 								System.out.println("Computation on copyParentState resulted in a standard move.");
 								// Which means this is an actual move the computer is about to make... We move the piece
+								
+								/*final String[][] finalState = state;
+								final int finalDestinationX = destinationX; final int finalDestinationY = destinationY; final int finalUpOrDown = upOrDown;
+								final String finalPlayerNo = playerNo; final String finalOpponentNo = opponentNo;
+								final int finalDestImg = destImg; final int finalImgOfKing = passImgOfKing;
+								final boolean finalForDecisionTree = forDecisionTree;
+								
+								// We put the code here, I think.
+								SinglePlayerGame.runOnUiThread(new Runnable() {
+										@Override
+										public void run() {
+												// This code will always run on the UI thread, therefore is safe to modify UI elements.
+												movePiece(finalState, imageOfSquares, finalDestinationX, finalDestinationY, finalUpOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, finalPlayerNo, finalOpponentNo, finalDestImg, finalImgOfKing, finalForDecisionTree);
+										}
+								});
+								*/
 								movePiece(state, imageOfSquares, destinationX, destinationY, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
 								// Display player information.
 								// hand over its turn to the opponent (i.e. the human).
@@ -931,12 +948,12 @@ public class SinglePlayerEvents implements View.OnClickListener
 			printCheckersBoard(greatestMoveState); // So far, it grabs the states at depth 3 (which are the states at the cut-off depth). 
 			System.out.println("The overall heuristic value of the minimax algorithm is: " + heuristicValue);
 			
-			/*// An experiment.
+			// An experiment.
 			System.out.println("The contents of the greatestMove.parent() should match the current state:");
 			printCheckersBoard(greatestMove.parent().getValue());
 			System.out.println("The contents of the greatestMove.parent().setValue(strCheckersBoard) should match the current state:");
 			greatestMove.parent().setValue(strCheckersBoard);
-			printCheckersBoard(greatestMove.parent().getValue());*/
+			printCheckersBoard(greatestMove.parent().getValue());
 			
 			// Debug.
 			System.out.println("The contents of strCheckersBoard[][] before the Bot moved its piece is:");
@@ -948,11 +965,28 @@ public class SinglePlayerEvents implements View.OnClickListener
 			// I also forgot to enable the movePiece() method within the section where it only makes a standard move... lol.
 			// Well, it moves now but, sometimes a new pieces pop out of thin air. The strCheckersBoard never gets modified. That bit is sorted... I think
 			// Erm, it seems to move by itself but, when it is adjacent to an enemy, it does not do anything so, the problem lies in the code of the enemy thang.
+			// This is where the actual move is made by the bot... so, I need that runOnUiThread here, I think, aha.		
 			determinePieceAndMove(greatestMove, greatestMoveState, "2", "1", false, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece);
+			
+			// We put the code here, I think.
+								/*new Activity().runOnUiThread(new Runnable() {
+										@Override
+										public void run() {
+												// This code will always run on the UI thread, therefore is safe to modify UI elements.
+												//movePiece(finalState, imageOfSquares, finalDestinationX, finalDestinationY, finalUpOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, finalPlayerNo, finalOpponentNo, finalDestImg, finalImgOfKing, finalForDecisionTree);
+												determinePieceAndMove(greatestMove, greatestMoveState, "2", "1", false, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece);
+										}
+								});*/
+			
 			
 			// Debug.
 			System.out.println("The contents of strCheckersBoard[][] after the Bot moved its piece is:");
 			printCheckersBoard(strCheckersBoard);
+			
+			// We will hide the wheel on startup.
+			loadingWheel.setVisibility(View.INVISIBLE);
+			// Update the message of the AI bot.
+			loadingInfo.setText("A.I.mee is\nwaiting for you to\nmake your move...");
 			
 			// Yup.
 			//loadingInfo.setText("Well, A.I.mee is done thinking...");
@@ -1121,9 +1155,32 @@ public class SinglePlayerEvents implements View.OnClickListener
 	// that it may cause a series of problems.
 	public synchronized void onClick(View v) 
 	{
-		// This will no longer work if we are factoring the AI. The AI cannot click so, if we ran [x][y].equals(View v)... Will not run because
+		// This will no longer work if when we start using the AI bot. The AI cannot click so, if we ran [x][y].equals(View v)... Will not run because
 		// like I said, it cannot click so, I will need to probably move the if(playerOneTurn == true) statement outside of the nested for-loop ;)
 		
+		if(playerOneTurn == true)
+		{
+			// The code for player one (the human) will go here, aha.
+			for(int x = 0;x<8;x++)
+			{
+				// ((x+1)%2) will make it change back-and-forth from 1 to 0 after each 'x' iteration. This will allow a search for events through
+				// the 32 squares that would call an event instead of searching through 64 squares (where 32 will never ever call a event).
+				for(int y=((x+1)%2);y<8;y+=2)
+				{
+					// Firstly, we must find the row/column value of the square that initiated the event.
+					if(squaresOfBoard[x][y].equals(v))
+					{
+						// We move our pieces as normal.
+						playerTurn("1", strCheckersBoard, v, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, "2");		// Nice, it works.
+					}
+				}
+			}
+		}else
+		{
+			// We do not really need this here as we will be calling the computerTurn() method from within the playerTurn() method.
+		}
+		
+		/*
 		for(int x = 0;x<8;x++)
 		{
 			// ((x+1)%2) will make it change back-and-forth from 1 to 0 after each 'x' iteration. This will allow a search for events through
@@ -1150,8 +1207,8 @@ public class SinglePlayerEvents implements View.OnClickListener
 							//playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1");	// Nice, it works.		
 						}
 				}// if(squaresOfBoard[x][y].equals(v))
-		}		
-	}	
+			}		
+		}*/	
 	}// End of 'onClick'
 	public void addCoordinatesToLists(int passX, int passY, int upOrDown, int leftOrRight)
 	{
@@ -1752,7 +1809,7 @@ public class SinglePlayerEvents implements View.OnClickListener
 			isHighlighted = false;
 		}
 		
-		// ...To this section works-ish.	
+		// ...To this section works-ish. Been a while since I wrote this section, and forgot to add that it works splendidly. 	
 		
 		// Checks whether the highlighted piece is adjacent to an enemy (and there could be more than one.)
 		if(isEnemyAdjacent == true)
@@ -1965,14 +2022,34 @@ public class SinglePlayerEvents implements View.OnClickListener
 						// hand over its turn to the opponent (i.e. the human).
 						playerOneTurn = !playerOneTurn; 
 						// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
+						// Display the player's turn.
 						displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
-						
 						// Since there are no adjacent enemies, we make it false.
 						isEnemyAdjacent = false;
-						// Display the player's turn.
 						
-						// The AI bot will immediately takes its turn. I need to add a timer here because it does not wait until it visually moves player one's piece.
-						//computerTurn("2");
+						// The AI Code will go here... Let the experiment begin.	
+						// computerTurn("2");
+						
+						// Waits 200 milliseconds before the AI decides to move.
+						new CountDownTimer(200, 100)
+						{
+							public void onTick(long millisUntilFinished)
+							{
+								System.out.println("seconds remaining: " + millisUntilFinished / 1000);
+								// We will show the wheel to indicate it is the AI's turn.
+								loadingWheel.setVisibility(View.VISIBLE);			
+								// Update the message of the AI bot.
+								loadingInfo.setText("A.I.mee is\nis making her move...");
+							}
+							public void onFinish()
+							{
+								System.out.println("Now, it is time for A.I.mee to make her move...");
+								computerTurn("2");								
+								
+								// I tried using a Thread but, it caused some complexities because various sections within computerTurn() modifies
+								// the UI but, if we did this within another thread besides the UI thread, the application crashes.		
+							}
+						}.start();
 					}
 					else
 					{
@@ -2018,16 +2095,38 @@ public class SinglePlayerEvents implements View.OnClickListener
 					
 					// hand over its turn to the opponent (i.e. the human).
 					playerOneTurn = !playerOneTurn; 
-					// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
+					// Display the player's turn.
+					// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!; 
 					displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
-					
 					// Erm, I am so lost.
 					isEnemyAdjacent = false;
 					// I think I would need to remove the highlights too.
-					// Display the player's turn.
 					
-					// The AI bot will immediately takes its turn. I need to add a timer here because it does not wait until it visually moves player one's piece.
+										
+					// The AI Code will go here... Let the experiment begin...
+					// computerTurn() gets called before it can update the piece moved by the human. I need to slow this down somehow.
 					// computerTurn("2");
+					
+					// Waits 200 milliseconds before the AI decides to move.
+					 new CountDownTimer(200, 100)
+					 {
+							public void onTick(long millisUntilFinished)
+							{
+								System.out.println("seconds remaining: " + millisUntilFinished / 1000);
+								// We will show the wheel to indicate it is the AI's turn.
+								loadingWheel.setVisibility(View.VISIBLE);			
+								// Update the message of the AI bot.
+								loadingInfo.setText("A.I.mee is\nis making her move...");
+							}
+							public void onFinish()
+							{
+								System.out.println("Now, it is time for A.I.mee to make her move...");
+								computerTurn("2");								
+								
+								// I tried using a Thread but, it caused some complexities because various sections within computerTurn() modifies
+								// the UI but, if we did this within another thread besides the UI thread, the application crashes.		
+							}
+					 }.start();			
 				}						
 			}else
 			{
