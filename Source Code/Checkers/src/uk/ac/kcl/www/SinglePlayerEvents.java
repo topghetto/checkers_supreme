@@ -263,7 +263,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 							destinationX = xPrevAxis.get(l).intValue();
 							destinationY = yPrevAxis.get(l).intValue();
 							
-							// I think I will need better validations placed but, for now, I will use this. 
+							// I think I will need better validations placed but, for now, I will use this. This seems to be fine.
 							if(state[destinationX][destinationY].contains(playerNo))
 							{
 								// Make it the last iteration.
@@ -275,7 +275,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						String[][] copyState = new String[8][8];
 						duplicateArray(state, copyState);
 						
-						// If this method is being called for the purpose of moving the actual piece on the checkrsboard then we assign
+						// If this method is being called for the purpose of moving the actual piece on the checkersboard then we assign
 						// ...Address of parentState to 'state' so, when we modify state, we are actually modifying 'parentState', which is also the actual...
 						// checkersboard.
 						if(forDecisionTree == false)
@@ -306,10 +306,25 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 							System.out.println("Here is the state after the capture was performed by player " + playerNo);
 							printCheckersBoard(copyState);
 							
+							// This is kind of long!
+							/*
+							
+							if(forDecisionTree == true)
+							{
+								// Check whether the destinationX/Y is a recently transformed King.
+								if(parentState[xOfPiece][yOfPiece] == playerNo && state[destinationX][destinationY].equals("K"+playerNo))
+								{
+									// We do nothing because a new king can't make a consecutive move.
+									isNewKing = true;
+								}
+							}
+							
+							*/
+							
+							
 							// This piece performed a capture so, we see if it is adjacent to an enemy at the new location.
 							// boolean adjacentToEnemy = true;
 							adjacentToEnemy = true;
-							
 							// Initially, on the first iteration, this will perform the capture that yields the state 'state' from 'parentState'
 							// Then, at the 'state' it will check for consecutive captures.
 							// It is more explicit for me if I use == true instead of just the variable name itself as the condition.
@@ -326,7 +341,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 									// Updates the destination coordinates with the newly obtained ones. Automatically, picks the first move-capture.
 									destinationX = xPrevAxis.get(1).intValue();
 									destinationY = yPrevAxis.get(1).intValue();
-									// It is adjacent so, we perform the move, yada yada yada. REMEMBER TO PASS IN THE RESOURCE IMAGES INTO THE METHOD BELOW!!!
+									// It is adjacent so, we perform the move, yada yada yada. THIS METHOD WILL UPDATE UI ELEMENTS WHEN THIS IS CALLED FOR THE PURPOSE OF MOVING THE BOT'S CHECKERS PIECE.
 									movePiece(state, imageOfSquares, destinationX, destinationY, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
 									// Debug purposes. Insert variable later on. This went into an infinite loop. I forgot to re-assign destinationX/Y
 									
@@ -351,8 +366,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 									clearHelperArrays();
 									// No more.
 									adjacentToEnemy = false;
-								}
-								
+								}		
 							}	
 						}
 						else
@@ -363,21 +377,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 								System.out.println("Computation on copyParentState resulted in a standard move.");
 								// Which means this is an actual move the computer is about to make... We move the piece
 								
-								/*final String[][] finalState = state;
-								final int finalDestinationX = destinationX; final int finalDestinationY = destinationY; final int finalUpOrDown = upOrDown;
-								final String finalPlayerNo = playerNo; final String finalOpponentNo = opponentNo;
-								final int finalDestImg = destImg; final int finalImgOfKing = passImgOfKing;
-								final boolean finalForDecisionTree = forDecisionTree;
-								
-								// We put the code here, I think.
-								SinglePlayerGame.runOnUiThread(new Runnable() {
-										@Override
-										public void run() {
-												// This code will always run on the UI thread, therefore is safe to modify UI elements.
-												movePiece(finalState, imageOfSquares, finalDestinationX, finalDestinationY, finalUpOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, finalPlayerNo, finalOpponentNo, finalDestImg, finalImgOfKing, finalForDecisionTree);
-										}
-								});
-								*/
+								// THIS SECTION ALSO MODIFIES THE UI THREAD.
 								movePiece(state, imageOfSquares, destinationX, destinationY, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
 								// Display player information.
 								// hand over its turn to the opponent (i.e. the human).
@@ -898,6 +898,73 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			}
 		}
 	}
+	public class MinimaxThread extends Thread
+	{
+		// Constructor
+		public MinimaxThread()
+		{
+			
+		}
+		public void run()
+		{
+			// Run the Minimax algorithm within here.
+			// Debug purposes.
+			greatestMove = new Tree(new String[8][8]);
+			
+			System.out.println("The fact that the decisionTree is a leaf is " + decisionTree.isLeaf());
+			// A huge take on generating the states as we go along.
+			double heuristicValue = minimax(decisionTree, 3, true);
+			// Clarity.
+			String[][] greatestMoveState = greatestMove.getValue();
+			// Debug purposes - it prints out 292 nodes for a depth of 3, which is correct and I will assume that the correct states are being created.
+			System.out.println("The size of the decisionTree after the minimax operation is " + sizeOfTree + " and the greatest move is ");		
+			// Debug purposes.
+			printCheckersBoard(greatestMoveState); // So far, it grabs the states at depth 3 (which are the states at the cut-off depth). 
+			System.out.println("The overall heuristic value of the minimax algorithm is: " + heuristicValue);
+			
+			
+			// An experiment for the sense of debugging.
+			System.out.println("The contents of the greatestMove.parent() should match the current state:");
+			printCheckersBoard(greatestMove.parent().getValue());
+			System.out.println("The contents of the greatestMove.parent().setValue(strCheckersBoard) should match the current state:");
+			greatestMove.parent().setValue(strCheckersBoard);
+			printCheckersBoard(greatestMove.parent().getValue());
+			
+			// Debug.
+			System.out.println("The contents of strCheckersBoard[][] before the Bot moved its piece is:");
+			printCheckersBoard(strCheckersBoard);
+			
+			// ---- The experiment will be from here...
+			
+			// Because we will be repainting the Views (i.e. the checkers pieces, checkersboard, etc.), we must do it on the UI thread.
+			// All UI repainting must be done on the UI thread. Seems to be working. Needs further testing...
+			runOnUiThread(new Runnable()
+			{
+				public void run()
+				{
+					System.out.println("Minimax is done. The bot will perform its move...");
+					// This print out gets printed out before the 'mt' thread starts running, aha.
+					// Whether, aha. Well, it is false, which makes sense because one the minimax() has finished performing, there would be...
+					// nothing left for 'mt' to do so, it gets garbage collected.
+					System.out.println("I wonder if minimax() is done yet?");
+					// Yup, a crap experiment.
+					String[][] greatestMoveState = greatestMove.getValue();
+					// This is where the actual move is made by the bot... so, I need that runOnUiThread here, I think, aha.		
+					determinePieceAndMove(greatestMove, greatestMoveState, "2", "1", false, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece);
+					// Debug.
+					System.out.println("The contents of strCheckersBoard[][] after the Bot moved its piece is:");
+					printCheckersBoard(strCheckersBoard);
+					// We will hide the wheel on startup.
+					loadingWheel.setVisibility(View.INVISIBLE);
+					// Update the message of the AI bot.
+					loadingInfo.setText("A.I.mee is\nwaiting for you to\nmake your move...");
+				}
+			});
+			
+			// ...Until here.
+			
+		}
+	}
 	public void computerTurn(String playerNo)
 	{
 		// This will later hold a copy of the current state.
@@ -932,11 +999,52 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			//loadingInfo.setText("Well, A.I.mee is thinking...");
 			// Erm.
 			//loadingWheel.setVisibility(View.VISIBLE);
-						
+				
 			
 			// Debug purposes.
 			greatestMove = new Tree(new String[8][8]);
+			// Making the actual object final does not result in non-mutable variables used within the object ;)
+			final MinimaxThread minimaxThread = new MinimaxThread();
+			// Load the minimax algorithm in a new thread.
+			minimaxThread.start();
 			
+			/*// Waits 700 milliseconds before the AI decides to move. I need a better approach. It does work and so does the loading wheel.
+			new CountDownTimer(7000, 1000)
+			{
+				public void onTick(long millisUntilFinished)
+				{
+					System.out.println("seconds remaining: " + millisUntilFinished / 1000);
+					// We will show the wheel to indicate it is the AI's turn.
+				}
+				public void onFinish()
+				{
+					System.out.println("Minimax is done. The bot will perform its move...");
+					// This print out gets printed out before the 'mt' thread starts running, aha.
+					// Whether, aha. Well, it is false, which makes sense because one the minimax() has finished performing, there would be...
+					// nothing left for 'mt' to do so, it gets garbage collected.
+					System.out.println("The 'mt' Thread.isAlive() = " + mt.isAlive());
+					System.out.println("I wonder if minimax() is done yet?");
+					// Yup, a crap experiment.
+					String[][] greatestMoveState = greatestMove.getValue();
+					// This is where the actual move is made by the bot... so, I need that runOnUiThread here, I think, aha.		
+					determinePieceAndMove(greatestMove, greatestMoveState, "2", "1", false, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece);
+					// Debug.
+					System.out.println("The contents of strCheckersBoard[][] after the Bot moved its piece is:");
+					printCheckersBoard(strCheckersBoard);
+					
+					// We will hide the wheel on startup.
+					loadingWheel.setVisibility(View.INVISIBLE);
+					// Update the message of the AI bot.
+					loadingInfo.setText("A.I.mee is\nwaiting for you to\nmake your move...");
+				}
+			}.start();*/
+			
+			
+			
+			
+			
+			
+			/*
 			System.out.println("The fact that the decisionTree is a leaf is " + decisionTree.isLeaf());
 			// A huge take on generating the states as we go along.
 			double heuristicValue = minimax(decisionTree, 3, true);
@@ -947,6 +1055,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			// Debug purposes.
 			printCheckersBoard(greatestMoveState); // So far, it grabs the states at depth 3 (which are the states at the cut-off depth). 
 			System.out.println("The overall heuristic value of the minimax algorithm is: " + heuristicValue);
+			
 			
 			// An experiment.
 			System.out.println("The contents of the greatestMove.parent() should match the current state:");
@@ -965,8 +1074,14 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			// I also forgot to enable the movePiece() method within the section where it only makes a standard move... lol.
 			// Well, it moves now but, sometimes a new pieces pop out of thin air. The strCheckersBoard never gets modified. That bit is sorted... I think
 			// Erm, it seems to move by itself but, when it is adjacent to an enemy, it does not do anything so, the problem lies in the code of the enemy thang.
+			
+			// --- This section will be performed on the runOnUiThread, from here... --- //
+			
+			
 			// This is where the actual move is made by the bot... so, I need that runOnUiThread here, I think, aha.		
 			determinePieceAndMove(greatestMove, greatestMoveState, "2", "1", false, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece);
+			*/
+			
 			
 			// We put the code here, I think.
 								/*new Activity().runOnUiThread(new Runnable() {
@@ -976,7 +1091,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 												//movePiece(finalState, imageOfSquares, finalDestinationX, finalDestinationY, finalUpOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, finalPlayerNo, finalOpponentNo, finalDestImg, finalImgOfKing, finalForDecisionTree);
 												determinePieceAndMove(greatestMove, greatestMoveState, "2", "1", false, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece);
 										}
-								});*/
+								});
 			
 			
 			// Debug.
@@ -987,6 +1102,8 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			loadingWheel.setVisibility(View.INVISIBLE);
 			// Update the message of the AI bot.
 			loadingInfo.setText("A.I.mee is\nwaiting for you to\nmake your move...");
+			*/
+			// --- ...Up until here. --- //
 			
 			// Yup.
 			//loadingInfo.setText("Well, A.I.mee is done thinking...");
@@ -1652,7 +1769,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					passStrCheckersBoard[parentPrevX][parentPrevY] = "0";
 					// Moves it to the new location...
 					passStrCheckersBoard[x][y] = strKing;
-					// If this is for the purposes of an actual move (not a potential move for the AI state tree - i.e. in other words, if it is the humans turn)...
+					// If this is for the purposes of an actual move (not a potential move for the AI state tree...
 					if(forDecisionTree == false)
 					{
 						// Clear the image of the piece that occupied the location of the old square.
@@ -1668,7 +1785,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					passStrCheckersBoard[parentPrevX][parentPrevY] = "0";
 					// This is an ordinary piece, then it will just be a simple (only one direction) capture/move.
 					passStrCheckersBoard[x][y] = strSource;
-					// If this is for the purposes of an actual move (not a potential move for the AI state tree - i.e. in other words, if it is the humans turn)...
+					// If this is for the purposes of an actual move (not a potential move for the AI state tree...
 					if(forDecisionTree == false)
 					{			
 						// Clear the image of the piece that occupied the location of the old square.
@@ -1683,8 +1800,15 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				yOfNewDest = y;
 				// Clear the row/column values of the highlighted squares.
 				clearHelperArrays();
-				// Remove the highlights.
-				removeHighlights(passListOfRows, passListOfColumns);
+				
+				// Only clears the highlights if we are working with the actual checkers board.
+				if(forDecisionTree == false)
+				{
+					// I forgot this modifies the UI, shizz. Whoops, hopefully, enclosing the following the code will help in creating a Thread.
+					// Remove the highlights.
+					removeHighlights(passListOfRows, passListOfColumns);	
+				}
+				
 				
 				// --- Debug Purposes --- //
 				/*System.out.println("We have succesfully moved the piece. The values of the successful move were...");		
@@ -1981,7 +2105,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				// If a capture was made we check if there are neighbouring enemies at our new location...
 				if(arrayOfEnemyCoordinatesX.size() > 0)
 				{
-					// I need to check if this piece has just been turned into a king... THIS NEEDS TO WORK SO, RESUME WHEN I COME BACK! 
+					// I need to check if this piece has just been turned into a king... Well, this works.
 					// in the movePiece method there are 3 areas in the code where 'isNewKing' gets mutated so, remember to keep an eye out on those.
 					if(isNewKing == true)
 					{

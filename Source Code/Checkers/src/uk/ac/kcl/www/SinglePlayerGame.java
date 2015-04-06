@@ -156,6 +156,8 @@ public class SinglePlayerGame extends Activity{
 		
 		System.out.println("|----------|");
 		
+		System.out.println("Threading implemented.");
+		
 		// Now, we can add the code moving the pieces, and shit.
 	}	
 	public void populateBoard()
