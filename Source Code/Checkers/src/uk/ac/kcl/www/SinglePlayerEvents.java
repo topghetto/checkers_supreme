@@ -284,7 +284,9 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 							// Debug purposes.
 							System.out.println("The parent state does get switched.");
 							// The state now becomes the actual checkersboard we wish to work with.
-							state = parentState;	
+							state = parentState;
+							// If we enabled it here, it won't move the piece later on...
+							//destinationX = xOfPiece; destinationY = yOfPiece;
 						}						
 						// At the duplicate state 'copyParentState' and simulate, in order to determine whether the 'state' was a capture or a standard move.
 						// We will use the coordinates that we recently obtained.
@@ -299,27 +301,24 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 								// so, we make it that destinationX/Y is equal to the coordinates of the piece at the parentState (current).
 								destinationX = xOfPiece; destinationY = yOfPiece;
 							}
+							else // Run this piece of code only when we are working with the minimax() algorithm.
+							{
+								// Check whether the destinationX/Y is a recently transformed King.
+								if(parentState[xOfPiece][yOfPiece] == playerNo && state[destinationX][destinationY].equals("K"+playerNo))
+								{
+									// This will prevent us from doing any consecutive captures later on because a new king is not allowed to make a consecutive move.
+									isNewKing = true;
+									// Debug purposes.
+									System.out.println("We do have a new king...");
+								}
+							}
+							
 							// Debug purposes.
 							System.out.println("Computing on the copyParentState, a capture was performed by player " + playerNo);
 							printCheckersBoard(parentState);
 							System.out.println("Now, we know the type of move made was a capture so, now we will actually perform the capture");
 							System.out.println("Here is the state after the capture was performed by player " + playerNo);
 							printCheckersBoard(copyState);
-							
-							// This is kind of long!
-							/*
-							
-							if(forDecisionTree == true)
-							{
-								// Check whether the destinationX/Y is a recently transformed King.
-								if(parentState[xOfPiece][yOfPiece] == playerNo && state[destinationX][destinationY].equals("K"+playerNo))
-								{
-									// We do nothing because a new king can't make a consecutive move.
-									isNewKing = true;
-								}
-							}
-							
-							*/
 							
 							
 							// This piece performed a capture so, we see if it is adjacent to an enemy at the new location.
@@ -335,7 +334,61 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 								// Creates the necessary coordinates, and their ArrayLists too.
 								highlightSquares(state, destinationX, destinationY, upOrDown, opponentNo, playerNo);
 								
+								// Only when the piece has not immediately been transformed into a king, we continue to loop through until no captures can be made...
+								if(isNewKing == false)
+								{
+									// Run the code as normal.
+									if(xEnemyAxis.size() > 0)
+									{	
+										// Updates the destination coordinates with the newly obtained ones. Automatically, picks the first move-capture.
+										destinationX = xPrevAxis.get(1).intValue();
+										destinationY = yPrevAxis.get(1).intValue();
+										// It is adjacent so, we perform the move, yada yada yada. THIS METHOD WILL UPDATE UI ELEMENTS WHEN THIS IS CALLED FOR THE PURPOSE OF MOVING THE BOT'S CHECKERS PIECE.
+										movePiece(state, imageOfSquares, destinationX, destinationY, upOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, destImg, passImgOfKing, forDecisionTree);
+										// Debug purposes. Insert variable later on. This went into an infinite loop. I forgot to re-assign destinationX/Y
+										
+										System.out.println("Another capture was made, making this a consecutive capture performed by player " + playerNo);
+										printCheckersBoard(state);
+									}
+									else // no more adjacent enemies.
+									{
+										// This does not need to be here... Okay, it does.
+										// If this is for an actual checkers piece that was moved by the AI bot, then we also hand over our turn to the opponent.
+										// No need to run this if it is for the purpose of evaluating the cut-off nodes.
+										if(forDecisionTree == false)
+										{
+											// Display player information.
+											
+											// hand over its turn to the opponent (i.e. the human).
+											playerOneTurn = !playerOneTurn; 
+											// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
+											displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
+										}
+										// Clear the helper ArrayLists.
+										clearHelperArrays();
+										// No more.
+										adjacentToEnemy = false;
+									}
+								}
+								else
+								{
+									// Handover our turn.
+									if(forDecisionTree == false)
+									{
+										// Display player information.
+										
+										// hand over its turn to the opponent (i.e. the human).
+										playerOneTurn = !playerOneTurn; 
+										// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
+										displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
+									}
+									// Clear the helper ArrayLists.
+									clearHelperArrays();
+									// No more.
+									adjacentToEnemy = false;
+								}
 								
+								/*
 								if(xEnemyAxis.size() > 0)
 								{	
 									// Updates the destination coordinates with the newly obtained ones. Automatically, picks the first move-capture.
@@ -366,7 +419,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 									clearHelperArrays();
 									// No more.
 									adjacentToEnemy = false;
-								}		
+								}*/		
 							}	
 						}
 						else
