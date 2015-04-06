@@ -217,6 +217,9 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 
 		// We grab the state of the parent node.
 		String[][] parentState;
+		// An experiment for making isNewKing = false on startup. Sometimes it would stay true because it would keep the result of the last operation
+		// using determinePieceAndMove().
+		isNewKing = false;
 		
 		if(forDecisionTree == true)
 		{
