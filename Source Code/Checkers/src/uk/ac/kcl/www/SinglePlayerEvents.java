@@ -318,7 +318,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 										}
 										*/
 										// It is adjacent so, we perform the move, yada yada yada. THIS METHOD WILL UPDATE UI ELEMENTS WHEN THIS IS CALLED FOR THE PURPOSE OF MOVING THE BOT'S CHECKERS PIECE.
-										movePiece(state, imageOfSquares, destinationX, destinationY, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, forDecisionTree);
+										movePiece(state, destinationX, destinationY, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, forDecisionTree);
 										// Debug purposes. Insert variable later on. This went into an infinite loop. I forgot to re-assign destinationX/Y
 										
 										System.out.println("Another capture was made, making this a consecutive capture performed by player " + playerNo);
@@ -405,7 +405,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 								// Which means this is an actual move the computer is about to make... We move the piece
 								
 								// THIS SECTION ALSO MODIFIES THE UI THREAD.
-								movePiece(state, imageOfSquares, destinationX, destinationY, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, forDecisionTree);
+								movePiece(state, destinationX, destinationY, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, forDecisionTree);
 								// Display player information.
 								// hand over its turn to the opponent (i.e. the human).
 								playerOneTurn = !playerOneTurn; 
@@ -894,7 +894,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					// Debug purposes.
 					// System.out.println("Master List " + e + ": autoPrevX.get(" +eachSquare + ")=" + xAxisOfDest + "and autoPrevY.get(" + eachSquare + ")=" + yAxisOfDest);
 					// This will create the state with the potential move.
-					movePiece(newLocationState, imageOfSquares, xAxisOfDest, yAxisOfDest, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, true);
+					movePiece(newLocationState, xAxisOfDest, yAxisOfDest, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, true);
 					
 					// Our new tree thang.
 					passNode.addChild(new Tree(newLocationState));
@@ -1563,7 +1563,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		// This will later be assigned to the global variable 'isHighlighted'
 		return isHighlighted;		
 	}
-	public void movePiece(String[][] passStrCheckersBoard, ImageView[][] passImageOfSquares, int passX, int passY, ArrayList<Integer> passListOfRows, ArrayList<Integer> passListOfColumns,
+	public void movePiece(String[][] passStrCheckersBoard, int passX, int passY, ArrayList<Integer> passListOfRows, ArrayList<Integer> passListOfColumns,
 												ArrayList<Integer> passEnemyX, ArrayList<Integer> passEnemyY, String strDest, String opponentNo, boolean forDecisionTree)
 	{
 		// Clear the old values.
@@ -1655,7 +1655,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 							actualEnemyX = enemyCoordinateX;
 							actualEnemyY = enemyCoordinateY;
 							// We clear the space (visually) i.e. take the piece
-							// passImageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
+							// imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
@@ -1674,7 +1674,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 							actualEnemyX = enemyCoordinateX;
 							actualEnemyY = enemyCoordinateY;
 							// We clear the space (visually) i.e. take the piece
-							// passImageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
+							// imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
@@ -1692,7 +1692,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 							actualEnemyX = enemyCoordinateX;
 							actualEnemyY = enemyCoordinateY;
 							// We clear the space (visually) i.e. take the piece
-							// passImageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
+							// imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
@@ -1710,7 +1710,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 							actualEnemyX = enemyCoordinateX;
 							actualEnemyY = enemyCoordinateY;
 							// We clear the space (visually) i.e. take the piece
-							// passImageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
+							// imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
@@ -1721,7 +1721,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					if(forDecisionTree == false)
 					{
 						// We clear the space (visually) i.e. take the piece
-						passImageOfSquares[actualEnemyX][actualEnemyY].setImageResource(0);			
+						imageOfSquares[actualEnemyX][actualEnemyY].setImageResource(0);			
 					}
 					else
 					{
@@ -1773,9 +1773,9 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					if(forDecisionTree == false)
 					{
 						// Clear the image of the piece that occupied the location of the old square.
-						passImageOfSquares[parentPrevX][parentPrevY].setImageResource(0);
+						imageOfSquares[parentPrevX][parentPrevY].setImageResource(0);
 						// (Visually) Moves the checkers piece into the new location
-						passImageOfSquares[x][y].setImageResource(destinationImgKing);	
+						imageOfSquares[x][y].setImageResource(destinationImgKing);	
 					}
 						
 				}
@@ -1789,9 +1789,9 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					if(forDecisionTree == false)
 					{			
 						// Clear the image of the piece that occupied the location of the old square.
-						passImageOfSquares[parentPrevX][parentPrevY].setImageResource(0);	
+						imageOfSquares[parentPrevX][parentPrevY].setImageResource(0);	
 						// (Visually) Moves the checkers piece into the new location
-						passImageOfSquares[x][y].setImageResource(destinationImg);
+						imageOfSquares[x][y].setImageResource(destinationImg);
 					}
 				}
 				
@@ -2088,7 +2088,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			}
 		
 			// Moves the checkers piece to the new location - passing imageOfSquares into the method has not caused any problems.
-			movePiece(passStrCheckersBoard, imageOfSquares, x, y, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, false);
+			movePiece(passStrCheckersBoard, x, y, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, false);
 			
 			// We need a way to check if it is at the new location.
 			
