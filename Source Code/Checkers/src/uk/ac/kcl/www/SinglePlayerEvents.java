@@ -451,7 +451,8 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			{
 				// 1. Counts the number of player two's (CPU) pieces to player one's (Human) piece,
 				// and also takes the number of kings into consideration.
-				if(state[row][column].equals("1"))
+				// .equals("1") was what I had orginally but, that was wrong. contains("1") works for kings too ;)
+				if(state[row][column].contains("1"))
 				{
 					// If it is a standard piece, increase the heuristic.
 					noOfPlayerOne++;
@@ -469,7 +470,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					}
 					
 				}
-				else if(state[row][column].equals("2"))
+				else if(state[row][column].contains("2"))
 				{
 					// If it is a standard piece, increase the heuristic.
 					noOfPlayerTwo++;
@@ -532,12 +533,10 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			}
 		}
 			
-		
-		
-					
-		//printCheckersBoard(state);
 		System.out.println("The number of pieces left for player one is " + noOfPlayerOne);
 		System.out.println("The number of pieces left for player two is " + noOfPlayerTwo);
+		// Debug purposes.
+		// printCheckersBoard(state);
 		
 		// Evaluate the difference and store it.
 		double result = noOfPlayerTwo - noOfPlayerOne;
@@ -550,20 +549,21 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 	{
 		// I don't know whether I declare bestValue here or within the if statement. I will try doing it within in the if statements.
 		// Debug purposes.
-		System.out.println("Minimax got called."); // Well, the recursive call gets called.
 		
 		// I got rid of the || passNode.isLeaf() part because we are now generating the states within the method instead.
 		// Removing it caused problems so, I added it back in with an extra condition that checks if passNode.isRoot();
 		// Adding it back in does not create the right number of state nodes, I almost had a panic attack man because the AI bot
 		// was not making logical decisions. It was literally picking the first piece that can move. i.e. the first immediate child of the root.
 		// NEXT TIME, I SHOULD TRY || (passNode.isLeaf() && passNode != decisionTree)
-		if(depth == 0)
+		if(depth == 0) 
 		{
 			// Calculate and return the heuristic value.
 			return evaluateNode(passNode, playerNo, opponentNo);
 		}
 		if(maximisingPlayer == true)
 		{
+			// Debug purposes.
+			System.out.println("Maximising Player:"); 
 			// If it is a MAX node...
 			// An experiment
 			Tree<String[][]> bestMove = null;
@@ -574,6 +574,54 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			createChildren(passNode, playerNo, opponentNo);
 			// Grab the children of the node passed in.
 			ArrayList<Tree<String[][]>> children = passNode.children();
+			
+			// --- An experiment --- //
+			
+			if(children.size() > 0)
+			{
+				// For each child of the (parent) node
+				for(Tree<String[][]> child : children)
+				{
+					// Recursion call, y'all.
+					double value = minimax(child, depth-1, false, playerNo, opponentNo);
+					// Debug purposes.
+					System.out.println("The depth of the node ");
+					System.out.print("max(" + bestValue + ", ");
+					// If the new value obtained is larger than the previous bestValue, update the 'bestValue' with the new value.
+					// bestValue = Math.max(bestValue, value);
+					
+					if(value > bestValue)
+					{
+						bestValue = value;
+						// Store the best move... I hope. All this time I have been saving passNode not 'child'... Hopefully, it works now.	
+						// An experiment. using 'passNode' always picks the last moveable piece in the tree.		
+						if(passNode.isRoot())
+						{
+							// Well, it picks sometimes first child, and even second child. It may actually be working now. I'll run some more tests.
+							// It cleverly avoided the pieces when the CPU had only one piece left. Yup, this works :)
+							// Debug purposes.
+							System.out.println("This is the root node within in the minimax recursive stack and here are the contents of one child from root:");
+							// Print the board, yup.
+							printCheckersBoard(child.getValue());
+							// Store the greatest move.
+							greatestMove = child;	
+						}	
+					}
+					
+					// Debug purposes.
+					System.out.println(value + ") is " + bestValue);
+				}
+			}else
+			{
+				// Debug purposes. This is for the purpose of when the bot has only one piece left on the board, and it's cornered (about to be captured.)
+				System.out.println("We will evaluate passNode earlier than the cut-off depth because it has no children...");
+				// An attempt to evaluate the node early.
+				bestValue = minimax(passNode, 0, false, playerNo, opponentNo);
+			}
+			
+			// --- An experiment --- //
+			
+			/*
 			// For each child of the (parent) node
 			for(Tree<String[][]> child : children)
 			{
@@ -593,7 +641,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					if(passNode.isRoot())
 					{
 						// Well, it picks sometimes first child, and even second child. It may actually be working now. I'll run some more tests.
-						// It cleverly avoided the pieces when the CPU had only one piece left.
+						// It cleverly avoided the pieces when the CPU had only one piece left. Yup, this works :)
 						// Debug purposes.
 						System.out.println("This is the root node within in the minimax recursive stack and here are the contents of one child from root:");
 						// Print the board, yup.
@@ -605,13 +653,15 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				
 				// Debug purposes.
 				System.out.println(value + ") is " + bestValue);
-			}
+			}*/
 			// Return the overall result.
 			return bestValue;
 			
 		}else //if(maximisingPlayer = false)
 		{
 			// If it is a MIN node...
+			// Debug purposes.
+			System.out.println("Minimising Player:"); 
 			// An experiment
 			Tree<String[][]> bestMove = null;
 			// Initially positive infinity.
@@ -621,7 +671,49 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			createChildren(passNode, opponentNo, playerNo);
 			// Grab the children of the node passed in.
 			ArrayList<Tree<String[][]>> children = passNode.children();
-			// For each child of the (parent) node
+			
+			if(children.size() > 0)
+			{
+				// For each child of the (parent) node
+				for(Tree<String[][]> child : children)
+				{
+					// A recursive call that will eventually assign the result of that call into 'value'.
+					double value = minimax(child, depth-1, true, playerNo, opponentNo);
+					// Debug purposes.
+					System.out.print("min(" + bestValue + ", ");
+					// If the new value obtained is smaller than the previous bestValue, update the 'bestValue' with the new value.
+					// bestValue = Math.min(bestValue, value);
+					
+					if(value < bestValue)
+					{
+						bestValue = value;
+						// Store the best move... I hope. Oh, shit, I think I am passing in the wrong node.
+						// An experiment. using 'passNode' always picks the last moveable piece in the tree.		
+						if(passNode.isRoot())
+						{
+							// Debug purposes.
+							System.out.println("This is the root node within in the minimax recursive stack and here are the contents of one child from root:");
+							// Print the board, yup.
+							printCheckersBoard(child.getValue());
+							// Store the greatest move.
+							greatestMove = child;	
+						}	
+					}
+					// Debug purposes.
+					System.out.println(value + ") is " + bestValue);
+				}
+			}else
+			{
+				// Debug purposes. This is for the purpose of when the bot has only one piece left on the board, and it's cornered (about to be captured.)
+				// When it is MIN's turn and assuming a final capture happened beforehand (at MAX), Min would have no pieces to move, resulting in no
+				// children created so, because the game would be the won by the opponent, there are no more possible moves that can be made so,
+				// we evaluate earlier, which seems to be working well.
+				System.out.println("We will evaluate passNode earlier than the cut-off depth because it has no children...");
+				// An attempt to evaluate the node early.
+				bestValue = minimax(passNode, 0, true, playerNo, opponentNo);
+			}
+			
+			/*// For each child of the (parent) node
 			for(Tree<String[][]> child : children)
 			{
 				// A recursive call that will eventually assign the result of that call into 'value'.
@@ -648,7 +740,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				}
 				// Debug purposes.
 				System.out.println(value + ") is " + bestValue);
-			}
+			}*/
 			// Return the overall result.
 			return bestValue;
 		}
@@ -944,14 +1036,28 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			//loadingInfo.setText("Well, A.I.mee is thinking...");
 			// Erm.
 			//loadingWheel.setVisibility(View.VISIBLE);
-				
 			
-			// Debug purposes.
-			greatestMove = new Tree(new String[8][8]);
-			// Making the actual object final does not result in non-mutable variables used within the object ;)
-			final MinimaxThread minimaxThread = new MinimaxThread(playerNo, opponentNo);
-			// Load the minimax algorithm in a new thread.
-			minimaxThread.start();
+			// This will prevent minimax() from being called when the bot has no more pieces on the board.	
+			if(noOfPiecesPlayerTwo > 0)
+			{
+				// Debug purposes.
+				greatestMove = new Tree(new String[8][8]);
+				// Making the actual object final does not result in non-mutable variables used within the object ;)
+				final MinimaxThread minimaxThread = new MinimaxThread(playerNo, opponentNo);
+				// Load the minimax algorithm in a new thread.
+				minimaxThread.start();
+			}
+			else
+			{
+				// Lol.
+				loadingInfo.setText("A.I.mee has accepted\n defeat.");
+				// Stop showing the loading wheel.
+				loadingWheel.setVisibility(View.INVISIBLE);
+				// Debug purposes.
+				System.out.println("AI has lost. No need to call minimax() any longer");
+			}
+			
+				
 			
 			/*// Waits 700 milliseconds before the AI decides to move. I need a better approach. It does work and so does the loading wheel.
 			new CountDownTimer(7000, 1000)
