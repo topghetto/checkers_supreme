@@ -422,10 +422,10 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			}
 		}	
 	}
-	public double evaluateNode(Tree<String[][]> passNode)
+	public double evaluateNode(Tree<String[][]> passNode, String playerNo, String opponentNo)
 	{
 		// Debug purposes.
-		System.out.println("Minimax got called at depth == 0"); // Well, the recursive call gets called.
+		System.out.println("Minimax got called at the cut-off so, we will perform the evaluation on this node."); // Well, the recursive call gets called.
 		// Evaluation will go here.
 		String[][] state = passNode.getValue();
 		// The number of pieces on the board that player one (the human) has ...
@@ -440,98 +440,9 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		
 		// Determine whether it is an enemy capture (and also checks for consecutive captures).
 		// In a sense of evaluating the states at the cut-off depth, it seems to be working well.
-		determinePieceAndMove(passNode, state, "2", "1", true);
+		determinePieceAndMove(passNode, state, playerNo, opponentNo, true);
 		// After the CPU has performed consecutive captures, for even better accuracy, I should call this method again but, from the perspective of the opponent. I shall implement soon... I hope.
 		
-		/*String[][] parentState = passNode.parent().getValue();
-		
-		for(int row = 0;row < 8; row++)
-		{
-			for(int column=((row+1)%2); column<8; column+=2)
-			{
-				// If the coordinates of both the parentState and the current state do not match, it is safe to assume that was the piece that was moved.
-				// I will need more conditions within this statement. Yeah, this might actually be long, aha.
-				// I need this to work for both directions, and shit.
-				if(parentState[row][column] != state[row][column])
-				{
-					// This should work for both directions... I hope. The OR operation is a shortcut to check the vice-versa instead of having to iterate until we reach the opposite side. I'll explain this in a bit. || (parentState[row][column].contains("0") && state[row][column].contains("2"))
-					if((state[row][column].contains("0") && parentState[row][column].contains("2")))
-					{
-						// This piece moved on its accord (i.e. it was not captured by the opponent). I think that should be okay for now.
-						// Store the coordinates of the piece that was moved.
-						int xOfPiece = row, yOfPiece = column;
-						
-						// Duplicate the parent state.
-						String[][] copyParentState = new String[8][8];
-						duplicateArray(parentState, copyParentState);
-						// We need to check if it was a standard move or a capture. 
-						highlightSquares(copyParentState, xOfPiece, yOfPiece, 1, "1", "2");
-						// We also need to grab the coordinates of the new location...
-						int destinationX = 0;
-						int destinationY = 0;
-						
-						for(int l = 1; l < xPrevAxis.size();l++)
-						{
-							// The coordinates to test.
-							destinationX = xPrevAxis.get(l).intValue();
-							destinationY = yPrevAxis.get(l).intValue();
-							
-							// I think I will need better validations placed but, for now, I will use this. 
-							if(state[destinationX][destinationY].contains("2"))
-							{
-								// Make it the last iteration.
-								l = xPrevAxis.size();
-								// We got the coordinates. Well, I hope we did.
-							}
-						}	
-						// Now, we check if the state is where a capture was performed.
-						if(xEnemyAxis.size() > 0)
-						{
-							// Debug purposes. Insert variable later on.
-							System.out.println("Within the state at the cut-off depth, a capture was performed by player " + 2);
-							printCheckersBoard(parentState);
-							// This piece performed a capture so, we see if it is adjacent to an enemy at the new location.
-							boolean adjacentToEnemy = true;
-							// It is more explicit for me if I use == true instead of just the variable name itself as the condition.
-							while(adjacentToEnemy == true)
-							{
-								// Clear the helper ArrayLists.
-								clearHelperArrays();
-								// Creates the necessary coordinates, and their ArrayLists too.
-								highlightSquares(state, destinationX, destinationY, 1, "1", "2");
-								
-								if(xEnemyAxis.size() > 0)
-								{
-									// Updates the destination coordinates with the newly obtained ones. Automatically, picks the first move-capture.
-									destinationX = xPrevAxis.get(1).intValue();
-									destinationY = yPrevAxis.get(1).intValue();
-									// It is adjacent so, we perform the move, yada yada yada.
-									movePiece(state, imageOfSquares, destinationX, destinationY, 1, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, "2", "1", 0, 0, true);
-									// Debug purposes. Insert variable later on. This went into an infinite loop. I forgot to re-assign destinationX/Y
-									System.out.println("Within the state at the cut-off depth, a consecutive capture was performed by player " + 2);
-									printCheckersBoard(state);
-								}
-								else // no more adjacent enemies.
-								{
-									// Clear the helper ArrayLists.
-									clearHelperArrays();
-									// No more.
-									adjacentToEnemy = false;
-								}
-							}	
-						}
-						else
-						{
-							// It was just a standard move...
-							clearHelperArrays();
-						}	
-						// Makes sure this is the last iteration of the for-loop.
-						row = 8; column = 8;
-					}					
-				}		
-			}
-		}	
-		*/
 		// End of checking whether the state was a state where consecutive captures could be made.
 		
 		for(int row = 0;row < 8; row++)
@@ -635,7 +546,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		// Return the heuristic value.
 		return result;
 	}
-	public double minimax(Tree<String[][]> passNode, int depth, boolean maximisingPlayer)
+	public double minimax(Tree<String[][]> passNode, int depth, boolean maximisingPlayer, String playerNo, String opponentNo)
 	{
 		// I don't know whether I declare bestValue here or within the if statement. I will try doing it within in the if statements.
 		// Debug purposes.
@@ -649,7 +560,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		if(depth == 0)
 		{
 			// Calculate and return the heuristic value.
-			return evaluateNode(passNode);
+			return evaluateNode(passNode, playerNo, opponentNo);
 		}
 		if(maximisingPlayer == true)
 		{
@@ -659,14 +570,15 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			// Initially negative infinity.
 			double bestValue = Double.NEGATIVE_INFINITY;
 			// Generate the children - This will correspond to the root MAX node which will create MIN nodes... This works okay.
-			createChildren(passNode, "2", "1");
+			//createChildren(passNode, "2", "1");
+			createChildren(passNode, playerNo, opponentNo);
 			// Grab the children of the node passed in.
 			ArrayList<Tree<String[][]>> children = passNode.children();
 			// For each child of the (parent) node
 			for(Tree<String[][]> child : children)
 			{
 				// Recursion call, y'all.
-				double value = minimax(child, depth-1, false);
+				double value = minimax(child, depth-1, false, playerNo, opponentNo);
 				// Debug purposes.
 				System.out.println("The depth of the node ");
 				System.out.print("max(" + bestValue + ", ");
@@ -705,14 +617,15 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			// Initially positive infinity.
 			double bestValue = Double.POSITIVE_INFINITY;
 			// Generate the children - the new states will be created in the method below. This corresponds to the MIN Nodes which will create MAX nodes.
-			createChildren(passNode, "1", "2");
+			// createChildren(passNode, "1", "2");
+			createChildren(passNode, opponentNo, playerNo);
 			// Grab the children of the node passed in.
 			ArrayList<Tree<String[][]>> children = passNode.children();
 			// For each child of the (parent) node
 			for(Tree<String[][]> child : children)
 			{
 				// A recursive call that will eventually assign the result of that call into 'value'.
-				double value = minimax(child, depth-1, true);
+				double value = minimax(child, depth-1, true, playerNo, opponentNo);
 				// Debug purposes.
 				System.out.print("min(" + bestValue + ", ");
 				// If the new value obtained is smaller than the previous bestValue, update the 'bestValue' with the new value.
@@ -927,10 +840,15 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 	}
 	public class MinimaxThread extends Thread
 	{
+		// Member variables.
+		public String playerNo, opponentNo;
+		
 		// Constructor
-		public MinimaxThread()
+		public MinimaxThread(String passPlayerNo, String passOpponentNo)
 		{
-			
+			// Initialise the member variables.
+			playerNo = passPlayerNo;
+			opponentNo = passOpponentNo;
 		}
 		public void run()
 		{
@@ -940,7 +858,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			
 			System.out.println("The fact that the decisionTree is a leaf is " + decisionTree.isLeaf());
 			// A huge take on generating the states as we go along.
-			double heuristicValue = minimax(decisionTree, 3, true);
+			double heuristicValue = minimax(decisionTree, 3, true, playerNo, opponentNo);
 			// Clarity.
 			String[][] greatestMoveState = greatestMove.getValue();
 			// Debug purposes - it prints out 292 nodes for a depth of 3, which is correct and I will assume that the correct states are being created.
@@ -992,7 +910,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			
 		}
 	}
-	public void computerTurn(String playerNo)
+	public void computerTurn(String playerNo, String opponentNo)
 	{
 		// This will later hold a copy of the current state.
 		String[][] currentState = new String[8][8];
@@ -1031,7 +949,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			// Debug purposes.
 			greatestMove = new Tree(new String[8][8]);
 			// Making the actual object final does not result in non-mutable variables used within the object ;)
-			final MinimaxThread minimaxThread = new MinimaxThread();
+			final MinimaxThread minimaxThread = new MinimaxThread(playerNo, opponentNo);
 			// Load the minimax algorithm in a new thread.
 			minimaxThread.start();
 			
@@ -2168,7 +2086,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 							public void onFinish()
 							{
 								System.out.println("Now, it is time for A.I.mee to make her move...");
-								computerTurn("2");								
+								computerTurn("2", "1");								
 								
 								// I tried using a Thread but, it caused some complexities because various sections within computerTurn() modifies
 								// the UI but, if we did this within another thread besides the UI thread, the application crashes.		
@@ -2245,7 +2163,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 							public void onFinish()
 							{
 								System.out.println("Now, it is time for A.I.mee to make her move...");
-								computerTurn("2");								
+								computerTurn("2", "1");								
 								
 								// I tried using a Thread but, it caused some complexities because various sections within computerTurn() modifies
 								// the UI but, if we did this within another thread besides the UI thread, the application crashes.		
