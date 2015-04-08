@@ -130,7 +130,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		noOfPiecesPlayerTwo = 12;
 		
 	}
-	public void performEnemyCapture(String[][] passState, int passX, int passY, int upOrDown, String playerNo, String opponentNo, boolean forDecisionTree)
+	public void performEnemyCapture(String[][] passState, int passX, int passY, String playerNo, String opponentNo, boolean forDecisionTree)
 	{
 		// Store the coordinates in a more convenient variable, yup. I need to delete this entire method when I have time.
 		int destinationX = passX; int destinationY = passY;
@@ -140,20 +140,18 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 	{
 		public int destinationX;
 		public int destinationY;
-		public int upOrDown;
 		public String[][] state;
 		public String playerNo, opponentNo;
 		public int destImg, imgOfKing;
 		public boolean forDecisionTree;
 		
-		public CountDown(long startTime, long interval, String[][] passState, int passX, int passY, int passUpOrDown, String passPlayerNo, String passOpponentNo, boolean passForDecisionTree)
+		public CountDown(long startTime, long interval, String[][] passState, int passX, int passY, String passPlayerNo, String passOpponentNo, boolean passForDecisionTree)
 		{
 			// Passes it into the base constructor of 'CountDownTimer'
 			super(startTime, interval);
 			// Properly store the coordinates.
 			destinationX = passX;
 			destinationY = passY;
-			upOrDown = passUpOrDown;
 			state= passState;
 			playerNo = passPlayerNo; opponentNo = passOpponentNo;
 			forDecisionTree = passForDecisionTree;
@@ -167,12 +165,10 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		@Override
 		public void onFinish()
 		{
-			System.out.println("Time's up, let's move");
-			// Will move piece.
-			movePiece(state, imageOfSquares, destinationX, destinationY, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, forDecisionTree);
+		
 		}
 	}
-	public void determinePieceAndMove(Tree<String[][]> passNode, String[][] state, String playerNo, String opponentNo, boolean forDecisionTree, int upOrDown)
+	public void determinePieceAndMove(Tree<String[][]> passNode, String[][] state, String playerNo, String opponentNo, boolean forDecisionTree)
 	{
 		// This will find out which piece was actually moved.
 
@@ -444,7 +440,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		
 		// Determine whether it is an enemy capture (and also checks for consecutive captures).
 		// In a sense of evaluating the states at the cut-off depth, it seems to be working well.
-		determinePieceAndMove(passNode, state, "2", "1", true, 1);
+		determinePieceAndMove(passNode, state, "2", "1", true);
 		// After the CPU has performed consecutive captures, for even better accuracy, I should call this method again but, from the perspective of the opponent. I shall implement soon... I hope.
 		
 		/*String[][] parentState = passNode.parent().getValue();
@@ -663,7 +659,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			// Initially negative infinity.
 			double bestValue = Double.NEGATIVE_INFINITY;
 			// Generate the children - This will correspond to the root MAX node which will create MIN nodes... This works okay.
-			createChildren(passNode, "2", "1", 1);
+			createChildren(passNode, "2", "1");
 			// Grab the children of the node passed in.
 			ArrayList<Tree<String[][]>> children = passNode.children();
 			// For each child of the (parent) node
@@ -709,7 +705,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			// Initially positive infinity.
 			double bestValue = Double.POSITIVE_INFINITY;
 			// Generate the children - the new states will be created in the method below. This corresponds to the MIN Nodes which will create MAX nodes.
-			createChildren(passNode, "1", "2", -1);
+			createChildren(passNode, "1", "2");
 			// Grab the children of the node passed in.
 			ArrayList<Tree<String[][]>> children = passNode.children();
 			// For each child of the (parent) node
@@ -776,7 +772,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		}		
 	}
 	// The code for the AI will be written here...
-	public void createChildren(Tree<String[][]> passNode, String playerNo, String opponentNo, int upOrDown)
+	public void createChildren(Tree<String[][]> passNode, String playerNo, String opponentNo)
 	{
 		// Gets the checkersboard of the (current) state.
 		String[][] theParentState = passNode.getValue();
@@ -981,7 +977,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					// Yup, a crap experiment.
 					String[][] greatestMoveState = greatestMove.getValue();
 					// This is where the actual move is made by the bot... so, I need that runOnUiThread here, I think, aha.		
-					determinePieceAndMove(greatestMove, greatestMoveState, "2", "1", false, 1);
+					determinePieceAndMove(greatestMove, greatestMoveState, "2", "1", false);
 					// Debug.
 					System.out.println("The contents of strCheckersBoard[][] after the Bot moved its piece is:");
 					printCheckersBoard(strCheckersBoard);
@@ -1237,68 +1233,6 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		}
 		
 	}
-	// I will try generating the tree by using recursion as I believe this would be the only way.
-	public void generateStates(ArrayList<Tree<String[][]>> passChildren, int noOfLevels)
-	{
-		if(noOfLevels == 0)
-		{
-			// Terminate the recursive call.
-		}
-		else
-		{
-			for(int n = 0; n < passChildren.size(); n++)
-			{
-				// Each child of the previous node.
-				// This will be used to create another set of states, where this (child) node will become the parent of the next new (nodes) states.
-				Tree<String[][]> nextState = passChildren.get(n);
-				// This does not print out the total of levels in the tree but, what level the node is at :)
-				int currentDepth = nextState.depth();
-				
-				// Now, I need to determine how to differentiate whether it is a min node or a max node. I think I can use the .depth() method.
-					
-				if(currentDepth % 2 == 1)
-				{
-					// Debug purposes. Take note that the depth will change as soon as we iterate at least once through this for-loop
-					// System.out.println("Min's turn - The contents of the nextState-" + n + " MD-array at depth " + currentDepth + "...");		
-					// Prints out the text representation of the checkers board (depending on the state)
-					// printCheckersBoard(nextState.getValue());
-					// The new states will be created in the method below. This corresponds to the MIN Nodes which will create MAX nodes.
-					createChildren(nextState, "1", "2", -1);
-				
-					if(noOfLevels > 1)
-					{
-						// We only grab the list of children if they are within the specified number of levels.
-						ArrayList<Tree<String[][]>> newChildren = nextState.children();
-						// The size of the new children...
-						// System.out.println("The size of the new children is " + newChildren.size());
-						// A recursive call which will add new children to the node.
-						generateStates(newChildren, noOfLevels-1);
-					}
-					// Otherwise, we will not create any more children for these children. i.e. these will be the leaf nodes.
-				}
-				else if(currentDepth % 2 == 0)
-				{
-					// Debug purposes. Take note that the depth will change as soon as we iterate at least once through this for-loop
-					//System.out.println("Max's turn - The contents of the nextNextState-" + n + " MD-array at depth " + currentDepth + "...");
-					// Prints out the text representation of the checkers board (depending on the state)
-					//printCheckersBoard(nextState.getValue());
-					// This will correspond to the MAX nodes which lastly create MIN nodes... 
-					createChildren(nextState, "2", "1", 1);
-					
-					if(noOfLevels > 1)
-					{
-						// Only creates more children if we say it should.
-						ArrayList<Tree<String[][]>> newChildren = nextState.children();
-						// The size of the new children...
-						//System.out.println("The size of the new children is " + newChildren.size());
-						// A recursive call which will add new children to the node.
-						generateStates(newChildren, noOfLevels-1);
-					}	
-				}			
-			}
-		}
-	}
-	
 	// I declared this method as synchronised hoping the code runs one at a time otherwise,if I clicked ib two buttons at the same time, I have a hunch
 	// that it may cause a series of problems.
 	public synchronized void onClick(View v) 
@@ -1319,7 +1253,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					if(squaresOfBoard[x][y].equals(v))
 					{
 						// We move our pieces as normal.
-						playerTurn("1", strCheckersBoard, v, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, "2");		// Nice, it works.
+						playerTurn("1", strCheckersBoard, v, x, y, "2");		// Nice, it works.
 					}
 				}
 			}
@@ -1895,7 +1829,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			}
 		}							
 	}
-	public void playerTurn(String playerNo, String[][] passStrCheckersBoard, View v, int passX, int passY, int upOrDown, int passImgId, int passImgOfKing, String opponentNo)
+	public void playerTurn(String playerNo, String[][] passStrCheckersBoard, View v, int passX, int passY, String opponentNo)
 	{	
 		// The coordinates of the currently selected square.
 		int x = passX, y = passY;
@@ -2008,7 +1942,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			// Debug purposes.
 			// System.out.println("if(isEnemyAdjacent == true) just ran so, a capture needs to be performed.");
 			// This will determine what type of move (standard or a capture) it should make, and also make the move.
-			performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, upOrDown, playerNo, opponentNo);
+			performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, playerNo, opponentNo);
 			
 		}else
 		{
@@ -2053,7 +1987,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				// Debug purposes.
 				// System.out.println("else if(passStrCheckersBoard[x][y] == 0 && isHighlighted == true) just ran but, failed miserably.");
 				// This will determine what type of move (standard or a capture) it should make, and also make the move.
-				performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, upOrDown, playerNo, opponentNo);
+				performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, playerNo, opponentNo);
 			}
 		}	
 	}
@@ -2123,7 +2057,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			}							
 		}
 	}
-	public void performMoveAndCheckAdjacent(String[][] passStrCheckersBoard, int passX, int passY, int upOrDown, String playerNo, String opponentNo)
+	public void performMoveAndCheckAdjacent(String[][] passStrCheckersBoard, int passX, int passY, String playerNo, String opponentNo)
 	{
 		// Debug purposes.
 		// System.out.println("arrayOfPrevCoordinatesX.size() > 0 if statement just ran. (using our new function)");
