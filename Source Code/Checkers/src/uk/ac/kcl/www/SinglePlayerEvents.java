@@ -274,10 +274,10 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 							}
 							
 							// Debug purposes.
-							System.out.println("Computing on the copyParentState, a capture was performed by player " + playerNo);
+							System.out.println("Computing on the copyParentState, a capture was performed by player x");
 							printCheckersBoard(parentState);
 							System.out.println("Now, we know the type of move made was a capture so, now we will actually perform the capture");
-							System.out.println("Here is the state after the capture was performed by player " + playerNo);
+							System.out.println("Here is the state after the capture was performed by player x");
 							printCheckersBoard(copyState);
 							
 							
@@ -545,6 +545,157 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		// Return the heuristic value.
 		return result;
 	}
+	// -- Alpha-Beta Experiment -- //
+	
+	public double alphabeta(Tree<String[][]> passNode, int depth, double alpha, double beta, boolean maximisingPlayer, String playerNo, String opponentNo)
+	{
+		if(depth == 0) 
+		{
+			// Calculate and return the heuristic value.
+			return evaluateNode(passNode, playerNo, opponentNo);
+		}
+		if(maximisingPlayer == true)
+		{
+			// Debug purposes.
+			System.out.println("Maximising Player:"); 
+			// If it is a MAX node...
+			// An experiment
+			Tree<String[][]> bestMove = null;
+			// Initially negative infinity.
+			double bestValue = alpha;
+			// Generate the children - This will correspond to the root MAX node which will create MIN nodes... This works okay.
+			//createChildren(passNode, "2", "1");
+			createChildren(passNode, playerNo, opponentNo);
+			// Grab the children of the node passed in.
+			ArrayList<Tree<String[][]>> children = passNode.children();
+			
+			// --- An experiment --- //
+			
+			if(children.size() > 0)
+			{
+				// For each child of the (parent) node
+				for(Tree<String[][]> child : children)
+				{
+					// Recursion call, y'all.
+					double value = alphabeta(child, depth-1, alpha, beta, false, playerNo, opponentNo);
+					// Debug purposes.
+					System.out.println("The depth of the node ");
+					System.out.print("max(" + bestValue + ", ");
+					// If the new value obtained is larger than the previous bestValue, update the 'bestValue' with the new value.
+					// bestValue = Math.max(bestValue, value);
+					
+					if(value > bestValue)
+					{
+						bestValue = value;
+						// Store the best move... I hope. All this time I have been saving passNode not 'child'... Hopefully, it works now.	
+						// An experiment. using 'passNode' always picks the last moveable piece in the tree.		
+						if(passNode.isRoot())
+						{
+							// Well, it picks sometimes first child, and even second child. It may actually be working now. I'll run some more tests.
+							// It cleverly avoided the pieces when the CPU had only one piece left. Yup, this works :)
+							// Debug purposes.
+							System.out.println("This is the root node within in the minimax recursive stack and here are the contents of one child from root:");
+							// Print the board, yup.
+							printCheckersBoard(child.getValue());
+							// Store the greatest move.
+							greatestMove = child;	
+						}	
+					}
+					// Debug purposes.
+					System.out.println(value + ") is " + bestValue);
+					if(bestValue > alpha)
+					{
+						// I also forgot to change it to alpha = bestValue from alpha = value
+						alpha = bestValue;
+					}
+					// The pruning begins...
+					if(beta <= alpha)
+					{
+						// Prune...
+						break;
+					}
+				}
+			}else
+			{
+				// Debug purposes. This is for the purpose of when the bot has only one piece left on the board, and it's cornered (about to be captured.)
+				System.out.println("We will evaluate passNode earlier than the cut-off depth because it has no children...");
+				// An attempt to evaluate the node early.
+				bestValue = alphabeta(passNode, 0, alpha, beta, false, playerNo, opponentNo);
+			}
+			// --- An experiment --- //
+			
+			// Return the overall result.
+			return bestValue;
+			
+		}else //if(maximisingPlayer = false)
+		{
+			// If it is a MIN node...
+			// Debug purposes.
+			System.out.println("Minimising Player:"); 
+			// An experiment
+			Tree<String[][]> bestMove = null;
+			// Initially positive infinity.
+			double bestValue = beta;
+			// Generate the children - the new states will be created in the method below. This corresponds to the MIN Nodes which will create MAX nodes.
+			// createChildren(passNode, "1", "2");
+			createChildren(passNode, opponentNo, playerNo);
+			// Grab the children of the node passed in.
+			ArrayList<Tree<String[][]>> children = passNode.children();
+			
+			if(children.size() > 0)
+			{
+				// For each child of the (parent) node
+				for(Tree<String[][]> child : children)
+				{
+					// A recursive call that will eventually assign the result of that call into 'value'.
+					double value = alphabeta(child, depth-1, alpha, beta, true, playerNo, opponentNo);
+					// Debug purposes.
+					System.out.print("min(" + bestValue + ", ");
+					// If the new value obtained is smaller than the previous bestValue, update the 'bestValue' with the new value.
+					// bestValue = Math.min(bestValue, value);
+					
+					if(value < bestValue)
+					{
+						bestValue = value;
+						// Store the best move... I hope. Oh, shit, I think I am passing in the wrong node.
+						// An experiment. using 'passNode' always picks the last moveable piece in the tree.		
+						if(passNode.isRoot())
+						{
+							// Debug purposes.
+							System.out.println("This is the root node within in the minimax recursive stack and here are the contents of one child from root:");
+							// Print the board, yup.
+							printCheckersBoard(child.getValue());
+							// Store the greatest move.
+							greatestMove = child;	
+						}	
+					}
+					if(bestValue < beta)
+					{
+						beta = bestValue;
+					}
+					// Prune...
+					if(beta <= alpha)
+					{
+						break;
+					}
+					// Debug purposes.
+					System.out.println(value + ") is " + bestValue);
+				}
+			}else
+			{
+				// Debug purposes. This is for the purpose of when the bot has only one piece left on the board, and it's cornered (about to be captured.)
+				// When it is MIN's turn and assuming a final capture happened beforehand (at MAX), Min would have no pieces to move, resulting in no
+				// children created so, because the game would be the won by the opponent, there are no more possible moves that can be made so,
+				// we evaluate earlier, which seems to be working well.
+				System.out.println("We will evaluate passNode earlier than the cut-off depth because it has no children...");
+				// An attempt to evaluate the node early.
+				bestValue = alphabeta(passNode, 0, alpha, beta, true, playerNo, opponentNo);
+			}
+			// Return the overall result.
+			return bestValue;
+		}
+	}
+	// --- End of Alpha-Beta Experiment -- //
 	public double minimax(Tree<String[][]> passNode, int depth, boolean maximisingPlayer, String playerNo, String opponentNo)
 	{
 		// I don't know whether I declare bestValue here or within the if statement. I will try doing it within in the if statements.
@@ -950,22 +1101,15 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			
 			System.out.println("The fact that the decisionTree is a leaf is " + decisionTree.isLeaf());
 			// A huge take on generating the states as we go along.
-			double heuristicValue = minimax(decisionTree, 3, true, playerNo, opponentNo);
-			// Clarity.
+			//double heuristicValue = minimax(decisionTree, 3, true, playerNo, opponentNo);
+			double heuristicValue = alphabeta(decisionTree, 3, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true, playerNo, opponentNo);
+			// Clarity
 			String[][] greatestMoveState = greatestMove.getValue();
 			// Debug purposes - it prints out 292 nodes for a depth of 3, which is correct and I will assume that the correct states are being created.
 			System.out.println("The size of the decisionTree after the minimax operation is " + sizeOfTree + " and the greatest move is ");		
 			// Debug purposes.
 			printCheckersBoard(greatestMoveState); // So far, it grabs the states at depth 3 (which are the states at the cut-off depth). 
 			System.out.println("The overall heuristic value of the minimax algorithm is: " + heuristicValue);
-			
-			
-			// An experiment for the sense of debugging.
-			System.out.println("The contents of the greatestMove.parent() should match the current state:");
-			printCheckersBoard(greatestMove.parent().getValue());
-			System.out.println("The contents of the greatestMove.parent().setValue(strCheckersBoard) should match the current state:");
-			greatestMove.parent().setValue(strCheckersBoard);
-			printCheckersBoard(greatestMove.parent().getValue());
 			
 			// Debug.
 			System.out.println("The contents of strCheckersBoard[][] before the Bot moved its piece is:");
@@ -983,11 +1127,10 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					// This print out gets printed out before the 'mt' thread starts running, aha.
 					// Whether, aha. Well, it is false, which makes sense because one the minimax() has finished performing, there would be...
 					// nothing left for 'mt' to do so, it gets garbage collected.
-					System.out.println("I wonder if minimax() is done yet?");
 					// Yup, a crap experiment.
 					String[][] greatestMoveState = greatestMove.getValue();
 					// This is where the actual move is made by the bot... so, I need that runOnUiThread here, I think, aha.		
-					determinePieceAndMove(greatestMove, greatestMoveState, "2", "1", false);
+					determinePieceAndMove(greatestMove, greatestMoveState, playerNo, opponentNo, false);
 					// Debug.
 					System.out.println("The contents of strCheckersBoard[][] after the Bot moved its piece is:");
 					printCheckersBoard(strCheckersBoard);
@@ -998,8 +1141,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				}
 			});
 			
-			// ...Until here.
-			
+			// ...Until here.		
 		}
 	}
 	public void computerTurn(String playerNo, String opponentNo)
@@ -2195,7 +2337,9 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 								computerTurn("2", "1");								
 								
 								// I tried using a Thread but, it caused some complexities because various sections within computerTurn() modifies
-								// the UI but, if we did this within another thread besides the UI thread, the application crashes.		
+								// the UI but, if we did this within another thread besides the UI thread, the application crashes.
+								// Problem sorted because I split the operations in computerTurn into two threads. minimax() runs on one thread,
+								// and the UI repainting is on done on the actual UI thread ;)
 							}
 						}.start();
 					}
@@ -2272,7 +2416,9 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 								computerTurn("2", "1");								
 								
 								// I tried using a Thread but, it caused some complexities because various sections within computerTurn() modifies
-								// the UI but, if we did this within another thread besides the UI thread, the application crashes.		
+								// the UI but, if we did this within another thread besides the UI thread, the application crashes.
+								// Problem sorted because I split the operations in computerTurn into two threads. minimax() runs on one thread,
+								// and the UI repainting is on done on the actual UI thread ;)
 							}
 					 }.start();			
 				}						
