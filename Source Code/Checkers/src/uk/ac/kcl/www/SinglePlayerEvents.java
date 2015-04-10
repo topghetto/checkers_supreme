@@ -339,9 +339,9 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 											// Display player information.
 											
 											// hand over its turn to the opponent (i.e. the human).
-											playerOneTurn = !playerOneTurn; 
+											//playerOneTurn = !playerOneTurn; 
 											// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
-											displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
+											//displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
 										}
 										// Clear the helper ArrayLists.
 										clearHelperArrays();
@@ -357,9 +357,9 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 										// Display player information.
 										
 										// hand over its turn to the opponent (i.e. the human).
-										playerOneTurn = !playerOneTurn; 
+										//playerOneTurn = !playerOneTurn; 
 										// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
-										displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
+										//displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
 									}
 									// Clear the helper ArrayLists.
 									clearHelperArrays();
@@ -413,9 +413,9 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 								movePiece(state, destinationX, destinationY, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, playerNo, opponentNo, forDecisionTree);
 								// Display player information.
 								// hand over its turn to the opponent (i.e. the human).
-								playerOneTurn = !playerOneTurn; 
+								//playerOneTurn = !playerOneTurn; 
 								// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
-								displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
+								//displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
 							}
 							// It was just a standard move...
 							clearHelperArrays();		
@@ -599,7 +599,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 							// Well, it picks sometimes first child, and even second child. It may actually be working now. I'll run some more tests.
 							// It cleverly avoided the pieces when the CPU had only one piece left. Yup, this works :)
 							// Debug purposes.
-							System.out.println("This is the root node within in the minimax recursive stack and here are the contents of one child from root:");
+							System.out.println("This is the root node within in the alpha-beta recursive stack and here are the contents of one child from root:");
 							// Print the board, yup.
 							printCheckersBoard(child.getValue());
 							// Store the greatest move.
@@ -667,7 +667,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						if(passNode.isRoot())
 						{
 							// Debug purposes.
-							System.out.println("This is the root node within in the minimax recursive stack and here are the contents of one child from root:");
+							System.out.println("This is the root node within in the alpha-beta recursive stack and here are the contents of one child from root:");
 							// Print the board, yup.
 							printCheckersBoard(child.getValue());
 							// Store the greatest move.
@@ -1099,7 +1099,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			opponentNo = passOpponentNo;
 		}
 		public void run()
-		{
+		{		
 			// Run the Minimax algorithm within here.
 			// Debug purposes.
 			greatestMove = new Tree(new String[8][8]);
@@ -1136,13 +1136,42 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					String[][] greatestMoveState = greatestMove.getValue();
 					// This is where the actual move is made by the bot... so, I need that runOnUiThread here, I think, aha.		
 					determinePieceAndMove(greatestMove, greatestMoveState, playerNo, opponentNo, false);
+					
+					// An experiment - Success - I should hand over the player's turn here instead of within the determinePieceAndPiece() method.
+					// Works as I hoped it would.
+					// hand over its turn to the opponent (i.e. the human).
+					playerOneTurn = !playerOneTurn; 
+					// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
+					displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
+				
 					// Debug.
 					System.out.println("The contents of strCheckersBoard[][] after the Bot moved its piece is:");
 					printCheckersBoard(strCheckersBoard);
 					// We will hide the wheel on startup.
 					loadingWheel.setVisibility(View.INVISIBLE);
 					// Update the message of the AI bot.
-					loadingInfo.setText("A.I.mee is\nwaiting for you to\nmake your move...");
+					if(noOfPiecesPlayerOne > 0)
+					{
+						// Game is still going...
+						loadingInfo.setText("A.I.mee is waiting \nfor you to make \nyour move...");
+						
+						// We could check if the opponent (in this case, the human) has trapped pieces.
+						boolean isTrapped = isTrapped(strCheckersBoard, opponentNo, playerNo);
+						
+						if(isTrapped == true)
+						{
+							// The bot wins...
+							loadingInfo.setText("A.I.mee says \n\"Well, that's unfortunate.\"\nBetter luck next time.");
+							// Display it too.
+							playerInfo.setText("Game Over!\nPlayer" + playerNo + " is\nthe Winner!");
+						}			
+					}
+					else
+					{
+						// The bot wins...
+						loadingInfo.setText("A.I.mee says \n\"Mission \nAccomplished.\"");
+					}
+					
 				}
 			});
 			
@@ -2362,7 +2391,10 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						// This will check whether the opponent has trapped pieces...
 						if(isTrapped(passStrCheckersBoard, opponentNo, playerNo) == false)
 						{
-							// Debug purposes.
+							// Adds a delay of 200 milliseconds before the AI (the opponent) is allowed to move...
+							switchPlayer(200, 100, playerNo, opponentNo);
+							
+							/*// Debug purposes.
 							System.out.println("There are no trapped pieces for the opponent so, the opponent can take his turn...");
 							// There are no trapped pieces so, we will let the opponent proceed as normal.
 							// Waits 200 milliseconds before the AI decides to move.
@@ -2386,17 +2418,26 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 									 // Problem sorted because I split the operations in computerTurn into two threads. minimax() runs on one thread,
 									 // and the UI repainting is on done on the actual UI thread ;)
 								 }
-							}.start();
+							}.start();*/
 							
 						}else
 						{
-							// There are trapped pieces for the opponent so, we win, aha.
-							// Debug purposes.
-							System.out.println("There are trapped pieces for the opponent so, " + playerNo + " wins the game.");
-							// Display it too.
-							playerInfo.setText("Game Over!\nPlayer" + playerNo + " is\nthe Winner!");
+							// Display Game Over message...
+							playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
 							// Update the message of the AI bot.
-							loadingInfo.setText("A.I.mee is\ntrapped.");
+							if(noOfPiecesPlayerTwo > 0)
+							{
+								// If there are still pieces of player x, that it safe to assume this pieces are trapped pieces for the opponent so, we win, aha.
+								// Yup, A.I.mee is trapped.
+								loadingInfo.setText("A.I.mee is\ntrapped.");
+								// Debug purposes.
+								System.out.println("There are trapped pieces for the opponent so, player " + playerNo + " wins the game.");
+								// Display it too.
+							}
+							else
+							{
+								// This may not be needed...
+							}
 						}
 					}
 					else
@@ -2458,7 +2499,11 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					// This will check whether the opponent has trapped pieces...
 					if(isTrapped(passStrCheckersBoard, opponentNo, playerNo) == false)
 					{
-						// Debug purposes.
+						// Adds a delay of 200 milliseconds before the AI (the opponent) is handed its turn...
+						switchPlayer(200, 100, playerNo, opponentNo);
+						
+						
+						/*// Debug purposes.
 						System.out.println("There are no trapped pieces for the opponent so, the opponent can take his turn...");
 						// There are no trapped pieces so, we will let the opponent proceed as normal.
 						// Waits 200 milliseconds before the AI decides to move.
@@ -2482,17 +2527,26 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 								 // Problem sorted because I split the operations in computerTurn into two threads. minimax() runs on one thread,
 								 // and the UI repainting is on done on the actual UI thread ;)
 							 }
-						}.start();
+						}.start();*/
 						
 					}else
 					{
-						// There are trapped pieces for the opponent so, we win, aha.
-						// Debug purposes.
-						System.out.println("There are trapped pieces for the opponent so, " + playerNo + " wins the game.");
-						// Display it too.
+						// Display Game Over message...
 						playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
 						// Update the message of the AI bot.
-						loadingInfo.setText("A.I.mee is\ntrapped.");
+						if(noOfPiecesPlayerTwo > 0)
+						{
+							// If there are still pieces of player x, that it safe to assume this pieces are trapped pieces for the opponent so, we win, aha.
+							// Yup, A.I.mee is trapped.
+							loadingInfo.setText("A.I.mee is\ntrapped.");
+							// Debug purposes.
+							System.out.println("There are trapped pieces for the opponent so, player " + playerNo + " wins the game.");
+							// Display it too.
+						}
+						else
+						{
+							// This may not be needed...
+						}
 					}			
 				}						
 			}else
@@ -2501,5 +2555,37 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				System.out.println("We have not moved the piece to the new location. (from auto-generated highlights section) so, we do nothing until then.");
 			}					
 		}
-	}	
+	}
+	public void switchPlayer(long milliseconds, long interval, String passPlayerNo, String passOpponentNo)
+	{
+		// This method seems to be working fine.
+		// We need these variables final because they will later be passed into an inner class.
+		final String playerNo = passPlayerNo;
+		final String opponentNo = passOpponentNo;
+		// Debug purposes.
+		System.out.println("There are no trapped pieces for the opponent so, the opponent can take his turn...");
+		// There are no trapped pieces so, we will let the opponent proceed as normal.
+		// Waits 200 milliseconds before the AI decides to move.
+		new CountDownTimer(milliseconds, interval)
+		{
+			public void onTick(long millisUntilFinished)
+			{
+				System.out.println("milliseconds remaining: " + millisUntilFinished);
+				// We will show the wheel to indicate it is the AI's turn.
+				loadingWheel.setVisibility(View.VISIBLE);			
+				// Update the message of the AI bot.
+				loadingInfo.setText("A.I.mee is \nmakingher move...");
+			}
+			public void onFinish()
+			{
+				System.out.println("Now, it is time for A.I.mee to make her move...");
+				computerTurn(opponentNo, playerNo);								
+				
+				// I tried using a Thread but, it caused some complexities because various sections within computerTurn() modifies
+				// the UI but, if we did this within another thread besides the UI thread, the application crashes.
+				// Problem sorted because I split the operations in computerTurn into two threads. minimax() runs on one thread,
+				// and the UI repainting is on done on the actual UI thread ;)
+			}
+		}.start();
+	}
 }
