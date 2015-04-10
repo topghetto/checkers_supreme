@@ -181,7 +181,12 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		if(forDecisionTree == true)
 		{
 			// If this is for the purpose of evaluation the decision tree...
-			parentState = passNode.parent().getValue();
+			// This is to check whether the actual root of the tree is passed into this method through minimax/alpha-beta algorithm. If not, we proceed...
+			//if(passNode.parent() != null)
+			//{
+				// Grab the value of the parent node, and store it in a MD array.
+				parentState = passNode.parent().getValue();
+			//}	
 		}
 		else //if(forDecisionTree == false)
 		{
@@ -1188,6 +1193,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				final MinimaxThread minimaxThread = new MinimaxThread(playerNo, opponentNo);
 				// Load the minimax algorithm in a new thread.
 				minimaxThread.start();
+				
 			}
 			else
 			{
@@ -1458,6 +1464,39 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			}		
 		}*/	
 	}// End of 'onClick'
+	public boolean isTrapped(String[][] passStrCheckersBoard, String playerNo, String opponentNo)
+	{
+		// Initially true...
+		boolean isTrapped = true;
+		// Generate the king String.
+		String strKing = "K" + playerNo;
+		// This where the check will happen...
+		for(int row = 0; row < 8;row++)
+		{
+			for(int column=((row+1)%2); column<8; column+=2)
+			{
+				// Checks whether the player can make it at least one move.
+				if(passStrCheckersBoard[row][column] == playerNo || passStrCheckersBoard[row][column].contains(strKing))
+				{
+					// We then check (if we can add coordinates), and if so, add the coordinates of the possible moves that piece at[row][column] can make...
+					highlightSquares(passStrCheckersBoard, row, column, opponentNo, playerNo);
+					// We then check if it can make at least one move. If we do, we stop searching because we only need to find at least one.
+					if(xPrevAxis.size() > 0) // arrayOfPrevCoordinatesX is not needed.
+					{
+						// We update the value.
+						isTrapped = false;
+						// Clear the ArrayLists.
+						clearHelperArrays();
+						//clearMasterLists();
+						// Make it so, that this is the last iteration (i.e. break the loop)
+						row = 8; column = 8;
+					}
+				}
+			}
+		}
+		// Return the result.
+		return isTrapped;	
+	}
 	public void addCoordinatesToLists(int passX, int passY, int upOrDown, int leftOrRight)
 	{
 				// Store in the variables passed in.
@@ -2320,28 +2359,45 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						// The AI Code will go here... Let the experiment begin.	
 						// computerTurn("2");
 						
-						// Waits 200 milliseconds before the AI decides to move.
-						new CountDownTimer(200, 100)
+						// This will check whether the opponent has trapped pieces...
+						if(isTrapped(passStrCheckersBoard, opponentNo, playerNo) == false)
 						{
-							public void onTick(long millisUntilFinished)
+							// Debug purposes.
+							System.out.println("There are no trapped pieces for the opponent so, the opponent can take his turn...");
+							// There are no trapped pieces so, we will let the opponent proceed as normal.
+							// Waits 200 milliseconds before the AI decides to move.
+							new CountDownTimer(200, 100)
 							{
-								System.out.println("seconds remaining: " + millisUntilFinished / 1000);
-								// We will show the wheel to indicate it is the AI's turn.
-								loadingWheel.setVisibility(View.VISIBLE);			
-								// Update the message of the AI bot.
-								loadingInfo.setText("A.I.mee is\nis making her move...");
-							}
-							public void onFinish()
-							{
-								System.out.println("Now, it is time for A.I.mee to make her move...");
-								computerTurn("2", "1");								
-								
-								// I tried using a Thread but, it caused some complexities because various sections within computerTurn() modifies
-								// the UI but, if we did this within another thread besides the UI thread, the application crashes.
-								// Problem sorted because I split the operations in computerTurn into two threads. minimax() runs on one thread,
-								// and the UI repainting is on done on the actual UI thread ;)
-							}
-						}.start();
+								 public void onTick(long millisUntilFinished)
+								 {
+									 System.out.println("milliseconds remaining: " + millisUntilFinished);
+									 // We will show the wheel to indicate it is the AI's turn.
+									 loadingWheel.setVisibility(View.VISIBLE);			
+									 // Update the message of the AI bot.
+									 loadingInfo.setText("A.I.mee is\nis making her move...");
+								 }
+								 public void onFinish()
+								 {
+									 System.out.println("Now, it is time for A.I.mee to make her move...");
+									 computerTurn("2", "1");								
+									 
+									 // I tried using a Thread but, it caused some complexities because various sections within computerTurn() modifies
+									 // the UI but, if we did this within another thread besides the UI thread, the application crashes.
+									 // Problem sorted because I split the operations in computerTurn into two threads. minimax() runs on one thread,
+									 // and the UI repainting is on done on the actual UI thread ;)
+								 }
+							}.start();
+							
+						}else
+						{
+							// There are trapped pieces for the opponent so, we win, aha.
+							// Debug purposes.
+							System.out.println("There are trapped pieces for the opponent so, " + playerNo + " wins the game.");
+							// Display it too.
+							playerInfo.setText("Game Over!\nPlayer" + playerNo + " is\nthe Winner!");
+							// Update the message of the AI bot.
+							loadingInfo.setText("A.I.mee is\ntrapped.");
+						}
 					}
 					else
 					{
@@ -2399,28 +2455,45 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					// computerTurn() gets called before it can update the piece moved by the human. I need to slow this down somehow.
 					// computerTurn("2");
 					
-					// Waits 200 milliseconds before the AI decides to move.
-					 new CountDownTimer(200, 100)
-					 {
-							public void onTick(long millisUntilFinished)
-							{
-								System.out.println("seconds remaining: " + millisUntilFinished / 1000);
-								// We will show the wheel to indicate it is the AI's turn.
-								loadingWheel.setVisibility(View.VISIBLE);			
-								// Update the message of the AI bot.
-								loadingInfo.setText("A.I.mee is\nis making her move...");
-							}
-							public void onFinish()
-							{
-								System.out.println("Now, it is time for A.I.mee to make her move...");
-								computerTurn("2", "1");								
-								
-								// I tried using a Thread but, it caused some complexities because various sections within computerTurn() modifies
-								// the UI but, if we did this within another thread besides the UI thread, the application crashes.
-								// Problem sorted because I split the operations in computerTurn into two threads. minimax() runs on one thread,
-								// and the UI repainting is on done on the actual UI thread ;)
-							}
-					 }.start();			
+					// This will check whether the opponent has trapped pieces...
+					if(isTrapped(passStrCheckersBoard, opponentNo, playerNo) == false)
+					{
+						// Debug purposes.
+						System.out.println("There are no trapped pieces for the opponent so, the opponent can take his turn...");
+						// There are no trapped pieces so, we will let the opponent proceed as normal.
+						// Waits 200 milliseconds before the AI decides to move.
+						new CountDownTimer(200, 100)
+						{
+							 public void onTick(long millisUntilFinished)
+							 {
+								 System.out.println("milliseconds remaining: " + millisUntilFinished);
+								 // We will show the wheel to indicate it is the AI's turn.
+								 loadingWheel.setVisibility(View.VISIBLE);			
+								 // Update the message of the AI bot.
+								 loadingInfo.setText("A.I.mee is\nis making her move...");
+							 }
+							 public void onFinish()
+							 {
+								 System.out.println("Now, it is time for A.I.mee to make her move...");
+								 computerTurn("2", "1");								
+								 
+								 // I tried using a Thread but, it caused some complexities because various sections within computerTurn() modifies
+								 // the UI but, if we did this within another thread besides the UI thread, the application crashes.
+								 // Problem sorted because I split the operations in computerTurn into two threads. minimax() runs on one thread,
+								 // and the UI repainting is on done on the actual UI thread ;)
+							 }
+						}.start();
+						
+					}else
+					{
+						// There are trapped pieces for the opponent so, we win, aha.
+						// Debug purposes.
+						System.out.println("There are trapped pieces for the opponent so, " + playerNo + " wins the game.");
+						// Display it too.
+						playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
+						// Update the message of the AI bot.
+						loadingInfo.setText("A.I.mee is\ntrapped.");
+					}			
 				}						
 			}else
 			{
