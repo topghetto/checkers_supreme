@@ -1150,7 +1150,8 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					// We will hide the wheel on startup.
 					loadingWheel.setVisibility(View.INVISIBLE);
 					// Update the message of the AI bot.
-					if(noOfPiecesPlayerOne > 0)
+					//if(noOfPiecesPlayerOne > 0)
+					if(getNoOfPieces(opponentNo) > 0)
 					{
 						// Game is still going...
 						loadingInfo.setText("A.I.mee is waiting \nfor you to make \nyour move...");
@@ -1161,10 +1162,14 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						if(isTrapped == true)
 						{
 							// The bot wins...
-							loadingInfo.setText("A.I.mee says \n\"Well, that's unfortunate.\"\nBetter luck next time.");
+							loadingInfo.setText("A.I.mee says \n\"Well, looks like you're stuck.\"\nBetter luck next time.");
 							// Display it too.
 							playerInfo.setText("Game Over!\nPlayer" + playerNo + " is\nthe Winner!");
-						}			
+						}
+						else
+						{
+							// I think computerTurn("Will be called here, using the switchPlayer() method.
+						}
 					}
 					else
 					{
@@ -2291,6 +2296,17 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			}							
 		}
 	}
+	public int getNoOfPieces(String playerNo)
+	{
+		// Automatically retrieve the number of pieces the player x has left...
+		if(playerNo == "1")
+		{
+			return noOfPiecesPlayerOne;
+		}else // playerNo == "2"
+		{
+			return noOfPiecesPlayerTwo;
+		}
+	}
 	public void performMoveAndCheckAdjacent(String[][] passStrCheckersBoard, int passX, int passY, String playerNo, String opponentNo)
 	{
 		// Debug purposes.
@@ -2424,8 +2440,9 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						{
 							// Display Game Over message...
 							playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
-							// Update the message of the AI bot.
-							if(noOfPiecesPlayerTwo > 0)
+							// Grabs the number of pieces the opponent has left...
+							// if(noOfPiecesPlayerTwo > 0)
+							if(getNoOfPieces(opponentNo) > 0)
 							{
 								// If there are still pieces of player x, that it safe to assume this pieces are trapped pieces for the opponent so, we win, aha.
 								// Yup, A.I.mee is trapped.
@@ -2437,6 +2454,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 							else
 							{
 								// This may not be needed...
+								loadingInfo.setText("A.I.mee says, she \nhas failed the \nones and zeros");
 							}
 						}
 					}
@@ -2533,8 +2551,9 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					{
 						// Display Game Over message...
 						playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
-						// Update the message of the AI bot.
-						if(noOfPiecesPlayerTwo > 0)
+						// Grabs the number of pieces the opponent has left...
+						// if(noOfPiecesPlayerTwo > 0)
+						if(getNoOfPieces(opponentNo) > 0)
 						{
 							// If there are still pieces of player x, that it safe to assume this pieces are trapped pieces for the opponent so, we win, aha.
 							// Yup, A.I.mee is trapped.
@@ -2546,6 +2565,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						else
 						{
 							// This may not be needed...
+							loadingInfo.setText("A.I.mee says, she \nhas failed the \nones and zeros");
 						}
 					}			
 				}						
