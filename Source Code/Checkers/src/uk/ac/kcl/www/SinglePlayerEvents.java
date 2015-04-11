@@ -1165,6 +1165,8 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 							loadingInfo.setText("A.I.mee says \n\"Well, looks like you're stuck.\"\nBetter luck next time.");
 							// Display it too.
 							playerInfo.setText("Game Over!\nPlayer" + playerNo + " is\nthe Winner!");
+							// Display the image of the winner... blah de blah blah.
+							playerImage.setImageResource(R.drawable.light_brown_piece);
 						}
 						else
 						{
@@ -2401,62 +2403,10 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						// Since there are no adjacent enemies, we make it false.
 						isEnemyAdjacent = false;
 						
-						// The AI Code will go here... Let the experiment begin.	
-						// computerTurn("2");
+						// A huge experiment... This will check if the opponent pieces is trapped, and if not, it will hand over its to the opponent
+						// with a delay of 200ms, and it seems to be working okay. 
+						validateAndSwitchPlayer(strCheckersBoard, playerNo, opponentNo);
 						
-						// This will check whether the opponent has trapped pieces...
-						if(isTrapped(passStrCheckersBoard, opponentNo, playerNo) == false)
-						{
-							// Adds a delay of 200 milliseconds before the AI (the opponent) is allowed to move...
-							switchPlayer(200, 100, playerNo, opponentNo);
-							
-							/*// Debug purposes.
-							System.out.println("There are no trapped pieces for the opponent so, the opponent can take his turn...");
-							// There are no trapped pieces so, we will let the opponent proceed as normal.
-							// Waits 200 milliseconds before the AI decides to move.
-							new CountDownTimer(200, 100)
-							{
-								 public void onTick(long millisUntilFinished)
-								 {
-									 System.out.println("milliseconds remaining: " + millisUntilFinished);
-									 // We will show the wheel to indicate it is the AI's turn.
-									 loadingWheel.setVisibility(View.VISIBLE);			
-									 // Update the message of the AI bot.
-									 loadingInfo.setText("A.I.mee is\nis making her move...");
-								 }
-								 public void onFinish()
-								 {
-									 System.out.println("Now, it is time for A.I.mee to make her move...");
-									 computerTurn("2", "1");								
-									 
-									 // I tried using a Thread but, it caused some complexities because various sections within computerTurn() modifies
-									 // the UI but, if we did this within another thread besides the UI thread, the application crashes.
-									 // Problem sorted because I split the operations in computerTurn into two threads. minimax() runs on one thread,
-									 // and the UI repainting is on done on the actual UI thread ;)
-								 }
-							}.start();*/
-							
-						}else
-						{
-							// Display Game Over message...
-							playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
-							// Grabs the number of pieces the opponent has left...
-							// if(noOfPiecesPlayerTwo > 0)
-							if(getNoOfPieces(opponentNo) > 0)
-							{
-								// If there are still pieces of player x, that it safe to assume this pieces are trapped pieces for the opponent so, we win, aha.
-								// Yup, A.I.mee is trapped.
-								loadingInfo.setText("A.I.mee is\ntrapped.");
-								// Debug purposes.
-								System.out.println("There are trapped pieces for the opponent so, player " + playerNo + " wins the game.");
-								// Display it too.
-							}
-							else
-							{
-								// This may not be needed...
-								loadingInfo.setText("A.I.mee says, she \nhas failed the \nones and zeros");
-							}
-						}
 					}
 					else
 					{
@@ -2509,71 +2459,55 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					isEnemyAdjacent = false;
 					// I think I would need to remove the highlights too.
 					
-										
-					// The AI Code will go here... Let the experiment begin...
-					// computerTurn() gets called before it can update the piece moved by the human. I need to slow this down somehow.
-					// computerTurn("2");
-					
-					// This will check whether the opponent has trapped pieces...
-					if(isTrapped(passStrCheckersBoard, opponentNo, playerNo) == false)
-					{
-						// Adds a delay of 200 milliseconds before the AI (the opponent) is handed its turn...
-						switchPlayer(200, 100, playerNo, opponentNo);
-						
-						
-						/*// Debug purposes.
-						System.out.println("There are no trapped pieces for the opponent so, the opponent can take his turn...");
-						// There are no trapped pieces so, we will let the opponent proceed as normal.
-						// Waits 200 milliseconds before the AI decides to move.
-						new CountDownTimer(200, 100)
-						{
-							 public void onTick(long millisUntilFinished)
-							 {
-								 System.out.println("milliseconds remaining: " + millisUntilFinished);
-								 // We will show the wheel to indicate it is the AI's turn.
-								 loadingWheel.setVisibility(View.VISIBLE);			
-								 // Update the message of the AI bot.
-								 loadingInfo.setText("A.I.mee is\nis making her move...");
-							 }
-							 public void onFinish()
-							 {
-								 System.out.println("Now, it is time for A.I.mee to make her move...");
-								 computerTurn("2", "1");								
-								 
-								 // I tried using a Thread but, it caused some complexities because various sections within computerTurn() modifies
-								 // the UI but, if we did this within another thread besides the UI thread, the application crashes.
-								 // Problem sorted because I split the operations in computerTurn into two threads. minimax() runs on one thread,
-								 // and the UI repainting is on done on the actual UI thread ;)
-							 }
-						}.start();*/
-						
-					}else
-					{
-						// Display Game Over message...
-						playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
-						// Grabs the number of pieces the opponent has left...
-						// if(noOfPiecesPlayerTwo > 0)
-						if(getNoOfPieces(opponentNo) > 0)
-						{
-							// If there are still pieces of player x, that it safe to assume this pieces are trapped pieces for the opponent so, we win, aha.
-							// Yup, A.I.mee is trapped.
-							loadingInfo.setText("A.I.mee is\ntrapped.");
-							// Debug purposes.
-							System.out.println("There are trapped pieces for the opponent so, player " + playerNo + " wins the game.");
-							// Display it too.
-						}
-						else
-						{
-							// This may not be needed...
-							loadingInfo.setText("A.I.mee says, she \nhas failed the \nones and zeros");
-						}
-					}			
+					// A huge experiment... This will check if the opponent pieces is trapped, and if not, it will hand over its to the opponent
+					// with a delay of 200ms, and it seems to be working okay. 
+					validateAndSwitchPlayer(strCheckersBoard, playerNo, opponentNo);
+								
 				}						
 			}else
 			{
 				// Debug purposes.
 				System.out.println("We have not moved the piece to the new location. (from auto-generated highlights section) so, we do nothing until then.");
 			}					
+		}
+	}
+	public void validateAndSwitchPlayer(String[][] passStrCheckersBoard, String playerNo, String opponentNo)
+	{
+		// This will check whether the opponent has trapped pieces...
+		if(isTrapped(passStrCheckersBoard, opponentNo, playerNo) == false)
+		{
+			// Adds a delay of 200 milliseconds before the AI (the opponent) is handed its turn...
+			switchPlayer(200, 100, playerNo, opponentNo);		
+		}
+		else
+		{
+			// Display Game Over message...
+			playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
+			// Set the image of the winning player.
+			if(playerNo == "1")
+			{
+				playerImage.setImageResource(R.drawable.dark_brown_piece);
+			}
+			else
+			{
+				playerImage.setImageResource(R.drawable.light_brown_piece);
+			}			
+			
+			// Grabs the number of pieces the opponent has left...
+			// If there are still pieces of player x, that it safe to assume this pieces are trapped pieces for the opponent so, we win, aha.
+			if(getNoOfPieces(opponentNo) > 0)
+			{
+				// Yup, A.I.mee is trapped.
+				loadingInfo.setText("A.I.mee is\ntrapped.");
+				// Debug purposes.
+				System.out.println("There are trapped pieces for the opponent so, player " + playerNo + " wins the game.");
+				// Display it too.
+			}
+			else
+			{
+				// This may not be needed... Okay, it is, aha.
+				loadingInfo.setText("A.I.mee says, she \nhas failed the \nones and zeros");
+			}
 		}
 	}
 	public void switchPlayer(long milliseconds, long interval, String passPlayerNo, String passOpponentNo)
@@ -2594,7 +2528,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				// We will show the wheel to indicate it is the AI's turn.
 				loadingWheel.setVisibility(View.VISIBLE);			
 				// Update the message of the AI bot.
-				loadingInfo.setText("A.I.mee is \nmakingher move...");
+				loadingInfo.setText("A.I.mee is making \nher move...");
 			}
 			public void onFinish()
 			{
