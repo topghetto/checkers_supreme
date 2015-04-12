@@ -132,23 +132,28 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		
 	
 		// I will test the code here.
-		String[][] testBoard = new String[][]{{"[]","0","[]","2","[]","0","[]","0"},
-																					{"0", "[]","1","[]","1","[]","0","[]"},
-																					{"[]","0","[]","0","[]","0","[]","0"},
-																					{"0", "[]","1","[]","1","[]","1","[]"},
-																					{"[]","0","[]","0","[]","0","[]","0"},
-																					{"0", "[]","1","[]","0","[]","0","[]"},
-																					{"[]","0","[]","0","[]","0","[]","0"},
+		String[][] testBoard = new String[][]{{"[]","0","[]","0","[]","0","[]","0"},
+																					{"0", "[]","0","[]","2","[]","0","[]"},
+																					{"[]","0","[]","1","[]","1","[]","0"},
+																					{"0", "[]","0","[]","0","[]","0","[]"},
+																					{"[]","1","[]","1","[]","1","[]","0"},
+																					{"0", "[]","0","[]","0","[]","0","[]"},
+																					{"[]","1","[]","1","[]","0","[]","0"},
 																					{"0", "[]","0","[]","0","[]","0","[]"}};
 	// Call the shoddy node
 	Tree<String[][]> testNode = new Tree(testBoard);
 	// Call highlight Squares. Opponent, Player
-	highlightSquares(testBoard, 0, 3, "1", "2");													 
+	highlightSquares(testBoard, 1, 4, "1", "2");
+	
+	// Before we call the method, we must first duplicate the array at the parent node because if we modify 'testBoard' within consecutiveCaptures()
+	// It won't preserve the root state. Maybe, there's a way to handle this within the method itself...
+	String[][] duplicateBoard = new String[8][8];
+	duplicateArray(testBoard, duplicateBoard);
 	// Call the method.
-	consecutiveCapture(testNode, testBoard, true, "2", "1");
+	consecutiveCaptures(testNode, testBoard, true, "2", "1");
 	ArrayList<Tree<String[][]>> children = testNode.children();
 	System.out.println("This is the root state:");
-	printCheckersBoard(testBoard);
+	printCheckersBoard(testNode.getValue());
 	System.out.println("and the number of states the testNode has is " + children.size() + " and here are the contents of each state:");
 	for(Tree<String[][]> child : children)
 	{
@@ -156,8 +161,12 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		System.out.println("|=============|");
 	}
 	// F**k it does not work.	It does now :)
-		
-		
+	// If my hunch is correct, it should transform into a king but, still perform a capture immediately. This is what we don't want.
+	// My hunch is correct so, I need a condition in there somewhere.
+	// There's a bug in the method. Initially, when there is an option for more than one capture, it generates the right states, and whatnot.
+	// However, when there is just one option, oh, hold on. I know why... Well, I think I do. OK, I don't. Basically, the node at the root state
+	// also gets modified but, really it should not do this. In order to tackle this, I must always pass in a duplicate of the state
+	// into the consecutiveCaptures() method! Okay, the method now does this automatically. Yup, everything seems to be working okay now.
 	}
 	public void performEnemyCapture(String[][] passState, int passX, int passY, String playerNo, String opponentNo, boolean forDecisionTree)
 	{
@@ -1088,7 +1097,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					
 					// Make an ordinary capture..., then call this.
 					// highlightSquares() with the newLocationState, x/yAxisOfDest (new location), and if xEnemyAxis.size() > 0, then call...
-					// consecutiveCapture(passNode, newLocationState, true, playerNo, opponentNo);
+					// consecutiveCaptures(passNode, newLocationState, true, playerNo, opponentNo);
 					
 					// Our new tree thang.
 					passNode.addChild(new Tree(newLocationState));
@@ -1105,7 +1114,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			
 		}	// End of createChildren() method (except for consecutive captures)
 	}
-	public void consecutiveCapture(Tree<String[][]> passNode, String[][] passState, boolean isAdjacent, String playerNo, String opponentNo)
+	public void consecutiveCaptures(Tree<String[][]> passNode, String[][] passState, boolean isAdjacent, String playerNo, String opponentNo)
 	{
 		// I realised this section would need to be recursive, which is so long. Okay, after 5 hours of coding, I have finally written the function.
 		// Now, I need to test it, and see if it works. Inshallah, it goes okay, ameen.
@@ -1141,20 +1150,18 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				// The number of enemies...
 				for(int e = 0; e < noOfEnemies; e++)
 				{
-					String[][] currentState = passState;
-					// Might need a copy of the current state. probably an if statement somewhere.
-					if(noOfEnemies > 1){
-						
-						// Only if the piece has more than one option for the consecutive capture, we duplicate the state.
-						// We duplicate the currentState... Somehow. Oh, we duplicate it, and then switch the address or something.
-						String[][] copyOfCurrentState = new String[8][8];
-						// Copy the contents of the state passed into this function
-						duplicateArray(passState, copyOfCurrentState);
-						// Now the address of the currentState will point to the duplicate, (hopefully) keeping 'passState' intact.
-						currentState = copyOfCurrentState;
-					}
-					
-					// After that, we make a copy of x/yEnemyAxis/PrevAxis ArrayLists, I think. Yes, we do that... I think.
+					// This will hold a copy of the current state.
+					String[][] currentState; 	
+					// We duplicate the currentState... Somehow. Oh, we duplicate it, and then switch the address or something.
+					// we don't even have to switch the address or anything because through the recursion call, the desired state will be added
+					// to 'passNode' correctly. Now, it automatically preserves the state regardless of whether
+					// there is an option for more than one enemy piece to be captured.
+					String[][] copyOfCurrentState = new String[8][8];
+					// Copy the contents of the state passed into this function
+					duplicateArray(passState, copyOfCurrentState);
+					// Now the address of the currentState will point to the duplicate, (hopefully) keeping 'passState' intact.
+					currentState = copyOfCurrentState;
+					// After that, we make a copy of x/yEnemyAxis/PrevAxis ArrayLists...
 					
 					// We obtain destinationX/Y from the copied ArrayLists.
 					int destinationX = copyPrevAxisX.get(e+1).intValue(); int destinationY = copyPrevAxisY.get(e+1).intValue();
@@ -1172,16 +1179,26 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					// Now, we will use this method to later check if the piece at the new location is adjacent to an enemy piece.
 					highlightSquares(currentState, positionX, positionY, opponentNo, playerNo);	
 					
-					if(xEnemyAxis.size() > 0)
-					{
+					if(isNewKing == true){
+						
+						// Since the piece has been recently transformed into a king, there are no more moves it should make so,
+						// stop here by calling the function again but, it will immediately stop isAdjacent == false.
+						consecutiveCaptures(passNode, currentState, false, playerNo, opponentNo);
+						// We will make this loop the last iteration, even though it is not needed. I say it is not needed because in order for
+						//it to become a king, a square on the last row must be empty so, at most, it will be adjacent to only one enemy piece
+						//upon its transformation ;)
+						e = noOfEnemies; 
+					}
+					else if(xEnemyAxis.size() > 0){
+						
 						// Perform the recursive call to repeat this process again - 'true' because it is adjacent to an enemy at the new location.
-						consecutiveCapture(passNode, currentState, true, playerNo, opponentNo);
+						consecutiveCaptures(passNode, currentState, true, playerNo, opponentNo);
 						
 					}else{
 						
 						// We will perform the recursive call but, when we call it, the if(isAdjacent == false) will be ran, and then it will add the state
 						// to the tree... I hope. - 'false' because the piece at the new location is not adjacent to an enemy piece.
-						consecutiveCapture(passNode, currentState, false, playerNo, opponentNo);
+						consecutiveCaptures(passNode, currentState, false, playerNo, opponentNo);
 					}
 				}
 			//}
