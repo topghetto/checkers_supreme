@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.view.MenuInflater;
 import android.view.Menu;
 
+// Yup, just a test.
+import java.util.ArrayList;
 
 public class MainActivity extends Activity
 {
@@ -22,10 +24,23 @@ public class MainActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 				
-				// I need to test something. So this gets modified in the method :)
-				// String[] arrayTest = {"1", "2", "3"};
-				// arrayTest = new String[3]; // This also gets modified in the method, which is an instance method.
-				// Debug this crap.
+				// A test on replicating an ArrayList.
+				/*
+				ArrayList<Integer> original = new ArrayList<Integer>();
+				original.add(new Integer(3));
+				original.add(new Integer(5));
+				
+				ArrayList<Integer> duplicate =  (ArrayList<Integer>) original.clone();
+				duplicate.add(new Integer(23));
+				
+				// Oh shit, so, the original gets 23 added to it. Thank God, I tested it here before I used it in that recursion method consecutiveCaptures()
+				// Using .clone() did the trick :)
+				System.out.println("Now, we will output the contents of the original ArrayList.");
+				System.out.println(original);
+				// Yup, it works fine now :)
+				System.out.println("Now, we will output the contents of the duplicate ArrayList.");
+				System.out.println(duplicate);
+				*/
     }
 		public void startSinglePlayer(View view)
 		{

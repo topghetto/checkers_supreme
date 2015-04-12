@@ -129,6 +129,35 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		noOfPiecesPlayerOne = 12;
 		noOfPiecesPlayerTwo = 12;
 		
+		
+	
+		// I will test the code here.
+		String[][] testBoard = new String[][]{{"[]","0","[]","2","[]","0","[]","0"},
+																					{"0", "[]","1","[]","1","[]","0","[]"},
+																					{"[]","0","[]","0","[]","0","[]","0"},
+																					{"0", "[]","1","[]","1","[]","1","[]"},
+																					{"[]","0","[]","0","[]","0","[]","0"},
+																					{"0", "[]","1","[]","0","[]","0","[]"},
+																					{"[]","0","[]","0","[]","0","[]","0"},
+																					{"0", "[]","0","[]","0","[]","0","[]"}};
+	// Call the shoddy node
+	Tree<String[][]> testNode = new Tree(testBoard);
+	// Call highlight Squares. Opponent, Player
+	highlightSquares(testBoard, 0, 3, "1", "2");													 
+	// Call the method.
+	consecutiveCapture(testNode, testBoard, true, "2", "1");
+	ArrayList<Tree<String[][]>> children = testNode.children();
+	System.out.println("This is the root state:");
+	printCheckersBoard(testBoard);
+	System.out.println("and the number of states the testNode has is " + children.size() + " and here are the contents of each state:");
+	for(Tree<String[][]> child : children)
+	{
+		printCheckersBoard(child.getValue());
+		System.out.println("|=============|");
+	}
+	// F**k it does not work.	It does now :)
+		
+		
 	}
 	public void performEnemyCapture(String[][] passState, int passX, int passY, String playerNo, String opponentNo, boolean forDecisionTree)
 	{
@@ -1057,6 +1086,10 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					// This will create the state with the potential move.
 					movePiece(newLocationState, xAxisOfDest, yAxisOfDest, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, true);
 					
+					// Make an ordinary capture..., then call this.
+					// highlightSquares() with the newLocationState, x/yAxisOfDest (new location), and if xEnemyAxis.size() > 0, then call...
+					// consecutiveCapture(passNode, newLocationState, true, playerNo, opponentNo);
+					
 					// Our new tree thang.
 					passNode.addChild(new Tree(newLocationState));
 					// Increment the size of the tree by 1.
@@ -1070,7 +1103,89 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			
 			// ------- Yup, here dawg ----- //
 			
-		}	// End of initial check before player makes a move (except for consecutive captures)
+		}	// End of createChildren() method (except for consecutive captures)
+	}
+	public void consecutiveCapture(Tree<String[][]> passNode, String[][] passState, boolean isAdjacent, String playerNo, String opponentNo)
+	{
+		// I realised this section would need to be recursive, which is so long. Okay, after 5 hours of coding, I have finally written the function.
+		// Now, I need to test it, and see if it works. Inshallah, it goes okay, ameen.
+		
+		// Base case.
+		if(isAdjacent == false){
+			
+			// Clear the helperArrays
+			clearHelperArrays();
+			// Add the state to the tree.
+			passNode.addChild(new Tree(passState));
+			// Increment the size of the tree too.
+			sizeOfTree++;
+		}
+		else{ // technically if(xEnemyAxis.size() > 0) 
+			
+			// I may not even need this condition here but, hey, we shall see. Seems to work well, without it
+			//if(xEnemyAxis.size() > 0){
+				
+				// xEnemyAxis.size() >= 2 will cause some problems. I need to work around this.
+				// Actually, we may not even need two if statements but, we shall see...
+				
+				// This will not get mutated, whoop... I hope. I might need to move this elsewhere.
+				int noOfEnemies = xEnemyAxis.size();
+				// Or, what if I needed to copy the ArrayLists here. Actually, it would make more sense to do it here.
+				ArrayList<Integer> copyPrevAxisX = (ArrayList<Integer>) xPrevAxis.clone();
+				ArrayList<Integer> copyPrevAxisY = (ArrayList<Integer>) yPrevAxis.clone();
+				ArrayList<Integer> copyEnemyAxisX = (ArrayList<Integer>) xEnemyAxis.clone();
+				// The reason behind the recurision method not working, is that I forgot to change the variable name
+				// to yEnemyAxis.clone() from xEnemyAxis.clone(). Copy and paste is a bi***, aha.
+				ArrayList<Integer> copyEnemyAxisY = (ArrayList<Integer>) yEnemyAxis.clone(); 
+				
+				// The number of enemies...
+				for(int e = 0; e < noOfEnemies; e++)
+				{
+					String[][] currentState = passState;
+					// Might need a copy of the current state. probably an if statement somewhere.
+					if(noOfEnemies > 1){
+						
+						// Only if the piece has more than one option for the consecutive capture, we duplicate the state.
+						// We duplicate the currentState... Somehow. Oh, we duplicate it, and then switch the address or something.
+						String[][] copyOfCurrentState = new String[8][8];
+						// Copy the contents of the state passed into this function
+						duplicateArray(passState, copyOfCurrentState);
+						// Now the address of the currentState will point to the duplicate, (hopefully) keeping 'passState' intact.
+						currentState = copyOfCurrentState;
+					}
+					
+					// After that, we make a copy of x/yEnemyAxis/PrevAxis ArrayLists, I think. Yes, we do that... I think.
+					
+					// We obtain destinationX/Y from the copied ArrayLists.
+					int destinationX = copyPrevAxisX.get(e+1).intValue(); int destinationY = copyPrevAxisY.get(e+1).intValue();
+					// Move the piece (i.e. perform the capture. Shit, I forgot to change 'passState' here. Now, it makes the consecutive moves but, no captures.
+					movePiece(currentState, destinationX, destinationY, copyPrevAxisX, copyPrevAxisY, copyEnemyAxisX, copyEnemyAxisY, playerNo, opponentNo, true);
+					
+					// Debug purposes.
+					System.out.println("coordinates of copyEnemyAxisX.get(" + e +").intValue() = " + copyEnemyAxisX.get(e).intValue());
+					System.out.println("coordinates of copyEnemyAxisY.get(" + e +").intValue() = " + copyEnemyAxisY.get(e).intValue());
+					
+					// Update the new positon of the piece
+					int positionX = destinationX; int positionY = destinationY;
+					// Clear the orginal helper arrays.
+					clearHelperArrays();
+					// Now, we will use this method to later check if the piece at the new location is adjacent to an enemy piece.
+					highlightSquares(currentState, positionX, positionY, opponentNo, playerNo);	
+					
+					if(xEnemyAxis.size() > 0)
+					{
+						// Perform the recursive call to repeat this process again - 'true' because it is adjacent to an enemy at the new location.
+						consecutiveCapture(passNode, currentState, true, playerNo, opponentNo);
+						
+					}else{
+						
+						// We will perform the recursive call but, when we call it, the if(isAdjacent == false) will be ran, and then it will add the state
+						// to the tree... I hope. - 'false' because the piece at the new location is not adjacent to an enemy piece.
+						consecutiveCapture(passNode, currentState, false, playerNo, opponentNo);
+					}
+				}
+			//}
+		}
 	}
 	public void duplicateArray(String[][] source, String[][] destination)
 	{
