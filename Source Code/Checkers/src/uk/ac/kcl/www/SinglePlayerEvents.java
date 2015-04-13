@@ -131,7 +131,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		
 		
 	
-		// I will test the code here.
+		/*// I will test the code here.
 		String[][] testBoard = new String[][]{{"[]","0","[]","0","[]","0","[]","0"},
 																					{"0", "[]","0","[]","2","[]","0","[]"},
 																					{"[]","0","[]","1","[]","1","[]","0"},
@@ -159,7 +159,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 	{
 		printCheckersBoard(child.getValue());
 		System.out.println("|=============|");
-	}
+	}*/
 	// F**k it does not work.	It does now :)
 	// If my hunch is correct, it should transform into a king but, still perform a capture immediately. This is what we don't want.
 	// My hunch is correct so, I need a condition in there somewhere.
@@ -483,7 +483,8 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		
 		// Determine whether it is an enemy capture (and also checks for consecutive captures).
 		// In a sense of evaluating the states at the cut-off depth, it seems to be working well.
-		determinePieceAndMove(passNode, state, playerNo, opponentNo, true);
+		// I will disable this for now.
+		// determinePieceAndMove(passNode, state, playerNo, opponentNo, true);
 		// After the CPU has performed consecutive captures, for even better accuracy, I should call this method again but, from the perspective of the opponent. I shall implement soon... I hope.
 		
 		// End of checking whether the state was a state where consecutive captures could be made.
@@ -1092,20 +1093,42 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					// At the moment it makes the moves but, the states are not being preserved. In other words, it gets overwritten as we go along.
 					// Debug purposes.
 					// System.out.println("Master List " + e + ": autoPrevX.get(" +eachSquare + ")=" + xAxisOfDest + "and autoPrevY.get(" + eachSquare + ")=" + yAxisOfDest);
+					
+					
 					// This will create the state with the potential move.
 					movePiece(newLocationState, xAxisOfDest, yAxisOfDest, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, true);
+					// We will use this later to check whether the piece at the new location is adjacent to another enemy.
+					highlightSquares(newLocationState, xAxisOfDest, yAxisOfDest, opponentNo, playerNo);
 					
-					// Make an ordinary capture..., then call this.
-					// highlightSquares() with the newLocationState, x/yAxisOfDest (new location), and if xEnemyAxis.size() > 0, then call...
-					// consecutiveCaptures(passNode, newLocationState, true, playerNo, opponentNo);
-					
-					// Our new tree thang.
-					passNode.addChild(new Tree(newLocationState));
-					// Increment the size of the tree by 1.
-					sizeOfTree++;			
+					// I still need to test whether this section works correctly.
+					// So, if the move recently made was an enemy capture, the piece at the new location is adjacent to another enemy piece...
+					if(xEnemyAxis.size() > 0 && autoEnemyX.size() > 0){
+			
+						// That means there is an adjacent enemy at the new location so, we will recursively check for consecutive captures after the capture
+						// which will initially be done in the function below. It will also add the state(s) to 'passNode' :)
+						consecutiveCaptures(passNode, newLocationState, true, playerNo, opponentNo);
+						// Debug purposes.
+						System.out.println("A consecutive capture was made in createChildren(). Here are the contents of the root node followed by its children:");
+						// Debug purposes.
+						ArrayList<Tree<String[][]>> children = passNode.children();
+						for(int c = 0; c < children.size();c++)
+						{
+							System.out.println("Consecutive capture - option " + c + ":");
+							printCheckersBoard(children.get(c).getValue());
+						}
+						
+					}
+					else{
+						
+						// Otherwise, this was either a single capture, or just a standard move played.
+						// We add the state to passNode, making it a child of 'passNode'
+						passNode.addChild(new Tree(newLocationState));
+						// Increment the size of the tree by 1.
+						sizeOfTree++;	
+					}	
 				}
 			}
-			// Debug purposes. - Just as I though, initally it says the size is 12 but, really it should be 4. 
+			// Debug purposes. - Just as I thought, initally it says the size is 12 but, really it should be 4. 
 			// System.out.println("The size of arrayOfPrevCoordinatesX = " + arrayOfPrevCoordinatesX.size());
 			// Make sure I clear the Master ArrayLists.
 			clearMasterLists();
@@ -1169,8 +1192,8 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					movePiece(currentState, destinationX, destinationY, copyPrevAxisX, copyPrevAxisY, copyEnemyAxisX, copyEnemyAxisY, playerNo, opponentNo, true);
 					
 					// Debug purposes.
-					System.out.println("coordinates of copyEnemyAxisX.get(" + e +").intValue() = " + copyEnemyAxisX.get(e).intValue());
-					System.out.println("coordinates of copyEnemyAxisY.get(" + e +").intValue() = " + copyEnemyAxisY.get(e).intValue());
+					// System.out.println("coordinates of copyEnemyAxisX.get(" + e +").intValue() = " + copyEnemyAxisX.get(e).intValue());
+					// System.out.println("coordinates of copyEnemyAxisY.get(" + e +").intValue() = " + copyEnemyAxisY.get(e).intValue());
 					
 					// Update the new positon of the piece
 					int positionX = destinationX; int positionY = destinationY;
@@ -1256,6 +1279,8 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			
 			// Because we will be repainting the Views (i.e. the checkers pieces, checkersboard, etc.), we must do it on the UI thread.
 			// All UI repainting must be done on the UI thread. Seems to be working. Needs further testing...
+			// We will disable this for now...
+			/*
 			runOnUiThread(new Runnable()
 			{
 				public void run()
@@ -1313,7 +1338,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					
 				}
 			});
-			
+			*/
 			// ...Until here.		
 		}
 	}

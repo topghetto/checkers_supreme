@@ -73,7 +73,7 @@ public class CheckersGame extends Activity{
 		// All the layouts of the squares of the checkers board will be stored in here.
 		squaresOfBoard = new ViewGroup[8][8];
 		// This will keep track of the entire board
-		strCheckersBoard = new String[8][8];
+		//strCheckersBoard = new String[8][8];
 		// This will state whose turn it is to make a move.
 		playerInfo = (TextView) findViewById(R.id.playerInfo);
 		
@@ -92,10 +92,18 @@ public class CheckersGame extends Activity{
 		loadingWheel.setVisibility(View.INVISIBLE); 
 		
 		// Create instiate the event class TextView passLoadingInfo, ProgressBar passLoadingWheel, ImageView passPlayerImage
-		playerEvents = new MultiplayerEvents(imageOfSquares, imageOfSquares, strCheckersBoard, playerInfo, loadingInfo, loadingWheel, playerImage);
+		// playerEvents = new MultiplayerEvents(imageOfSquares, imageOfSquares, strCheckersBoard, playerInfo, loadingInfo, loadingWheel, playerImage);
+		
+		// It will populate the ImageViews, I guess.
+		//populateBoard(strCheckersBoard);
+		// Then add the squares 'squaresOfBoard' to the board
+		// addSquaresToBoard()
+		// Add listeners.
+		
 		
 		// ---- Initially Populates the Checkersboard and Adds the Events to the Squares ---- \\ 
 		// For each row of the checkersboard...
+		/*
 		for(int x = 0;x<8;x++)
 		{
 			final int loopX = x;
@@ -140,8 +148,25 @@ public class CheckersGame extends Activity{
 				}			
 			}
 		}
+		*/
 		
-		// Debug purposes. The array has the values in the desired locations :)
+		strCheckersBoard = new String[][]{{"[]","2","[]","2","[]","2","[]","2"},
+																			{"2", "[]","2","[]","2","[]","2","[]"},
+																			{"[]","2","[]","2","[]","2","[]","2"},
+																			{"0", "[]","0","[]","0","[]","0","[]"},
+																			{"[]","0","[]","0","[]","0","[]","0"},
+																			{"1", "[]","1","[]","1","[]","1","[]"},
+																			{"[]","1","[]","1","[]","1","[]","1"},
+																			{"1", "[]","1","[]","1","[]","1","[]"}};
+		
+		// Create instiate the event class TextView passLoadingInfo, ProgressBar passLoadingWheel, ImageView passPlayerImage
+		playerEvents = new MultiplayerEvents(imageOfSquares, imageOfSquares, strCheckersBoard, playerInfo, loadingInfo, loadingWheel, playerImage);
+		// Add the blank ImageViews/Views to the board (i.e. the GridLayout).
+		addSquaresToBoard();
+		// Modify the ImageViews that are now part of the GridLayout.
+		populateBoard(strCheckersBoard);
+		// Assign the listeners for each square (ImageView) of the board (i.e the GridLayout).
+		assignEvents();
 		
 		System.out.println("|----------|");
 		
@@ -156,13 +181,88 @@ public class CheckersGame extends Activity{
 		
 		System.out.println("|----------|");
 		
+		System.out.println("Threading implemented.");
+		
 		// Now, we can add the code moving the pieces, and shit.
 	}	
-	public void populateBoard()
+	public void populateBoard(String[][] passStrCheckersBoard)
 	{
-		// I need to copy the code 'onCreate' into here, and make modifications to it so, it can be method-friendly.
+		// This will update the look of the checkersboard depending on the contents of 'passStrCheckersBoard[][]'
+		
+		for(int row = 0; row < 8; row++)
+		{
+			for(int column=((row+1)%2); column<8; column+=2)
+			{
+				if(passStrCheckersBoard[row][column].contains("1")){
+					
+					if(passStrCheckersBoard[row][column].contains("K1")){
+						
+						// This will set the checkers' piece image to a king piece.
+						imageOfSquares[row][column].setImageResource(R.drawable.king_dark_brown_piece);
+						
+					}else{
+						
+						// This will set the checkers' piece image to a standard piece.
+						imageOfSquares[row][column].setImageResource(R.drawable.dark_brown_piece);
+					}
+				}
+				else if(passStrCheckersBoard[row][column].contains("2")){
+					
+					if(passStrCheckersBoard[row][column].contains("K2")){
+						
+						// This will set the checkers' piece image to a king piece.
+						imageOfSquares[row][column].setImageResource(R.drawable.king_light_brown_piece);
+						
+					}else{
+						
+						// This will set the checkers' piece image to a standard piece.
+						imageOfSquares[row][column].setImageResource(R.drawable.light_brown_piece);
+					}
+				}
+				//else{ //if(passStrCheckersBoard[row][column].contains("0") || .contains("[]")
+					
+					// We do nothing.
+				//}
+			}
+		}
 	}
-	
+	public void addSquaresToBoard()
+	{
+		// This method creates the proper layouts, and adds the blank ImageViews/Views to the board, which we will later
+		// paint using the populateBoard() method.
+		
+		// Grabs the LayoutInflater, and stores it in a readily available variable
+		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		
+		for(int row = 0; row < 8;row++)
+		{
+			for(int column = 0; column < 8;column++)
+			{
+				// Inflates the 'View' with the layout of the given XML.
+				inflateSquare = inflater.inflate(R.layout.gridview_item, checkersBoardGL, false);
+				// Store the ImageView specified in the parsed XML layout, into a runtime ImageView for further modification.
+				ImageView imageOfSquare = (ImageView) inflateSquare.findViewById(R.id.image_square);
+				// Store the 'View' in the multidimensional array of views.
+				squaresOfBoard[row][column] = inflateSquare;
+				// We will add an blank image which will later modify through the 'populateBoard()' method.
+				imageOfSquares[row][column] = imageOfSquare;
+				// Adds the square to the checkers board (i.e the grid layout specified in the XML) :)
+				checkersBoardGL.addView(inflateSquare);		
+			}
+		}
+	}
+	public void assignEvents()
+	{
+		// Assigns an event for each usuable ImageView (i.e. an empty square or an occuped square.)
+		for(int row = 0; row < 8; row++)
+		{
+			for(int column=((row+1)%2); column<8; column+=2)
+			{
+				// Add an listener to each usuable square. Should be 32 squares in total.
+				imageOfSquares[row][column].setOnClickListener(playerEvents);
+			}
+		}
+	}
 	public void addSquares(int resourceId, int passX, int passY, ImageView passImage, GridLayout passGridLayout, View passGridSquare, String occupySquare)
 	{
 		// Using non-final variables in inner classes are not permitted but, I got rid of my inner class so, it does not have to be final anymore. 
