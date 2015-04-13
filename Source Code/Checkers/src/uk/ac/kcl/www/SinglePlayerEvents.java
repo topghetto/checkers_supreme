@@ -484,7 +484,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		// Determine whether it is an enemy capture (and also checks for consecutive captures).
 		// In a sense of evaluating the states at the cut-off depth, it seems to be working well.
 		// I will disable this for now.
-		// determinePieceAndMove(passNode, state, playerNo, opponentNo, true);
+		determinePieceAndMove(passNode, state, playerNo, opponentNo, true);
 		// After the CPU has performed consecutive captures, for even better accuracy, I should call this method again but, from the perspective of the opponent. I shall implement soon... I hope.
 		
 		// End of checking whether the state was a state where consecutive captures could be made.
@@ -1094,7 +1094,15 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					// Debug purposes.
 					// System.out.println("Master List " + e + ": autoPrevX.get(" +eachSquare + ")=" + xAxisOfDest + "and autoPrevY.get(" + eachSquare + ")=" + yAxisOfDest);
 					
+					// This will create the state with the potential move.
+					movePiece(newLocationState, xAxisOfDest, yAxisOfDest, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, true);
+					// We add the state to passNode, making it a child of 'passNode'
+					passNode.addChild(new Tree(newLocationState));
+					// Increment the size of the tree by 1.
+					sizeOfTree++;
 					
+					// The experiment that I will soon get to enable. The problem is in the code below. Is it because xPrevAxis ArrayLists? Ah man, bun this. lol.
+					/*
 					// This will create the state with the potential move.
 					movePiece(newLocationState, xAxisOfDest, yAxisOfDest, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, true);
 					// We will use this later to check whether the piece at the new location is adjacent to another enemy.
@@ -1125,7 +1133,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						passNode.addChild(new Tree(newLocationState));
 						// Increment the size of the tree by 1.
 						sizeOfTree++;	
-					}	
+					}*/
 				}
 			}
 			// Debug purposes. - Just as I thought, initally it says the size is 12 but, really it should be 4. 
@@ -1280,7 +1288,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			// Because we will be repainting the Views (i.e. the checkers pieces, checkersboard, etc.), we must do it on the UI thread.
 			// All UI repainting must be done on the UI thread. Seems to be working. Needs further testing...
 			// We will disable this for now...
-			/*
+			
 			runOnUiThread(new Runnable()
 			{
 				public void run()
@@ -1293,6 +1301,12 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					String[][] greatestMoveState = greatestMove.getValue();
 					// This is where the actual move is made by the bot... so, I need that runOnUiThread here, I think, aha.		
 					determinePieceAndMove(greatestMove, greatestMoveState, playerNo, opponentNo, false);
+					
+					// An experiment
+					// Copy the contents of the greatest move into the current strCheckersboards (i.e. performs the move);
+					//duplicateArray(greatestMoveState, strCheckersBoard);
+					// Re-paints the board based on the AI's greatest move...
+					//SinglePlayerGame.populateBoard(strCheckersBoard);
 					
 					// An experiment - Success - I should hand over the player's turn here instead of within the determinePieceAndPiece() method.
 					// Works as I hoped it would.
@@ -1338,7 +1352,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					
 				}
 			});
-			*/
+			
 			// ...Until here.		
 		}
 	}

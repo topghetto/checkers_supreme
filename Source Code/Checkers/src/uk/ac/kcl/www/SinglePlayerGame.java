@@ -182,9 +182,6 @@ public class SinglePlayerGame extends Activity{
 		
 		System.out.println("|----------|");
 		
-		System.out.println("Threading implemented.");
-		
-		// Now, we can add the code moving the pieces, and shit.
 	}	
 	public static void populateBoard(String[][] passStrCheckersBoard)
 	{
@@ -221,10 +218,11 @@ public class SinglePlayerGame extends Activity{
 						imageOfSquares[row][column].setImageResource(R.drawable.light_brown_piece);
 					}
 				}
-				//else{ //if(passStrCheckersBoard[row][column].contains("0") || .contains("[]")
+				else if(passStrCheckersBoard[row][column].contains("0")){
 					
-					// We do nothing.
-				//}
+					// We do something because if there is an empty square, we need to clear the image of the ImageView.
+					imageOfSquares[row][column].setImageResource(0);
+				}
 			}
 		}
 	}
