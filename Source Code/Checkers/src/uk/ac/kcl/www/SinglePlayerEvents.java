@@ -2355,29 +2355,22 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				// Clear the standard ArrayLists.
 				clearHelperArrays(); 
 				// Now, if the newly selected square has checkers piece which belongs to playerX, then highlight it, and its neighbouring squares.
-				// I forgot to clear the master ArrayLists too... Which, I will do now.
-				// THIS IS A TEST - This should clear the master ArrayLists - ENABLE ABOVE CODE IF THIS DOESN'T WORK.
+				// Clear the master ArrayLists.
 				clearMasterLists();
 				
-				// Debug purposes.
-				// System.out.println("and the selected square does contain the player's checkers piece, then we highlight it and its neighbours.");
 				// Add new highlights for the newly selected square.
-				highlightSquares(passStrCheckersBoard, x, y, opponentNo, playerNo); // upOrDown = 1 so, x-1 i.e, go from bottom to the top of the checkersboard.
+				highlightSquares(passStrCheckersBoard, x, y, opponentNo, playerNo); 
 				// Add the ArrayLists to the master ArrayList... Aha.
 				arrayOfPrevCoordinatesX.add(xPrevAxis);
 				arrayOfPrevCoordinatesY.add(yPrevAxis);
 				// Clear the x/yPrevAxis and x/yEnemyAxis ArrayLists
 				clearHelperArrays();
-				// Adds the visual highlights to the squares based on the result from the 'prepareHighlight' method.
+				// Adds the visual representation of the highlights to the squares based on the result from the 'prepareHighlight()' method.
 				addHighlight(arrayOfPrevCoordinatesX.get(0), arrayOfPrevCoordinatesY.get(0));
-				// Debug purposes.
-				// System.out.println("The size of arrayOfPrevCoordinatesX.size()" + arrayOfPrevCoordinatesX.size() + "--- from if(passStrCheckersBoard[x][y] == playerNo && isHighlighted == false)");
 			}
 			else if(passStrCheckersBoard[x][y] == "0" && isHighlighted == true)
 			{	
 				// Or if the selected square is part of the highlighted squares, and the square is empty, we will see if we can make a move...
-				// Debug purposes.
-				// System.out.println("else if(passStrCheckersBoard[x][y] == 0 && isHighlighted == true) just ran but, failed miserably.");
 				// This will determine what type of move (standard or a capture) it should make, and also make the move.
 				performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, playerNo, opponentNo);
 			}
@@ -2385,11 +2378,11 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 	}
 	public void addToMasterLists(ArrayList<Integer> passPrevX, ArrayList<Integer> passPrevY, ArrayList<Integer> passEnemyX, ArrayList<Integer> passEnemyY)
 	{
-				// We apply the highligh// Add the ArrayLists to the master ArrayList... Aha.
+				// Adds the standard ArrayLists passPrevX/Y to the master ArrayLists
 				arrayOfPrevCoordinatesX.add(passPrevX);
 				arrayOfPrevCoordinatesY.add(passPrevY);
 				
-				// THIS IS A TEST. DELETE THE IF STATEMENT IF ALL FAILS BUT, KEEP THE CONTENT FROM IT.
+				// Only, if there is exists an adjacent enemy, we add the ArrayList of its coordinates to the master ArrayList.
 				if(passEnemyX.size() > 0)
 				{
 					arrayOfEnemyCoordinatesX.add(passEnemyX);
