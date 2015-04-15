@@ -1856,8 +1856,6 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				// Experiment - DELELTE IF NECESSARY AND ENABLE CODE ABOVE!!
 				addCoordinatesToLists(x, y, upOrDown, leftOrRight);
 			}
-			// Debug purposes.
-			// System.out.println("First entire 'if' statment went through");
 		}
 		else if(secondCondition)	// If neighbouring square is an empty one, prepare an highlight.
 		{
@@ -1878,9 +1876,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				// Coordinates of the empty square.
 				xPrevAxis.add(x+upOrDown);
 				yPrevAxis.add(y+leftOrRight);
-			}	
-			// Debug purposes.
-			// System.out.println("Second entire 'if' statment went through");				
+			}		
 		}		
 	}
 	public void highlightSquares(String[][] passStrCheckersBoard, int passX, int passY, String opponentNo, String playerNo)
