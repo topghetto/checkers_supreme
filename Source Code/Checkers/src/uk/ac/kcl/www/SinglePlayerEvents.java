@@ -595,15 +595,13 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				}
 			}
 			// Clears the Master ArrayLists.
-			clearMasterLists();
-			
+			clearMasterLists();			
 		}	// End of createChildren() method (except for consecutive captures)
 	}
 	public void consecutiveCaptures(Tree<String[][]> passNode, String[][] passState, boolean isAdjacent, String playerNo, String opponentNo,
 																	ArrayList<Integer> passPrevX, ArrayList<Integer> passPrevY, ArrayList<Integer> passEnemyX, ArrayList<Integer> passEnemyY)
 	{
-		// I realised this section would need to be recursive, which is so long. Okay, after 5 hours of coding, I have finally written the function.
-		// Now, I need to test it, and see if it works. Inshallah, it goes okay, ameen.
+		// A recursive method checks for consecutive captures.
 		
 		// Base case.
 		if(isAdjacent == false){
@@ -617,46 +615,28 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		}
 		else{ // technically if(isAdjacent == true) 
 			
-			// This will not get mutated, whoop... I hope. I might need to move this elsewhere.
+			// Holds the number of enemies adjacent for each function call...
 			int noOfEnemies = passEnemyX.size();
-			// Or, what if I needed to copy the ArrayLists here. Actually, it would make more sense to do it here. Well, commenting this has caused
-			// no problems. 
-			/*ArrayList<Integer> copyPrevAxisX = (ArrayList<Integer>) passPrevX.clone();
-			ArrayList<Integer> copyPrevAxisY = (ArrayList<Integer>) passPrevY.clone();
-			ArrayList<Integer> copyEnemyAxisX = (ArrayList<Integer>) passEnemyX.clone();
-			ArrayList<Integer> copyEnemyAxisY = (ArrayList<Integer>) passEnemyY.clone();*/
 			
-			// This will shortly hold a copy of the currentState. I need to PAY CLOSE ATTENTION TO THIS SECTION, MAINLY BECAUSE OF WHERE...
-			// DUPLICATEARRAY IS BEING CALLED... ALTHOUGH, IT DOES SEEM TO BE OKAY. Okay,it did cause problems leaving the variable here after
-			// getting rid of the copyEnemyAxisY ArrayLists. I moved the declaration into the for-loop, and works okay.
-			//String[][] copyOfCurrentState = new String[8][8];
-			
-			// The number of enemies...
+			// Loop through...
 			for(int e = 0; e < noOfEnemies; e++)
 			{
-				// This will shortly hold a copy of the currentState. I need to PAY CLOSE ATTENTION TO THIS SECTION, MAINLY BECAUSE OF WHERE...
-				// DUPLICATEARRAY IS BEING CALLED... ALTHOUGH, IT DOES SEEM TO BE OKAY.
+				// This will shortly hold a copy of the currentState. 
 				String[][] copyOfCurrentState = new String[8][8];
 				// Copy the contents of the state passed into this function using the function below.
 				duplicateArray(passState, copyOfCurrentState);
-				// After that, we make a copy of x/yEnemyAxis/PrevAxis ArrayLists...
-				System.out.println("Within the consecutiveCaptures() method...");
-				System.out.println("The contents of copyOfCurrentState at iteration e = " + e);
-				printCheckersBoard(copyOfCurrentState);
 				
 				// We obtain destinationX/Y from the copied ArrayLists.
 				int destinationX = passPrevX.get(e+1).intValue(); int destinationY = passPrevY.get(e+1).intValue();
-				// Move the piece (i.e. perform the capture. Shit, I forgot to change 'passState' here. Now, it makes the consecutive moves but, no captures.
+				// Move the piece (i.e. perform the capture).
 				movePiece(copyOfCurrentState, destinationX, destinationY, passPrevX, passPrevY, passEnemyX, passEnemyY, playerNo, opponentNo, true);
 				
-				System.out.println("The contents of copyOfCurrentState at iteration e= " + e + " after we used the movePiece() method.");
-				printCheckersBoard(copyOfCurrentState);
-				
-				// Update the new positon of the piece
+				// Update the new positon of the piece - This is mainly for clarity in reading.
 				int positionX = destinationX; int positionY = destinationY;
 				// Clear the orginal helper arrays.
 				clearHelperArrays();
-				// Now, we will use this method to later check if the piece at the new location is adjacent to an enemy piece.
+				// Now, we will use this method to generate the helper ArrayLists that we will later use to check whether there any adjacent enemies
+				// at the new location.
 				highlightSquares(copyOfCurrentState, positionX, positionY, opponentNo, playerNo);
 				// We will clone the result, and immediately clear the x/yPrevAxis ArrayLists.
 				ArrayList<Integer> nextPrevAxisX = (ArrayList<Integer>) xPrevAxis.clone();
@@ -666,32 +646,23 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				// clear the helper arrays.
 				clearHelperArrays();
 				
+				// If the piece that moved to its new location just transformed to a king, we stop here...
 				if(isNewKing == true){
-					
-					// Since the piece has been recently transformed into a king, there are no more moves it should make so,
+				
 					// stop here by calling the function again but, it will immediately stop isAdjacent == false.
 					consecutiveCaptures(passNode, copyOfCurrentState, false, playerNo, opponentNo, nextPrevAxisX, nextPrevAxisY, nextEnemyAxisX, nextEnemyAxisY);
 					// We will make this loop the last iteration, even though it is not needed. I say it is not needed because in order for
-					//it to become a king, a square on the last row must be empty so, at most, it will be adjacent to only one enemy piece
-					//upon its transformation ;)
+					// it to become a king, a square on the last row must be empty so, at most, it will be adjacent to only one enemy piece
+					// upon its transformation ;)
 					e = noOfEnemies; 
 				}
 				else if(nextEnemyAxisX.size() > 0){
-					
-					System.out.println("We will perform the recursive call with the 'true' value passed in - isAdjacent = true");
-					System.out.println("Here are some details about the ArrayLists we are passing in!");
-					System.out.println("The size of nextPrevAxis.size() is " + nextPrevAxisX.size() + " and has " + nextEnemyAxisX.size() + " enemies.");
 					
 					// Perform the recursive call to repeat this process again - 'true' because it is adjacent to an enemy at the new location.
 					consecutiveCaptures(passNode, copyOfCurrentState, true, playerNo, opponentNo, nextPrevAxisX, nextPrevAxisY, nextEnemyAxisX, nextEnemyAxisY);
 					
 				}else{
 					
-					System.out.println("We will perform the recursive call with the 'false' value passed in - isAdjacent = false");
-					System.out.println("Here are some details about the ArrayLists we are passing in!");
-					System.out.println("The size of nextPrevAxis.size() is " + nextPrevAxisX.size() + " and has " + nextEnemyAxisX.size() + " enemies.");
-					
-					// We will perform the recursive call but, when we call it, the if(isAdjacent == false) will be ran, and then it will add the state
 					// to the tree... I hope. - 'false' because the piece at the new location is not adjacent to an enemy piece.
 					consecutiveCaptures(passNode, copyOfCurrentState, false, playerNo, opponentNo, nextPrevAxisX, nextPrevAxisY, nextEnemyAxisX, nextEnemyAxisY);
 				}
