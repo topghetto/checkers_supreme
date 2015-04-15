@@ -1553,253 +1553,16 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		duplicateArray(strCheckersBoard, currentState);
 		// Using a different Tree data structure - I am assuming this initialises the tree with the current state as the root.
 		decisionTree = new Tree(currentState);
-		// An attempt to track the total number of nodes.
+		// This will hold the number of nodes.
 		sizeOfTree = 1;
 
-		// I will try to generate the tree within the minimax method instead.
-		
-		if(playerNo == "2")
-		{
-			// This will correspond to the root MAX node which will create MIN nodes... This works okay.
-			/*createChildren(decisionTree, "2", "1", 1);
-			// Debug purposes. - So far, so good.
-			System.out.println("The decisionTree now has " + decisionTree.children().size() + " child nodes.");
-			System.out.println("The decisionTree root a is at depth " + decisionTree.depth());
-			// Now, I must pass in the children (which is 7 assuming that I moved the black the piece on the top-leftmost square to the left.)
-			ArrayList<Tree<String[][]>> children = decisionTree.children();*/
-			
-			/*(new Thread(new Runnable(){
-				public void run()
-				{
-					// Insert code here foo!
-				}
-				})).start();*/
-			
-			// Yup. I need to come back to this.
-			//loadingInfo.setText("Well, A.I.mee is thinking...");
-			// Erm.
-			//loadingWheel.setVisibility(View.VISIBLE);
-			
-			// This will prevent minimax() from being called when the bot has no more pieces on the board.	
-			if(noOfPiecesPlayerTwo > 0)
-			{
-				// Debug purposes.
-				greatestMove = new Tree(new String[8][8]);
-				// Making the actual object final does not result in non-mutable variables used within the object ;)
-				final MinimaxThread minimaxThread = new MinimaxThread(playerNo, opponentNo);
-				// Load the minimax algorithm in a new thread.
-				minimaxThread.start();
-				
-			}
-			else
-			{
-				// THIS SECTION IS NO LONGER NEEDED! I SHOULD GET RID OF THIS!
-				// Lol.
-				loadingInfo.setText("A.I.mee has accepted\n defeat.");
-				// Stop showing the loading wheel.
-				loadingWheel.setVisibility(View.INVISIBLE);
-				// Debug purposes.
-				System.out.println("AI has lost. No need to call minimax() any longer");
-			}
-			
-				
-			
-			/*// Waits 700 milliseconds before the AI decides to move. I need a better approach. It does work and so does the loading wheel.
-			new CountDownTimer(7000, 1000)
-			{
-				public void onTick(long millisUntilFinished)
-				{
-					System.out.println("seconds remaining: " + millisUntilFinished / 1000);
-					// We will show the wheel to indicate it is the AI's turn.
-				}
-				public void onFinish()
-				{
-					System.out.println("Minimax is done. The bot will perform its move...");
-					// This print out gets printed out before the 'mt' thread starts running, aha.
-					// Whether, aha. Well, it is false, which makes sense because one the minimax() has finished performing, there would be...
-					// nothing left for 'mt' to do so, it gets garbage collected.
-					System.out.println("The 'mt' Thread.isAlive() = " + mt.isAlive());
-					System.out.println("I wonder if minimax() is done yet?");
-					// Yup, a crap experiment.
-					String[][] greatestMoveState = greatestMove.getValue();
-					// This is where the actual move is made by the bot... so, I need that runOnUiThread here, I think, aha.		
-					determinePieceAndMove(greatestMove, greatestMoveState, "2", "1", false, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece);
-					// Debug.
-					System.out.println("The contents of strCheckersBoard[][] after the Bot moved its piece is:");
-					printCheckersBoard(strCheckersBoard);
-					
-					// We will hide the wheel on startup.
-					loadingWheel.setVisibility(View.INVISIBLE);
-					// Update the message of the AI bot.
-					loadingInfo.setText("A.I.mee is\nwaiting for you to\nmake your move...");
-				}
-			}.start();*/
-			
-			
-			
-			
-			
-			
-			/*
-			System.out.println("The fact that the decisionTree is a leaf is " + decisionTree.isLeaf());
-			// A huge take on generating the states as we go along.
-			double heuristicValue = minimax(decisionTree, 3, true);
-			// Clarity.
-			String[][] greatestMoveState = greatestMove.getValue();
-			// Debug purposes - it prints out 292 nodes for a depth of 3, which is correct and I will assume that the correct states are being created.
-			System.out.println("The size of the decisionTree after the minimax operation is " + sizeOfTree + " and the greatest move is ");		
-			// Debug purposes.
-			printCheckersBoard(greatestMoveState); // So far, it grabs the states at depth 3 (which are the states at the cut-off depth). 
-			System.out.println("The overall heuristic value of the minimax algorithm is: " + heuristicValue);
-			
-			
-			// An experiment.
-			System.out.println("The contents of the greatestMove.parent() should match the current state:");
-			printCheckersBoard(greatestMove.parent().getValue());
-			System.out.println("The contents of the greatestMove.parent().setValue(strCheckersBoard) should match the current state:");
-			greatestMove.parent().setValue(strCheckersBoard);
-			printCheckersBoard(greatestMove.parent().getValue());
-			
-			// Debug.
-			System.out.println("The contents of strCheckersBoard[][] before the Bot moved its piece is:");
-			printCheckersBoard(strCheckersBoard);
-			
-			// I will finally try and get the AI to move the piece itself. Inshallah, it works well.
-			// This did not work, probably because the root is only a copy of the current state so, I need to figure out how to
-			// pass in the actual checkersboard, which is strCheckersBoard.
-			// I also forgot to enable the movePiece() method within the section where it only makes a standard move... lol.
-			// Well, it moves now but, sometimes a new pieces pop out of thin air. The strCheckersBoard never gets modified. That bit is sorted... I think
-			// Erm, it seems to move by itself but, when it is adjacent to an enemy, it does not do anything so, the problem lies in the code of the enemy thang.
-			
-			// --- This section will be performed on the runOnUiThread, from here... --- //
-			
-			
-			// This is where the actual move is made by the bot... so, I need that runOnUiThread here, I think, aha.		
-			determinePieceAndMove(greatestMove, greatestMoveState, "2", "1", false, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece);
-			*/
-			
-			
-			// We put the code here, I think.
-								/*new Activity().runOnUiThread(new Runnable() {
-										@Override
-										public void run() {
-												// This code will always run on the UI thread, therefore is safe to modify UI elements.
-												//movePiece(finalState, imageOfSquares, finalDestinationX, finalDestinationY, finalUpOrDown, xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis, finalPlayerNo, finalOpponentNo, finalDestImg, finalImgOfKing, finalForDecisionTree);
-												determinePieceAndMove(greatestMove, greatestMoveState, "2", "1", false, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece);
-										}
-								});
-			
-			
-			// Debug.
-			System.out.println("The contents of strCheckersBoard[][] after the Bot moved its piece is:");
-			printCheckersBoard(strCheckersBoard);
-			
-			// We will hide the wheel on startup.
-			loadingWheel.setVisibility(View.INVISIBLE);
-			// Update the message of the AI bot.
-			loadingInfo.setText("A.I.mee is\nwaiting for you to\nmake your move...");
-			*/
-			// --- ...Up until here. --- //
-			
-			// Yup.
-			//loadingInfo.setText("Well, A.I.mee is done thinking...");
-			// Erm.
-			//loadingWheel.setVisibility(View.INVISIBLE);
-			
-			// I HAVE ALSO NOTICED THAT WHEN THERE IS ONLY PIECE FOR THE CPU LEFT FOR THE CPU, AND ITS CORNERED
-			// THE VALUE OF GREATESTMOVE IS ALL NULL AND THE MINIMAX ALGORITHM RETURNS -INFINITY AND LATELY
-			// BECAUSE I'M ACTUALLY MOVING THE PIECES, IT CRASHES THE PROGRAM.
-			
-			/*
-			The reason why minimax() returns negative infinity on the last piece of the AI pieces that is also about to be captured is
-			because our cut-off depth only works with depth == 0 but, if we have a depth of 3 but, the piece gets captured at depth == 1,
-			it won't cut off so, I need to also add a isLeaf() condition to it. I originally had that but, removed it because when creating
-			the tree within the minimax algorithm, there is only one node when it is initially passed in, making it a leaf when passed in so,
-			nothing would get created if(depth == 0 || isLeaf()) but,
-			I think I can solve this by using if(depth == 0 || (isLeaf() && isRoot() != true)) :D
-			*/ 
-			
-			//System.out.println("By using an experimental technique, the move that we obtain is...");
-			// Prints the contents of the root node.
-			//printCheckersBoard(decisionTree.getValue()); // Well, I need get back to this. Modify the node swap code within the minimax method.
-			
-			// Okay, it does look better.
-			/*
-			for(int n = 0; n < children.size(); n++)
-			{
-				// Each child of the previous node.
-				// This will be used to create another set of states, where this (child) node will become the parent of the next new (nodes) states.
-				Tree<String[][]> nextState = children.get(n);
-				// This does not print out the total of levels in the tree but, what level the node is at :)
-				int currentDepth = nextState.depth();
-				// Debug purposes. Take note that the depth will change as soon as we iterate at least once through this for-loop
-				System.out.println("Min's turn - The contents of the nextState-" + n + " MD-array at depth " + currentDepth + "...");
-						
-				// Prints out the text representation of the checkers board (depending on the state)
-				//printCheckersBoard(nextState.getValue());
-				
-				// The new states will be created in the method below. This corresponds to the MIN Nodes which will create MAX nodes. This works okay :)
-				createChildren(nextState, "1", "2", -1);
-				
-				// Children's children.
-				ArrayList<Tree<String[][]>> newChildren = nextState.children();
-				
-				for(int ns = 0; ns < newChildren.size();ns++)
-				{
-					// This will be used to create another set of states based on the new children we recently acquired.
-					Tree<String[][]> nextNextState = newChildren.get(ns);
-					// This does not print out the total of levels in the tree but, what level the node is at :)
-					currentDepth = nextNextState.depth();
-					// Debug purposes. Take note that the depth will change as soon as we iterate at least once through this for-loop
-					System.out.println("Max's turn - The contents of the nextNextState-" + ns + " MD-array at depth " + currentDepth + "...");
-					
-					// --- Print for-loop code goes here --- //
-					
-					// Prints out the text representation of the checkers board (depending on the state)
-					printCheckersBoard(nextNextState.getValue());
-					
-					// This will correspond to the MAX nodes which lastly create MIN nodes... This works okay.
-					createChildren(nextNextState, "2", "1", 1);
-					
-				}
-			}*/
-			
-			// Debug purposes.
-			// System.out.println("Let's start the recursive call...");
-			// Recursion - Well, it outputs a size of 292 nodes, which is correct. I just need to check if the states are being printed correctly.
-			// generateStates(children, 2);
-			
-			// I need to double check whether the output of the size is indeed correct. This returns 55 but, before using the new Tree class
-			// I think I got value of 61. However, this might have been before implementing the state pruning if an enemy is adjacent to a piece.
-			// Only called createChildren() twice so, this corresponds to a depth of 3.
-			// Calling createChildren() three times yields 292 nodes which was the same value
-			// I obtained when I used the other ArrayListTree data structure.
-			// System.out.println("The size of the decisionTree is " + sizeOfTree);
-			// Debug purposes.	
-			// System.out.println("This is the actual strCheckersBoard[][] md array...");
-			// Prints out the text representation of the checkers board 
-			//printCheckersBoard(strCheckersBoard);
-			
-			// Debug purposes. - Oh, shit, I forgot to change the depth to 5...
-			// double heuristicValue = minimax(decisionTree, 3, true);
-			// Debug purposes.
-			// System.out.println("The heuristic value of the minimax algorithm is " + heuristicValue);
-			//int depthOfGreatestMove = greatestMove.depth();
-			//System.out.println("The greatest move to make is and its depth is " + depthOfGreatestMove + " ...");
-			
-			// I guess this works in a sense that it returns the parent of the node but, the greatestMove node is the problem itsel
-			// while(depthOfGreatestMove > 1)
-			//{
-			//	greatestMove = greatestMove.parent();
-			//	depthOfGreatestMove--;
-			//}
-			
-			//printCheckersBoard(greatestMove.getValue());
-			
-			// ArrayList<Tree<String[][]>> overAllChildren = decisionTree.children();
-			// Returns 7, which is cool. Those 7 children have children of their own.
-			// System.out.println("The decisionTree has " + overAllChildren.size() + " children");
-		}
+		// The tree will be generated within the MiniMaxThread	
+		// Initialise the greatestMove node.
+		greatestMove = new Tree(new String[8][8]);
+		// Making the actual object final does not result in non-mutable variables used within the object ;)
+		final MinimaxThread minimaxThread = new MinimaxThread(playerNo, opponentNo);
+		// Load the minimax algorithm in a new thread.
+		minimaxThread.start();
 		
 	}
 	// I declared this method as synchronised hoping the code runs one at a time otherwise,if I clicked ib two buttons at the same time, I have a hunch
@@ -1964,14 +1727,14 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		else
 		{
 			// The bot wins because it captured all the opponent's pieces...
-			loadingInfo.setText("Bot_" + playerNo + " says \n\"Mission \nAccomplished.\"");
+			loadingInfo.setText("Bot_" + playerNo + " says, \n\"Mission \nAccomplished.\"");
 			// Display it too.
 			playerInfo.setText("Game Over!\nBot_" + playerNo + " is\nthe Winner!");
 			// Display the image of the winner... blah de blah blah.
 			setPlayerImage(playerNo);	
 		} 
 	}
-	public void switchToBotFromHuman(String playerNo, String opponentNo, boolean isBotNext)
+	public void switchToBotFromHuman(String playerNo, String opponentNo)
 	{
 		// If the opponent still has pieces on the board...
 		if(getNoOfPieces(opponentNo) > 0)
@@ -1995,18 +1758,16 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				setPlayerImage(opponentNo);
 				// Display's the opponent's information...
 				playerInfo.setText("Player " + opponentNo + "'s Turn");
-				// I think computerTurn("Will be called here, using the delayForBot() method.
-				if(isBotNext == true)
-				{
-					// We will show the wheel to indicate it is the AI's turn.
-					loadingWheel.setVisibility(View.VISIBLE);
-					// Display the Bot's information...
-					loadingInfo.setText("Bot_" + opponentNo + " is making \nits move...");
-					// Adds a delay before we actually hand over the turn to the bot. This gives the computer time to repaint the UI in time...
-					// In this case, opponentNo == "2" ;)
-					delayForBot(200, 100, playerNo, opponentNo);
-				}
-				// ___ Insert code here ___ //
+				
+				// -- computerTurn will be called here, using the delayForBot() method. --//
+				// We will show the wheel to indicate it is the AI's turn.
+				loadingWheel.setVisibility(View.VISIBLE);
+				// Display the Bot's information...
+				loadingInfo.setText("Bot_" + opponentNo + " is making \nits move...");
+				// Adds a delay before we actually hand over the turn to the bot. This gives the computer time to repaint the UI in time...
+				// In this case, opponentNo == "2" ;)
+				delayForBot(200, 100, playerNo, opponentNo);
+				// ___ End of section where we hand over the turn to the bot. ___ //
 			}
 		}
 		else
@@ -2965,7 +2726,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						// validateAndSwitchPlayer(strCheckersBoard, playerNo, opponentNo);
 						
 						// An experiment... It is 'true' the bot is next up...
-						switchToBotFromHuman(playerNo, opponentNo, true);
+						switchToBotFromHuman(playerNo, opponentNo);
 						
 					}
 					else
@@ -3024,7 +2785,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					// validateAndSwitchPlayer(strCheckersBoard, playerNo, opponentNo);
 					
 					// An experiment... It is 'true' the bot is next up...
-					switchToBotFromHuman(playerNo, opponentNo, true);
+					switchToBotFromHuman(playerNo, opponentNo);
 								
 				}						
 			}else
