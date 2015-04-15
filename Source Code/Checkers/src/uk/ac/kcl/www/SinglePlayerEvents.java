@@ -443,14 +443,12 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 	{
 		if(playerNo == "1")
 		{
-			// Debug purposes.
-			// System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
+			// Create the helper ArrayLists for player 1.
 			highlightSquares(passStrCheckersBoard, row, column, opponentNo, playerNo);
 		}
 		else if(playerNo == "2")
 		{
-			// Debug purposes.
-			// System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
+			// Create the helper ArrayLists for player 2.
 			highlightSquares(passStrCheckersBoard, row, column, opponentNo, playerNo);
 		}		
 	}
