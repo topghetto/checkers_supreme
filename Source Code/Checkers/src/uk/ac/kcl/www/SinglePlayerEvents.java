@@ -2397,51 +2397,6 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				arrayOfEnemyCoordinatesX.clear();
 				arrayOfEnemyCoordinatesY.clear();
 	}
-	public void displayTurn(boolean playerOneTurn, String opponentNo)
-	{
-		// This needs major adjustments! I should sort this out, and look into the first few lines of the newly added code for the nest for-loop
-		// at the very top!.
-		// This method will display a TextView that states whether it is the opponent's turn or the winner of the game.
-		// The reason why this did not work as intended because the statement originally was == true, which would be partially correct but,
-		// this method is called after I change the player's turn so, it ends up calling the other if statement... Lol. I will make this better
-		// by putting it back to true, and call this method before I change the value of 'playerOneTurn' to the opponent's turn :)
-		
-		if(playerOneTurn == false) // Just before player two hands over its turn... 
-		{
-			if(noOfPiecesPlayerTwo <= 0)
-			{
-				// If the opponent has no more pieces then player 1 is the winner.
-				playerInfo.setText("Game Over!\nPlayer 1 is\nthe Winner!");
-				
-			}
-			else
-			{
-				// Display the player's turn.
-				playerInfo.setText("Player " + opponentNo + "'s Turn");
-				// Set the player image.
-				playerImage.setImageResource(R.drawable.light_brown_piece);
-				// Debug.
-				System.out.println("The no of pieces left for Player 2 is " + noOfPiecesPlayerTwo);
-			}				
-		}
-		else // Just before player one hands over its turn...
-		{  
-		  if(noOfPiecesPlayerOne <= 0)
-			{
-				// If the opponent has no more pieces then player 1 is the winner.
-				playerInfo.setText("Game Over!\nPlayer 2 is\nthe Winner!");	
-			}
-			else
-			{
-				// Display the player's turn.
-				playerInfo.setText("Player " + opponentNo + "'s Turn");
-				// Set the image of the player image.
-				playerImage.setImageResource(R.drawable.dark_brown_piece);
-				// Debug.
-				System.out.println("The no of pieces left for Player 1 is " + noOfPiecesPlayerOne);
-			}							
-		}
-	}
 	public int getNoOfPieces(String playerNo)
 	{
 		// Automatically retrieve the number of pieces the player x has left...
@@ -2543,7 +2498,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						playerOneTurn = !playerOneTurn; 
 						// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
 						// Display the player's turn.
-						displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
+						// displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
 						// Since there are no adjacent enemies, we make it false.
 						isEnemyAdjacent = false;
 						
