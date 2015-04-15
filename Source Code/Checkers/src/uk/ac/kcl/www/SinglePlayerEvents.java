@@ -461,12 +461,10 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		// Only run this when it is empty...
 		if(arrayOfPrevCoordinatesX.size() <= 0)
 		{	
-			// Debug purposes.
-			int notSeenCount = 0, seenCount = 0;
 			// Prepares the correct string for playerX.
 			String strKing = "K" + playerNo;
 			
-			
+			// Loop through each square of the board...
 			for(int row = 0; row < 8;row++)
 			{
 				for(int column=((row+1)%2); column<8; column+=2)
@@ -474,21 +472,15 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					// Checks whether there are any pieces neighbouring any enemy pieces.
 					if(theParentState[row][column] == playerNo || theParentState[row][column].contains(strKing))
 					{
-						
-						// ---- I probably should enclose this in a method later on. Did it. Seems okay :) ----- //
 						// checks which player's turn it is before calling the highlightSquares() method within in the method below.
 						checkPlayerAndAdd(theParentState, row, column, opponentNo, playerNo);
-						// Debug purposes.
-						seenCount++;
 						
+						// Check for adjacent enemies...					
 						if(xEnemyAxis.size() > 0)
 						{
-							// There is an adjacent enemy.
-							// isEnemyAdjacent = true;
+							// ...There is an adjacent enemy.
 							
-							// I modifed the addToMasterLists() method so, that it only adds x/yEnemyAxis to the corresponding ArrayList only when...
-							// the ArrayList x/yEnemyAxis has data - i.e. an enemy. And everything seems to be working fine with the new modification...
-							// of the method.
+							// if no enemies have been seen yet, we clear the lists because we can only make captures from here on out...
 							if(arrayOfEnemyCoordinatesX.size() <= 0)
 							{
 								// Clear the master ArrayList.
@@ -500,8 +492,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 								
 							}else if(arrayOfEnemyCoordinatesX.size() > 0)
 							{
-								// Debug purposes.
-								// System.out.println("else if(arrayOfEnemyCoordinatesX.size() > 0) is true");
+								// If there are exisiting enemies that other pieces are already adjacent to, we simply add our newly found coordinates to the list.
 								// Appends the coordinates to the master ArrayLists
 								addToMasterLists(xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis);	
 								// Then clear the standard ArrayLists and repeat.
@@ -510,44 +501,31 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						}
 						else if(xPrevAxis.size() > 0 && arrayOfEnemyCoordinatesX.size() <= 0) 
 						{
-							// Missing the arrayOfEnemyCoordinatesX.size() <= 0 condition so, if we didn't see another enemy, this would get run anyway, which we don't.
-							// Debug purposes.
-							// System.out.println("else if(xPrevAxis.size() >0) is true");
-							// if no enemies have been seen yet, then this section corresponds to a normal move that will be made later on.
-							// Also, it also needs to be a piece that can actually make a move whereas before, I forgot to add that validation.
-							// Add the coordinates to the master ArrayLists
+							// if we have not seen any enemies adjacent prior to this point, and if we can legitmately move the piece, we add its coordinates...
+							// ...To the master ArrayLists (i.e. a standard move).
 							addToMasterLists(xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis);	
 							// Clear the standard ArrayLists.
 							clearHelperArrays();
 						}	
-					}else
-					{
-						// Debug purposes.
-						notSeenCount++;
-					}
+					}// else - A piece has not been seen at this location...	
 				}
 			}
 			
-			// Debug purposes.
-			// System.out.println("The number of pieces that we have not seen for player " + playerNo + " is " + notSeenCount);
-			// Debug purposes.
-			// System.out.println("The number of pieces that we have seen for player " + playerNo + " is " + seenCount);
-			
-			// Now, we can create the nodes here, I think.
-		
-			for(int e = 0;e < arrayOfPrevCoordinatesX.size();e++)
+			// Now, the nodes will be created here...
+			for(int m = 0;m < arrayOfPrevCoordinatesX.size();m++)
 			{
 				// Grab the coordinates of the highlighted squares and the enemy pieces, if there are any enemies. 
-				ArrayList<Integer> autoPrevX = arrayOfPrevCoordinatesX.get(e);
-				ArrayList<Integer> autoPrevY = arrayOfPrevCoordinatesY.get(e);
+				ArrayList<Integer> autoPrevX = arrayOfPrevCoordinatesX.get(m);
+				ArrayList<Integer> autoPrevY = arrayOfPrevCoordinatesY.get(m);
+				// This will be dynamically initalised shortly...
 				ArrayList<Integer> autoEnemyX;
 				ArrayList<Integer> autoEnemyY;
 				
 				// Using '==' instead of 'greater than' works better. No IndexOutOfBoundExceptions 
 				if(arrayOfEnemyCoordinatesX.size() == arrayOfPrevCoordinatesX.size())
 				{
-					autoEnemyX = arrayOfEnemyCoordinatesX.get(e);
-					autoEnemyY = arrayOfEnemyCoordinatesY.get(e);
+					autoEnemyX = arrayOfEnemyCoordinatesX.get(m);
+					autoEnemyY = arrayOfEnemyCoordinatesY.get(m);
 				}
 				else
 				{
@@ -560,37 +538,24 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				{
 					// Create a state for each move preserving the original state.
 					String[][] newLocationState = new String[8][8];
-					// Grabs the String[][] representation of the parent state.
-					// String[][] theParentState = passNode.getValue();
-					// Copy the contents of the state (possibly the current state, or a level up) into the new array, which we will modify to
-					// ...Create a new state. Okay, this works fine. Yay :)
+					// Copy the contents of the parent state into 'newLocationState', preserving the parent state's original contents ;)
 					duplicateArray(theParentState, newLocationState);
-					
-					// Debug purposes. I got an output of 5 or something. I think I need to immediately duplicate x/yEnemyAxis array lists or something...
-					// System.out.println("The piece that caused this error is " + newLocationState[autoPrevX.get(0).intValue()][autoPrevY.get(0).intValue()]);
 					
 					// This section is where each move made, it will then create a new state (node).
 					int xAxisOfDest = autoPrevX.get(eachSquare).intValue();
 					int yAxisOfDest = autoPrevY.get(eachSquare).intValue();
 					
-					// The experiment was a success, me thinks...
-					// Now, when I initially move the leftmost black piece to the right, the AI then generates 130 nodes for its turn, which is correct.
-					// When I had the error with the consecutiveCaptures() method, it would give 160 nodes for the AI's turn if I made the same move so, it seems okay now.
-					// I shall test this section rigoursly.	
-					
 					// This will create the state with the potential move.
 					movePiece(newLocationState, xAxisOfDest, yAxisOfDest, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, true);
 					
 					
-					// We only check for an consecutive capture if the piece previously made a capture, and if it did, it also should not be a newly
-					// transformed king... This new version seems to be working fine, I have also tested for consecutive captures for when the piece
-					// has more than one option. Instead of cloning these ArrayLists regardless of a capture or not, I have now made it so, that
-					// it only does when it has previously captured an enemy. This should theorectically speed things up too :)
+					// We only check for an consecutive capture if the piece previously made a capture, and if it did, it should also not be a newly
+					// transformed king... 
 					if(autoEnemyX.size() > 0 && isNewKing == false)
 					{
 						// We will use this later to check whether the piece at the new location is adjacent to another enemy.
 						highlightSquares(newLocationState, xAxisOfDest, yAxisOfDest, opponentNo, playerNo);
-						// We will clone the result, and immediately clear the x/yPrevAxis ArrayLists. So, hopefully, everything is preserved.
+						// We will clone the result, and immediately clear the x/yPrevAxis ArrayLists. This will keep the global ArrayLists preserved.
 						ArrayList<Integer> nextPrevAxisX = (ArrayList<Integer>) xPrevAxis.clone();
 						ArrayList<Integer> nextPrevAxisY = (ArrayList<Integer>) yPrevAxis.clone();
 						ArrayList<Integer> nextEnemyAxisX = (ArrayList<Integer>) xEnemyAxis.clone();
@@ -598,35 +563,18 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						// clear the helper arrays.
 						clearHelperArrays();
 						
-						// If there is an enemy adjacent to the piece at the new location, we will recursively check for consecutive captures from the...
-						// ...Current ocation...
+						// If there is an enemy adjacent to the piece at the new location, we will recursively check...
+						// for consecutive captures from the current ocation...
 						if(nextEnemyAxisX.size() > 0)
 						{
 							// Debug purposes...
-							if(nextEnemyAxisX.size() > 1)
+							/*if(nextEnemyAxisX.size() > 1)
 							{
 								System.out.println("There are two options for the consecutive capture! Take 4!");
-							}
+							}*/
 							
-							// Debug purposes.
-							System.out.println("Here is the root state before any consecutive (or standard) capture were made (and its coordinates:");
-							printCheckersBoard(passNode.getValue());
-							// Debug purposes.
-							System.out.println("...Followed by the state of the first capture performed by player " + playerNo + " and its coordinates");
-							printCheckersBoard(newLocationState);
-							// This means there is an adjacent enemy at the new location so, we will recursively check for consecutive captures after the capture
-							ArrayList<Tree<String[][]>> successors = passNode.children();
-							System.out.println("Initial consecutiveCaptures() method call and the size of passNode before call is " + successors.size());
-							// which will initially be done in the function below. It will also add the state(s) to 'passNode' :)
+							// Recursively check for consecutive captures, and adds the states to 'passNode'.
 							consecutiveCaptures(passNode, newLocationState, true, playerNo, opponentNo, nextPrevAxisX, nextPrevAxisY, nextEnemyAxisX, nextEnemyAxisY);
-							// Debug purposes. For some reason newLocationState has the contents of the root node (not the move peformed)
-							System.out.println("... Followed by each consecutive capture performed by player " + playerNo);
-							ArrayList<Tree<String[][]>> children = passNode.children();
-							for(int c = 0; c < children.size();c++)
-							{
-								System.out.println("Take 4 - Consecutive capture - option " + c + ":");
-								printCheckersBoard(children.get(c).getValue());
-							}
 							
 						}else{
 							
@@ -644,51 +592,10 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						// Increment the size of the tree by 1.
 						sizeOfTree++;	
 					}
-					
-					/*
-					// Basically means, if there was a previous capture, and its adjacent to another enemy piece at its new location, run this code...
-					if(nextEnemyAxisX.size() > 0 && autoEnemyX.size() > 0 && isNewKing == false){
-					
-						if(nextEnemyAxisX.size() > 1)
-						{
-							System.out.println("There are two options for the consecutive capture! Take 3!");
-						}
-						
-						// Debug purposes.
-						System.out.println("Here is the root state before any consecutive (or standard) capture were made (and its coordinates:");
-						printCheckersBoard(passNode.getValue());
-						// Debug purposes.
-						System.out.println("...Followed by the state of the first capture performed by player " + playerNo + " and its coordinates");
-						printCheckersBoard(newLocationState);
-						// This means there is an adjacent enemy at the new location so, we will recursively check for consecutive captures after the capture
-						ArrayList<Tree<String[][]>> successors = passNode.children();
-						System.out.println("Initial consecutiveCaptures() method call and the size of passNode before call is " + successors.size());
-						// which will initially be done in the function below. It will also add the state(s) to 'passNode' :)
-						consecutiveCaptures(passNode, newLocationState, true, playerNo, opponentNo, nextPrevAxisX, nextPrevAxisY, nextEnemyAxisX, nextEnemyAxisY);
-						// Debug purposes. For some reason newLocationState has the contents of the root node (not the move peformed)
-						System.out.println("... Followed by each consecutive capture performed by player " + playerNo);
-						ArrayList<Tree<String[][]>> children = passNode.children();
-						for(int c = 0; c < children.size();c++)
-						{
-							System.out.println("Take 3 - Consecutive capture - option " + c + ":");
-							printCheckersBoard(children.get(c).getValue());
-						}
-						
-					}
-					else{
-						
-						// Otherwise, this was either a single capture, or just a standard move played.
-						// We add the state to passNode, making it a child of 'passNode'
-						passNode.addChild(new Tree(newLocationState));
-						// Increment the size of the tree by 1.
-						sizeOfTree++;	
-					}*/
 				}
 			}
 			// Clears the Master ArrayLists.
 			clearMasterLists();
-			
-			// ------- Yup, here dawg ----- //
 			
 		}	// End of createChildren() method (except for consecutive captures)
 	}
