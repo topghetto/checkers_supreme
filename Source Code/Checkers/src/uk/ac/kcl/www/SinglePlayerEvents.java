@@ -2266,16 +2266,10 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		int x = passX, y = passY;
 		// The coordinates of the parent (root) square of highlight squares.
 		int rootX, rootY;
-		// Holds the value on how many times the program it saw a piece of 'playerNo'
-		int noOfTimes = 0;
 		
-		//if(true)
-		// This works as a better condition because if(true) might as well not be a condition at all.
-		// Since, true will always be true. Now, consecutive attacks work with our new condition.
+		// It will initially check for any compuslory captures...
 		if(arrayOfPrevCoordinatesX.size() <= 0)
 		{	
-			// Debug purposes.
-			// System.out.println("The initial statement that checks for adjacent enemies has just started.");
 			// Prepares the correct string for playerX.
 			String strKing = "K" + playerNo;
 			
@@ -2286,47 +2280,28 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					// Checks whether there are any pieces neighbouring any enemy pieces.
 					if(passStrCheckersBoard[row][column] == playerNo || passStrCheckersBoard[row][column].contains(strKing))
 					{
-						// Debug purposes.
-						// System.out.println("Does this section ever get executed?");
-						
-						if(playerNo == "1")
-						{
-							// Debug purposes.
-							// System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
-							highlightSquares(passStrCheckersBoard, row, column, opponentNo, playerNo);
-						}
-						else if(playerNo == "2")
-						{
-							// Debug purposes.
-							// System.out.println("I crashed at row=" + row + "/column=" + column + " and the current player is player " + playerNo);
-							highlightSquares(passStrCheckersBoard, row, column, opponentNo, playerNo);
-						}		
-						noOfTimes++;
-						// Debug purposes. - This does not even run... I guess that's why the code does not break any more... Lol
-						// System.out.println("Total number of pieces seen, is " + noOfTimes + " time(s).");
-						
+						// checks which player's turn it is before calling the highlightSquares() method within in the method below.
+						checkPlayerAndAdd(passStrCheckersBoard, row, column, opponentNo, playerNo);
+								
+						// Check for adjacent enemy(s)...
 						if(xEnemyAxis.size() > 0)
 						{
 							// There is an adjacent enemy.
 							isEnemyAdjacent = true;
-							// Add the ArrayLists to the master ArrayList... Aha.
-							// THIS IS A TEST - This should add the ArrayLists to the master ArrayLists
+							// Add the ArrayLists to the master ArrayLists.
 							addToMasterLists(xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis);
-							
-							// Debug purposes.
-							// System.out.println("row=" + row + ", column=" + column + " is neighbouring an enemy.");
 							// Then clear the standard ArrayLists and repeat.
 							clearHelperArrays();
 						}
 						else
 						{
+							// No adjacent enemies were seen from this position so, we do nothing.
 							// Clear the standard ArrayLists.
 							clearHelperArrays();
 						}	
 					}
 				}
 			}
-			
 			// Then we apply the highlights, and blah de blah.
 			for(int h = 0; h < arrayOfPrevCoordinatesX.size();h++)
 			{
@@ -2335,8 +2310,6 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			}
 		}
 		// End of initial check before player makes a move (except for consecutive captures)
-		
-		// From this section...
 		
 		// Checks whether the selected square is part of the highlighted squares.
 		if(arrayOfPrevCoordinatesX.size() > 0)
@@ -2353,10 +2326,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					check = arrayOfPrevCoordinatesX.size();
 					// Debug purposes.
 					// System.out.println("After checking through arrayOfPrevCoordinates, the square is part of the highlighted squares.");
-				}else
-				{
-					// We continue... I guess.
-				}
+				}// else - we do nothing until the next iteration...
 			}
 		}else
 		{
@@ -2364,15 +2334,11 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			isHighlighted = false;
 		}
 		
-		// ...To this section works-ish. Been a while since I wrote this section, and forgot to add that it works splendidly. 	
-		
 		// Checks whether the highlighted piece is adjacent to an enemy (and there could be more than one.)
 		if(isEnemyAdjacent == true)
 		{
 			// We lock the game until the player makes a capture.
-			// Debug purposes.
-			// System.out.println("if(isEnemyAdjacent == true) just ran so, a capture needs to be performed.");
-			// This will determine what type of move (standard or a capture) it should make, and also make the move.
+			// This will determine what type of move (either standard one or a capture) it should make, and also make the move.
 			performMoveAndCheckAdjacent(passStrCheckersBoard, passX, passY, playerNo, opponentNo);
 			
 		}else
@@ -2380,11 +2346,6 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			//...Otherwise, we check if the selected square corresponds to the player's number and if it is part of the highlighted squares.
 			if(passStrCheckersBoard[x][y].contains(playerNo) && isHighlighted == false)
 			{
-				// Debug purposes.
-				// System.out.println("the if(passStrCheckersBoard[x][y] == playerNo && isHighlighted == false) statement has just been run.");
-				// Debug purposes.
-				// System.out.println("The square we selected is not part of the highlighted squares so, we will get rid of the old highlights");
-				
 				for(int rm = 0;rm < arrayOfPrevCoordinatesX.size();rm++)
 				{
 					// Gets rid of the highlights, and clears the helper ArrayLists such as the x/yPrevAxis and x/yEnemyAxis ArrayLists.
