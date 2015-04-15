@@ -115,38 +115,25 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		// ...Initially and dynamically determines the number of pieces for each player...
 		updateNoOfPieces(strCheckersBoard);
 	}
-	
 	public double evaluateNode(Tree<String[][]> passNode, String playerNo, String opponentNo)
 	{
-		// Debug purposes.
-		System.out.println("Minimax got called at the cut-off so, we will perform the evaluation on this node."); // Well, the recursive call gets called.
-		// Evaluation will go here.
+		// Evaluation will be done within this method...
 		String[][] state = passNode.getValue();
 		// The number of pieces on the board that player one (the human) has ...
 		int noOfPlayerOne = 0;
 		// The number of pieces on the board that player two (the computer) has...
 		int noOfPlayerTwo = 0;
-		// 3. calculate how many pieces are close to becoming kings. The total number of pieces in 0,1,2 for player 1 and 5,6,&7 for player 2.
+		// calculate how many pieces are close to becoming kings. The total number of pieces in 0,1,2 for player 1 and 5,6,&7 for player 2.
+		// Although, it seems to do well without this so, I may delete this in the future.
 		double playerOneOffense = 0, playerTwoOffense = 0;
-		// 4. A sum total of protected pieces so, count number of pieces that have a neighbour of itself, and exclude the piece itself from the sum.
-		double playerOneDefense = 0, playerTwoDefense = 0;
 		
-		
-		// Determine whether it is an enemy capture (and also checks for consecutive captures).
-		// In a sense of evaluating the states at the cut-off depth, it seems to be working well.
-		// I will disable this for now.
-		//determinePieceAndMove(passNode, state, playerNo, opponentNo, true);
-		// After the CPU has performed consecutive captures, for even better accuracy, I should call this method again but, from the perspective of the opponent. I shall implement soon... I hope.
-		
-		// End of checking whether the state was a state where consecutive captures could be made.
-		
+		// Perform the evaluation.
 		for(int row = 0;row < 8; row++)
 		{
 			for(int column=((row+1)%2); column<8; column+=2)
 			{
 				// 1. Counts the number of player two's (CPU) pieces to player one's (Human) piece,
 				// and also takes the number of kings into consideration.
-				// .equals("1") was what I had orginally but, that was wrong. contains("1") works for kings too ;)
 				if(state[row][column].contains("1"))
 				{
 					// If it is a standard piece, increase the heuristic.
@@ -158,12 +145,11 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						noOfPlayerOne++;
 					}
 					// If the piece is close to becoming a king.
-					if(row >= 0 && row <= 2)
+					/*if(row >= 0 && row <= 2)
 					{
 						// Increase the heuristic value.
 						playerOneOffense++;
-					}
-					
+					}*/	
 				}
 				else if(state[row][column].contains("2"))
 				{
@@ -175,68 +161,17 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						// If it is also a king, increase the heueristic even more...
 						noOfPlayerTwo++;
 					}
-					// If the piece is close to becoming a king.
+					/*// If the piece is close to becoming a king.
 					if(row >= 5 && row <= 7)
 					{
 						// Increase the heuristic value.
 						playerTwoOffense++;
-					}
+					}*/
 				}
 			}
-			// 4. A sum total of protected pieces so, count number of pieces that have a neighbour of itself, and exclude the piece itself from the sum.
-			if(state[row][column].contains("1"))
-			{
-				// Player one...
-				if(row <= 1 && row <= 7 && column >= 1 && column <= 6 && state[row-1][column-1].contains("1") && state[row-1][column+1].contains("1"))
-				{
-					// Increase the number of pieces that are well protected for player one.
-					playerOneDefense = playerOneDefense + 0.20;
-				}
-				// 5. Defense against kings. I probably should change row >= 0 to 1 instead but, I will look into this.
-				if(row >= 0 && row <= 6 && column >= 1 && column <= 6 && state[row+1][column-1].contains("1") && state[row+1][column+1].contains("1"))
-				{
-					// Increase the number of pieces that are well protected for player one.
-					playerOneDefense = playerOneDefense + 0.10;
-				}
-				// 6. Defense - pieces on the side of the board.
-				if(column == 0 || column == 7)
-				{
-					// Increase the number of pieces that are well protected for player one.
-					playerOneDefense = playerOneDefense + 0.20;
-				}
-			}
-			if(state[row][column].contains("2"))
-			{
-				// Player two...
-				if(row >= 0 && row <= 6 && column >= 1 && column <= 6 && state[row+1][column-1].contains("2") && state[row+1][column+1].contains("2"))
-				{
-					// Increase the number of pieces that are well protected for player two.
-					playerTwoDefense = playerTwoDefense + 0.20;
-				}
-				// 5. Defense against kings. 
-				if(row >= 1 && row <= 7 && column >= 1 && column <= 6 && state[row-1][column-1].contains("2") && state[row-1][column+1].contains("2"))
-				{
-					// Increase the number of pieces that are well protected for player two.
-					playerTwoDefense = playerTwoDefense + 0.10;
-				}
-				// 6. Defense - pieces on the side of the board.
-				if(column == 0 || column == 7)
-				{
-					// Increase the number of pieces that are well protected for player one.
-					playerTwoDefense = playerTwoDefense + 0.20;
-				}
-			}
-		}
-			
-		System.out.println("The number of pieces left for player one is " + noOfPlayerOne);
-		System.out.println("The number of pieces left for player two is " + noOfPlayerTwo);
-		// Debug purposes.
-		// printCheckersBoard(state);
-		
+		}	
 		// Evaluate the difference and store it.
 		double result = noOfPlayerTwo - noOfPlayerOne;
-		// Debug purposes.
-		System.out.println("The result of the leaf node is " + result);
 		// Return the heuristic value.
 		return result;
 	}
