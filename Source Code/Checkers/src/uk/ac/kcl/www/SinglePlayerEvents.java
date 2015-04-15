@@ -1480,7 +1480,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					// hand over its turn to the opponent (i.e. the human).
 					playerOneTurn = !playerOneTurn; 
 					// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
-					displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
+					// displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
 				
 					// Debug.
 					System.out.println("The contents of strCheckersBoard[][] after the Bot moved its piece is:");
@@ -1488,6 +1488,12 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					// We will hide the wheel on startup.
 					loadingWheel.setVisibility(View.INVISIBLE);
 					// Update the message of the AI bot.
+					
+					// Oh, I know why noOfPieces does not get decreased... Because we don't use movePiece() which decrements the noOfPieces values.
+					// I probably should write a function that counts the number of pieces left each time, blah de blah blah.
+					// Well, my hunch was correct. It display's the right information now.
+					updateNoOfPieces(strCheckersBoard);
+					
 					//if(noOfPiecesPlayerOne > 0)
 					if(getNoOfPieces(opponentNo) > 0)
 					{
@@ -1502,7 +1508,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 							// The bot wins...
 							loadingInfo.setText("A.I.mee says \n\"Well, looks like you're stuck.\"\nBetter luck next time.");
 							// Display it too.
-							playerInfo.setText("Game Over!\nPlayer" + playerNo + " is\nthe Winner!");
+							playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
 							// Display the image of the winner... blah de blah blah.
 							playerImage.setImageResource(R.drawable.light_brown_piece);
 						}
@@ -1515,6 +1521,11 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					{
 						// The bot wins...
 						loadingInfo.setText("A.I.mee says \n\"Mission \nAccomplished.\"");
+						// Display it too.
+						playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
+						// Display the image of the winner... blah de blah blah.
+						playerImage.setImageResource(R.drawable.light_brown_piece);
+						
 					}
 					
 				}
@@ -1870,6 +1881,28 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		}
 		// Return the result.
 		return isTrapped;	
+	}
+	public void updateNoOfPieces(String[][] passStrCheckersBoard)
+	{
+		// Clear the current count
+		noOfPiecesPlayerOne = 0;
+		noOfPiecesPlayerTwo = 0;
+		
+		// Update the number of pieces for each piece we see...
+		for(int row = 0; row < 8;row++)
+		{
+			for(int column=((row+1)%2); column<8; column+=2)
+			{	
+				if(passStrCheckersBoard[row][column].contains("1")){
+					
+					noOfPiecesPlayerOne++;
+				}
+				else if(passStrCheckersBoard[row][column].contains("2")){
+					
+					noOfPiecesPlayerTwo++;
+				}
+			}
+		}	
 	}
 	public void addCoordinatesToLists(int passX, int passY, int upOrDown, int leftOrRight)
 	{
