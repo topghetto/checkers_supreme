@@ -186,11 +186,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		}
 		if(maximisingPlayer == true)
 		{
-			// Debug purposes.
-			System.out.println("Maximising Player:"); 
-			// If it is a MAX node...
-			// An experiment
-			Tree<String[][]> bestMove = null;
+			// Maximising player's turn... (i.e. it is a MAX node)...
 			// Initially negative infinity.
 			double bestValue = alpha;
 			// Generate the children - This will correspond to the root MAX node which will create MIN nodes... This works okay.
@@ -199,8 +195,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			// Grab the children of the node passed in.
 			ArrayList<Tree<String[][]>> children = passNode.children();
 			
-			// --- An experiment --- //
-			
+			// If the node did generate children after calling 'createChildren()'... We, will loop through...
 			if(children.size() > 0)
 			{
 				// For each child of the (parent) node
@@ -208,34 +203,23 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				{
 					// Recursion call, y'all.
 					double value = alphabeta(child, depth-1, alpha, beta, false, playerNo, opponentNo);
-					// Debug purposes.
-					System.out.println("The depth of the node ");
-					System.out.print("max(" + bestValue + ", ");
-					// If the new value obtained is larger than the previous bestValue, update the 'bestValue' with the new value.
-					// bestValue = Math.max(bestValue, value);
 					
+					// bestValue = Math.max(bestValue, value) is what the code below is technically doing...
 					if(value > bestValue)
 					{
+						// Updates the bestValue with the current value.
 						bestValue = value;
-						// Store the best move... I hope. All this time I have been saving passNode not 'child'... Hopefully, it works now.	
-						// An experiment. using 'passNode' always picks the last moveable piece in the tree.		
+							
 						if(passNode.isRoot())
 						{
-							// Well, it picks sometimes first child, and even second child. It may actually be working now. I'll run some more tests.
-							// It cleverly avoided the pieces when the CPU had only one piece left. Yup, this works :)
-							// Debug purposes.
-							System.out.println("This is the root node within in the alpha-beta recursive stack and here are the contents of one child from root:");
-							// Print the board, yup.
-							printCheckersBoard(child.getValue());
-							// Store the greatest move.
+							// When we are at the root of the node passed in, store the actual node into a global Tree<String[][]> that we will later use...
 							greatestMove = child;	
 						}	
 					}
-					// Debug purposes.
-					System.out.println(value + ") is " + bestValue);
+					// We only update alpha if bestValue is greater than it...
 					if(bestValue > alpha)
 					{
-						// I also forgot to change it to alpha = bestValue from alpha = value
+						// Update alpha.
 						alpha = bestValue;
 					}
 					// The pruning begins...
@@ -247,24 +231,16 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				}
 			}else
 			{
-				// Debug purposes. This is for the purpose of when the bot has only one piece left on the board, and it's cornered (about to be captured.)
-				System.out.println("We will evaluate passNode earlier than the cut-off depth because it has no children...");
-				// An attempt to evaluate the node early.
+				// This call wiill evaluate the node passed in, earlier than expected because it no longer has any children.
 				bestValue = alphabeta(passNode, 0, alpha, beta, false, playerNo, opponentNo);
-			}
-			// --- An experiment --- //
-			
+			}			
 			// Return the overall result.
 			return bestValue;
 			
 		}else //if(maximisingPlayer = false)
 		{
-			// If it is a MIN node...
-			// Debug purposes.
-			System.out.println("Minimising Player:"); 
-			// An experiment
-			Tree<String[][]> bestMove = null;
-			// Initially positive infinity.
+			// If it is the Minising Player (i.e. a MIN node)...
+			// beta will initially be positive infinity .
 			double bestValue = beta;
 			// Generate the children - the new states will be created in the method below. This corresponds to the MIN Nodes which will create MAX nodes.
 			// createChildren(passNode, "1", "2");
@@ -272,6 +248,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			// Grab the children of the node passed in.
 			ArrayList<Tree<String[][]>> children = passNode.children();
 			
+			// If the node did generate children after calling 'createChildren()'... We, will loop through...
 			if(children.size() > 0)
 			{
 				// For each child of the (parent) node
@@ -279,37 +256,31 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				{
 					// A recursive call that will eventually assign the result of that call into 'value'.
 					double value = alphabeta(child, depth-1, alpha, beta, true, playerNo, opponentNo);
-					// Debug purposes.
-					System.out.print("min(" + bestValue + ", ");
-					// If the new value obtained is smaller than the previous bestValue, update the 'bestValue' with the new value.
-					// bestValue = Math.min(bestValue, value);
 					
+					// bestValue = Math.min(bestValue, value) is what the code below is technically doing...
 					if(value < bestValue)
 					{
+						// Update the bestValue with the new best value.
 						bestValue = value;
-						// Store the best move... I hope. Oh, shit, I think I am passing in the wrong node.
-						// An experiment. using 'passNode' always picks the last moveable piece in the tree.		
+						
 						if(passNode.isRoot())
 						{
-							// Debug purposes.
-							System.out.println("This is the root node within in the alpha-beta recursive stack and here are the contents of one child from root:");
-							// Print the board, yup.
-							printCheckersBoard(child.getValue());
-							// Store the greatest move.
+							// When we are at the root of the node passed in, store the actual node into a global Tree<String[][]> that we will later use...
 							greatestMove = child;	
 						}	
 					}
+					// Only updates beta when bestValue is less than beta
 					if(bestValue < beta)
 					{
+						// Updates beta.
 						beta = bestValue;
 					}
 					// Prune...
 					if(beta <= alpha)
 					{
+						// Pruning...
 						break;
 					}
-					// Debug purposes.
-					System.out.println(value + ") is " + bestValue);
 				}
 			}else
 			{
@@ -317,8 +288,8 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				// When it is MIN's turn and assuming a final capture happened beforehand (at MAX), Min would have no pieces to move, resulting in no
 				// children created so, because the game would be the won by the opponent, there are no more possible moves that can be made so,
 				// we evaluate earlier, which seems to be working well.
-				System.out.println("We will evaluate passNode earlier than the cut-off depth because it has no children...");
-				// An attempt to evaluate the node early.
+				// System.out.println("We will evaluate passNode earlier than the cut-off depth because it has no children...");
+				// This call wiill evaluate the node passed in, earlier than expected because it no longer has any children.
 				bestValue = alphabeta(passNode, 0, alpha, beta, true, playerNo, opponentNo);
 			}
 			// Return the overall result.
