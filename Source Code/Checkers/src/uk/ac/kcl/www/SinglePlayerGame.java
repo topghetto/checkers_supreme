@@ -149,6 +149,26 @@ public class SinglePlayerGame extends Activity{
 			}
 		}
 		*/
+	
+		// Testing trapped pieces for player 1.
+		/*strCheckersBoard = new String[][]{{"[]","2","[]","2","[]","2","[]","2"},
+																			{"2", "[]","2","[]","2","[]","2","[]"},
+																			{"[]","2","[]","2","[]","0","[]","0"},
+																			{"0", "[]","0","[]","0","[]","0","[]"},
+																			{"[]","1","[]","0","[]","2","[]","0"},
+																			{"0", "[]","0","[]","0","[]","2","[]"},
+																			{"[]","0","[]","0","[]","0","[]","1"},
+																			{"0", "[]","0","[]","0","[]","0","[]"}};*/
+		
+		// Testing trapped pieces for player 2.
+		/*strCheckersBoard = new String[][]{{"[]","0","[]","0","[]","2","[]","0"},
+																			{"0", "[]","0","[]","0","[]","0","[]"},
+																			{"[]","0","[]","2","[]","0","[]","0"},
+																			{"0", "[]","1","[]","0","[]","0","[]"},
+																			{"[]","0","[]","0","[]","0","[]","2"},
+																			{"0", "[]","0","[]","1","[]","1","[]"},
+																			{"[]","1","[]","1","[]","1","[]","1"},
+																			{"1", "[]","1","[]","1","[]","1","[]"}};*/
 		
 		strCheckersBoard = new String[][]{{"[]","2","[]","2","[]","2","[]","2"},
 																			{"2", "[]","2","[]","2","[]","2","[]"},
@@ -158,6 +178,7 @@ public class SinglePlayerGame extends Activity{
 																			{"1", "[]","1","[]","1","[]","1","[]"},
 																			{"[]","1","[]","1","[]","1","[]","1"},
 																			{"1", "[]","1","[]","1","[]","1","[]"}};
+		
 		
 		// After testing the same exact code on the Multiplayer version, the correct layouts get created, and ImageViews are in the right place, yada.
 		// Create instiate the event class TextView passLoadingInfo, ProgressBar passLoadingWheel, ImageView passPlayerImage

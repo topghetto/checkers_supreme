@@ -125,9 +125,12 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		playerInfo.setText("Player " + 1 + "'s Turn");
 		// Set the image of the player image.
 		playerImage.setImageResource(R.drawable.dark_brown_piece);
+		
 		// Keeps track of the number of pieces.
-		noOfPiecesPlayerOne = 12;
-		noOfPiecesPlayerTwo = 12;
+		//noOfPiecesPlayerOne = 12;
+		//noOfPiecesPlayerTwo = 12;
+		// Initially and dynamically determines the number of pieces for each player...
+		updateNoOfPieces(strCheckersBoard);
 		
 		
 	
@@ -1493,8 +1496,11 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					// I probably should write a function that counts the number of pieces left each time, blah de blah blah.
 					// Well, my hunch was correct. It display's the right information now.
 					updateNoOfPieces(strCheckersBoard);
+					// We pass in false because the turn we are handing over to, is a human so, yeah.
+					switchToHumanFromBot(playerNo, opponentNo, false);
 					
-					//if(noOfPiecesPlayerOne > 0)
+					/*
+					// If the opponent still has pieces on the board...
 					if(getNoOfPieces(opponentNo) > 0)
 					{
 						// Game is still going...
@@ -1505,29 +1511,34 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						
 						if(isTrapped == true)
 						{
-							// The bot wins...
+							// The bot wins... Since, the opponent cannot make any legitimate moves.
 							loadingInfo.setText("A.I.mee says \n\"Well, looks like you're stuck.\"\nBetter luck next time.");
 							// Display it too.
 							playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
 							// Display the image of the winner... blah de blah blah.
-							playerImage.setImageResource(R.drawable.light_brown_piece);
+							// playerImage.setImageResource(R.drawable.light_brown_piece);
+							setPlayerImage(playerNo);
 						}
 						else
 						{
-							// I think computerTurn("Will be called here, using the switchPlayer() method.
+							// Opponent info will go here...
+							setPlayerImage(opponentNo);
+							// Display's the opponent's information...
+							playerInfo.setText("Player " + opponentNo + "'s Turn");
+							// I think computerTurn("Will be called here, using the delayForBot() method.
+							// ___ Insert code here ___ //
 						}
 					}
 					else
 					{
-						// The bot wins...
+						// The bot wins because it captured all the opponent's pieces...
 						loadingInfo.setText("A.I.mee says \n\"Mission \nAccomplished.\"");
 						// Display it too.
 						playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
 						// Display the image of the winner... blah de blah blah.
-						playerImage.setImageResource(R.drawable.light_brown_piece);
-						
-					}
-					
+						// playerImage.setImageResource(R.drawable.light_brown_piece);
+						setPlayerImage(playerNo);	
+					}*/			
 				}
 			});
 			
@@ -1582,6 +1593,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			}
 			else
 			{
+				// THIS SECTION IS NO LONGER NEEDED! I SHOULD GET RID OF THIS!
 				// Lol.
 				loadingInfo.setText("A.I.mee has accepted\n defeat.");
 				// Stop showing the loading wheel.
@@ -1903,6 +1915,180 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				}
 			}
 		}	
+	}
+	public void setPlayerImage(String playerNo)
+	{
+		// Update the player's image depending on the playerNo passed in.
+		if(playerNo == "1"){
+			
+			playerImage.setImageResource(R.drawable.dark_brown_piece);
+			
+		}else{
+			
+			playerImage.setImageResource(R.drawable.light_brown_piece);	
+		}
+	}
+	public void switchToHumanFromBot(String playerNo, String opponentNo, boolean isBotNext)
+	{
+		// If the opponent still has pieces on the board...
+		if(getNoOfPieces(opponentNo) > 0)
+		{
+			// We could check if the opponent (in this case, the human) has trapped pieces.
+			boolean isTrapped = isTrapped(strCheckersBoard, opponentNo, playerNo);
+			
+			if(isTrapped == true)
+			{
+				// The bot wins... Since, the opponent cannot make any legitimate moves. 16 characters per line break! Well, that did it and trapped code works
+				loadingInfo.setText("Bot_" + playerNo + " says, \n\"Well, it looks \nlike you're \nstuck. Better \nluck next time.\"");
+				// Display it too.
+				playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
+				// Display the image of the winner... blah de blah blah.
+				setPlayerImage(playerNo);
+			}
+			else
+			{
+				// Game is still going...
+				loadingInfo.setText("Bot_" + playerNo + " is waiting \nfor you to make \nyour move...");
+				// Opponent info will go here...
+				setPlayerImage(opponentNo);
+				// Display's the opponent's information...
+				playerInfo.setText("Player " + opponentNo + "'s Turn");
+				// I think computerTurn("Will be called here, using the delayForBot() method.
+				if(isBotNext == true)
+				{
+					// If we are not playing against an human, we will call delayForBot() here...
+				}
+				// ___ Insert code here ___ //
+			}
+		}
+		else
+		{
+			// The bot wins because it captured all the opponent's pieces...
+			loadingInfo.setText("Bot_" + playerNo + " says \n\"Mission \nAccomplished.\"");
+			// Display it too.
+			playerInfo.setText("Game Over!\nBot_" + playerNo + " is\nthe Winner!");
+			// Display the image of the winner... blah de blah blah.
+			setPlayerImage(playerNo);	
+		} 
+	}
+	public void switchToBotFromHuman(String playerNo, String opponentNo, boolean isBotNext)
+	{
+		// If the opponent still has pieces on the board...
+		if(getNoOfPieces(opponentNo) > 0)
+		{
+			// We could check if the opponent (in this case, the human) has trapped pieces.
+			boolean isTrapped = isTrapped(strCheckersBoard, opponentNo, playerNo);
+			
+			if(isTrapped == true)
+			{
+				// The bot wins... Since, the opponent cannot make any legitimate moves. 16 characters per line break! Well, this works too and trapped code works too.
+				loadingInfo.setText("Bot_" + opponentNo + " says, \"I \nam stuck. How \ncould have this \nhappened?!\"");
+				// Display it too.
+				playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
+				// Display the image of the winner... blah de blah blah.
+				setPlayerImage(playerNo);
+			}
+			else
+			{
+				// Game is still going... so, we will make it blaaah
+				// Opponent info will go here...
+				setPlayerImage(opponentNo);
+				// Display's the opponent's information...
+				playerInfo.setText("Player " + opponentNo + "'s Turn");
+				// I think computerTurn("Will be called here, using the delayForBot() method.
+				if(isBotNext == true)
+				{
+					// We will show the wheel to indicate it is the AI's turn.
+					loadingWheel.setVisibility(View.VISIBLE);
+					// Display the Bot's information...
+					loadingInfo.setText("Bot_" + opponentNo + " is making \nits move...");
+					// Adds a delay before we actually hand over the turn to the bot. This gives the computer time to repaint the UI in time...
+					// In this case, opponentNo == "2" ;)
+					delayForBot(200, 100, playerNo, opponentNo);
+				}
+				// ___ Insert code here ___ //
+			}
+		}
+		else
+		{
+			// The bot wins because it captured all the opponent's pieces...
+			loadingInfo.setText("Bot_" + opponentNo + " says \n\"Mission \nFailed.\"");
+			// Display it too.
+			playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
+			// Display the image of the winner... blah de blah blah.
+			setPlayerImage(playerNo);	
+		} 
+	}
+	public void validateAndSwitchPlayer(String[][] passStrCheckersBoard, String playerNo, String opponentNo)
+	{
+		// This will check whether the opponent has trapped pieces...
+		if(isTrapped(passStrCheckersBoard, opponentNo, playerNo) == false)
+		{
+			// Adds a delay of 200 milliseconds before the AI (the opponent) is handed its turn...
+			delayForBot(200, 100, playerNo, opponentNo);		
+		}
+		else
+		{
+			// Display Game Over message...
+			playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
+			// Set the image of the winning player.
+			if(playerNo == "1")
+			{
+				playerImage.setImageResource(R.drawable.dark_brown_piece);
+			}
+			else
+			{
+				playerImage.setImageResource(R.drawable.light_brown_piece);
+			}			
+			
+			// Grabs the number of pieces the opponent has left...
+			// If there are still pieces of player x, that it safe to assume this pieces are trapped pieces for the opponent so, we win, aha.
+			if(getNoOfPieces(opponentNo) > 0)
+			{
+				// Yup, A.I.mee is trapped.
+				loadingInfo.setText("A.I.mee is\ntrapped.");
+				// Debug purposes.
+				System.out.println("There are trapped pieces for the opponent so, player " + playerNo + " wins the game.");
+				// Display it too.
+			}
+			else
+			{
+				// This may not be needed... Okay, it is, aha.
+				loadingInfo.setText("A.I.mee says, she \nhas failed the \nones and zeros");
+			}
+		}
+	}
+	public void delayForBot(long milliseconds, long interval, String passPlayerNo, String passOpponentNo)
+	{
+		// This method seems to be working fine.
+		// We need these variables final because they will later be passed into an inner class.
+		final String playerNo = passPlayerNo;
+		final String opponentNo = passOpponentNo;
+		// Debug purposes.
+		System.out.println("There are no trapped pieces for the opponent so, the opponent can take his turn...");
+		// There are no trapped pieces so, we will let the opponent proceed as normal.
+		// Waits 200 milliseconds before the AI decides to move.
+		new CountDownTimer(milliseconds, interval)
+		{
+			public void onTick(long millisUntilFinished)
+			{
+				System.out.println("milliseconds remaining: " + millisUntilFinished);
+				// We will show the wheel to indicate it is the AI's turn.
+				// loadingWheel.setVisibility(View.VISIBLE);			
+				// Update the message of the AI bot.
+				// loadingInfo.setText("Bot_" + opponentNo + " is making \nits move...");
+			}
+			public void onFinish()
+			{
+				// System.out.println("Now, it is time for Bot_" + playerNo + " to make its move...");
+				computerTurn(opponentNo, playerNo);								
+				
+				// I tried using a Thread but, it caused some complexities because various sections within computerTurn() modifies
+				// the UI but, if we did this within another thread besides the UI thread, the application crashes.
+				// Problem sorted because I split the operations in computerTurn into two threads. minimax() runs on one thread,
+				// and the UI repainting is on done on the actual UI thread ;)
+			}
+		}.start();
 	}
 	public void addCoordinatesToLists(int passX, int passY, int upOrDown, int leftOrRight)
 	{
@@ -2776,7 +2962,10 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						
 						// A huge experiment... This will check if the opponent pieces is trapped, and if not, it will hand over its to the opponent
 						// with a delay of 200ms, and it seems to be working okay. 
-						validateAndSwitchPlayer(strCheckersBoard, playerNo, opponentNo);
+						// validateAndSwitchPlayer(strCheckersBoard, playerNo, opponentNo);
+						
+						// An experiment... It is 'true' the bot is next up...
+						switchToBotFromHuman(playerNo, opponentNo, true);
 						
 					}
 					else
@@ -2825,14 +3014,17 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					playerOneTurn = !playerOneTurn; 
 					// Display the player's turn.
 					// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!; 
-					displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
+					// displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
 					// Erm, I am so lost.
 					isEnemyAdjacent = false;
 					// I think I would need to remove the highlights too.
 					
 					// A huge experiment... This will check if the opponent pieces is trapped, and if not, it will hand over its to the opponent
 					// with a delay of 200ms, and it seems to be working okay. 
-					validateAndSwitchPlayer(strCheckersBoard, playerNo, opponentNo);
+					// validateAndSwitchPlayer(strCheckersBoard, playerNo, opponentNo);
+					
+					// An experiment... It is 'true' the bot is next up...
+					switchToBotFromHuman(playerNo, opponentNo, true);
 								
 				}						
 			}else
@@ -2841,76 +3033,5 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				System.out.println("We have not moved the piece to the new location. (from auto-generated highlights section) so, we do nothing until then.");
 			}					
 		}
-	}
-	public void validateAndSwitchPlayer(String[][] passStrCheckersBoard, String playerNo, String opponentNo)
-	{
-		// This will check whether the opponent has trapped pieces...
-		if(isTrapped(passStrCheckersBoard, opponentNo, playerNo) == false)
-		{
-			// Adds a delay of 200 milliseconds before the AI (the opponent) is handed its turn...
-			switchPlayer(200, 100, playerNo, opponentNo);		
-		}
-		else
-		{
-			// Display Game Over message...
-			playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
-			// Set the image of the winning player.
-			if(playerNo == "1")
-			{
-				playerImage.setImageResource(R.drawable.dark_brown_piece);
-			}
-			else
-			{
-				playerImage.setImageResource(R.drawable.light_brown_piece);
-			}			
-			
-			// Grabs the number of pieces the opponent has left...
-			// If there are still pieces of player x, that it safe to assume this pieces are trapped pieces for the opponent so, we win, aha.
-			if(getNoOfPieces(opponentNo) > 0)
-			{
-				// Yup, A.I.mee is trapped.
-				loadingInfo.setText("A.I.mee is\ntrapped.");
-				// Debug purposes.
-				System.out.println("There are trapped pieces for the opponent so, player " + playerNo + " wins the game.");
-				// Display it too.
-			}
-			else
-			{
-				// This may not be needed... Okay, it is, aha.
-				loadingInfo.setText("A.I.mee says, she \nhas failed the \nones and zeros");
-			}
-		}
-	}
-	public void switchPlayer(long milliseconds, long interval, String passPlayerNo, String passOpponentNo)
-	{
-		// This method seems to be working fine.
-		// We need these variables final because they will later be passed into an inner class.
-		final String playerNo = passPlayerNo;
-		final String opponentNo = passOpponentNo;
-		// Debug purposes.
-		System.out.println("There are no trapped pieces for the opponent so, the opponent can take his turn...");
-		// There are no trapped pieces so, we will let the opponent proceed as normal.
-		// Waits 200 milliseconds before the AI decides to move.
-		new CountDownTimer(milliseconds, interval)
-		{
-			public void onTick(long millisUntilFinished)
-			{
-				System.out.println("milliseconds remaining: " + millisUntilFinished);
-				// We will show the wheel to indicate it is the AI's turn.
-				loadingWheel.setVisibility(View.VISIBLE);			
-				// Update the message of the AI bot.
-				loadingInfo.setText("A.I.mee is making \nher move...");
-			}
-			public void onFinish()
-			{
-				System.out.println("Now, it is time for A.I.mee to make her move...");
-				computerTurn(opponentNo, playerNo);								
-				
-				// I tried using a Thread but, it caused some complexities because various sections within computerTurn() modifies
-				// the UI but, if we did this within another thread besides the UI thread, the application crashes.
-				// Problem sorted because I split the operations in computerTurn into two threads. minimax() runs on one thread,
-				// and the UI repainting is on done on the actual UI thread ;)
-			}
-		}.start();
 	}
 }
