@@ -1594,35 +1594,6 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			// We do not really need this here as we will be calling the computerTurn() method from within the playerTurn() method.
 		}
 		
-		/*
-		for(int x = 0;x<8;x++)
-		{
-			// ((x+1)%2) will make it change back-and-forth from 1 to 0 after each 'x' iteration. This will allow a search for events through
-			// the 32 squares that would call an event instead of searching through 64 squares (where 32 will never ever call a event).
-			for(int y=((x+1)%2);y<8;y+=2)
-			{
-				// Firstly, we must find the row/column value of the square that initiated the event.
-				if(squaresOfBoard[x][y].equals(v))
-				{		
-						// --------
-						if(playerOneTurn == true)
-						{
-							// We move our pieces as normal.
-							playerTurn("1", strCheckersBoard, v, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, "2");		// Nice, it works.
-							//playerTurn("1", strCheckersBoard, v, x >= 1 && x <= 7, x, y, -1, R.drawable.dark_brown_piece, R.drawable.king_dark_brown_piece, false, x >= 2, "2");		// Nice, it works.
-						}
-						else
-						{
-							// The AI Code will go here... Now, where to begin.	
-							//computerTurn("2");
-									
-							// We move our pieces as normal.
-							playerTurn("2", strCheckersBoard, v, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, "1");	// Nice, it works.
-							//playerTurn("2", strCheckersBoard, v, x >= 0 && x <= 6, x, y, 1, R.drawable.light_brown_piece, R.drawable.king_light_brown_piece, true, x <= 5, "1");	// Nice, it works.		
-						}
-				}// if(squaresOfBoard[x][y].equals(v))
-			}		
-		}*/	
 	}// End of 'onClick'
 	public boolean isTrapped(String[][] passStrCheckersBoard, String playerNo, String opponentNo)
 	{
