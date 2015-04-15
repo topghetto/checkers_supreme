@@ -175,8 +175,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		// Return the heuristic value.
 		return result;
 	}
-	// -- Alpha-Beta Experiment -- //
-	
+	// -- Alpha-Beta Experiment -- //	
 	public double alphabeta(Tree<String[][]> passNode, int depth, double alpha, double beta, boolean maximisingPlayer, String playerNo, String opponentNo)
 	{
 		if(depth == 0) 
@@ -299,14 +298,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 	// --- End of Alpha-Beta Experiment -- //
 	public double minimax(Tree<String[][]> passNode, int depth, boolean maximisingPlayer, String playerNo, String opponentNo)
 	{
-		// I don't know whether I declare bestValue here or within the if statement. I will try doing it within in the if statements.
-		// Debug purposes.
-		
-		// I got rid of the || passNode.isLeaf() part because we are now generating the states within the method instead.
-		// Removing it caused problems so, I added it back in with an extra condition that checks if passNode.isRoot();
-		// Adding it back in does not create the right number of state nodes, I almost had a panic attack man because the AI bot
-		// was not making logical decisions. It was literally picking the first piece that can move. i.e. the first immediate child of the root.
-		// NEXT TIME, I SHOULD TRY || (passNode.isLeaf() && passNode != decisionTree)
+		// Base case...
 		if(depth == 0) 
 		{
 			// Calculate and return the heuristic value.
@@ -370,42 +362,6 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				// An attempt to evaluate the node early.
 				bestValue = minimax(passNode, 0, false, playerNo, opponentNo);
 			}
-			
-			// --- An experiment --- //
-			
-			/*
-			// For each child of the (parent) node
-			for(Tree<String[][]> child : children)
-			{
-				// Recursion call, y'all.
-				double value = minimax(child, depth-1, false, playerNo, opponentNo);
-				// Debug purposes.
-				System.out.println("The depth of the node ");
-				System.out.print("max(" + bestValue + ", ");
-				// If the new value obtained is larger than the previous bestValue, update the 'bestValue' with the new value.
-				// bestValue = Math.max(bestValue, value);
-				
-				if(value > bestValue)
-				{
-					bestValue = value;
-					// Store the best move... I hope. All this time I have been saving passNode not 'child'... Hopefully, it works now.	
-					// An experiment. using 'passNode' always picks the last moveable piece in the tree.		
-					if(passNode.isRoot())
-					{
-						// Well, it picks sometimes first child, and even second child. It may actually be working now. I'll run some more tests.
-						// It cleverly avoided the pieces when the CPU had only one piece left. Yup, this works :)
-						// Debug purposes.
-						System.out.println("This is the root node within in the minimax recursive stack and here are the contents of one child from root:");
-						// Print the board, yup.
-						printCheckersBoard(child.getValue());
-						// Store the greatest move.
-						greatestMove = child;	
-					}	
-				}
-				
-				// Debug purposes.
-				System.out.println(value + ") is " + bestValue);
-			}*/
 			// Return the overall result.
 			return bestValue;
 			
@@ -464,35 +420,6 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				// An attempt to evaluate the node early.
 				bestValue = minimax(passNode, 0, true, playerNo, opponentNo);
 			}
-			
-			/*// For each child of the (parent) node
-			for(Tree<String[][]> child : children)
-			{
-				// A recursive call that will eventually assign the result of that call into 'value'.
-				double value = minimax(child, depth-1, true, playerNo, opponentNo);
-				// Debug purposes.
-				System.out.print("min(" + bestValue + ", ");
-				// If the new value obtained is smaller than the previous bestValue, update the 'bestValue' with the new value.
-				// bestValue = Math.min(bestValue, value);
-				
-				if(value < bestValue)
-				{
-					bestValue = value;
-					// Store the best move... I hope. Oh, shit, I think I am passing in the wrong node.
-					// An experiment. using 'passNode' always picks the last moveable piece in the tree.		
-					if(passNode.isRoot())
-					{
-						// Debug purposes.
-						System.out.println("This is the root node within in the minimax recursive stack and here are the contents of one child from root:");
-						// Print the board, yup.
-						printCheckersBoard(child.getValue());
-						// Store the greatest move.
-						greatestMove = child;	
-					}	
-				}
-				// Debug purposes.
-				System.out.println(value + ") is " + bestValue);
-			}*/
 			// Return the overall result.
 			return bestValue;
 		}
@@ -500,7 +427,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 	public void printCheckersBoard(String[][] passCheckersBoard)
 	{
 		// Debug Purposes - This will print out a text representation of the checkers board. 
-		
+	
 		System.out.println("|----------|");
 		for(int c = 0;c <8;c++)
 		{
@@ -510,8 +437,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			}
 			System.out.println("");
 		}
-		System.out.println("|----------|");
-		
+		System.out.println("|----------|");		
 	}
 	public void checkPlayerAndAdd(String[][] passStrCheckersBoard, int row, int column, String opponentNo, String playerNo)
 	{
