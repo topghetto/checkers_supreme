@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.lang.Thread;
 import java.lang.Runnable;
 
-import android.util.Log;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.content.Context;
@@ -22,16 +21,11 @@ import android.view.View;
 import android.widget.GridLayout;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 
 import 	android.graphics.drawable.ColorDrawable;
 
 import android.widget.ProgressBar;
-
-// Third party libraries.
-import com.gaurav.tree.ArrayListTree;
-import com.gaurav.tree.NodeNotFoundException;
 
 
 public class SinglePlayerEvents extends Activity implements View.OnClickListener
@@ -64,21 +58,17 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 	// Keeps track of the neighbouring enemies to the highlight checkers piece.
 	public ArrayList<Integer> xEnemyAxis, yEnemyAxis;
 	
-	// AI Tree of States
-	public ArrayListTree<String[][]> stateTree;
 	// The Tree of possible states that the AI can go to.
 	public Tree<String[][]> decisionTree;
 	// Keeps track of the number of nodes in the tree
 	public int sizeOfTree;
 	// An experiment to return the move we should take.
 	public Tree<String[][]> greatestMove;
-	
-	// The state of the game represented as a multidimensional array of Strings.
-	// public String[][] currentState;
-	
+	// Boolean helper variables... Which does what it says on the tin.	
 	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent, isNewKing, adjacentToEnemy;
 	
-	public int highlightParentX, highlightParentY, xOfNewDest, yOfNewDest, erm;
+	// Keeps track of the new location of the recently moved piece.
+	public int xOfNewDest, yOfNewDest;
 	
 	// Constructor
 	public SinglePlayerEvents(View[][] passSquares, ImageView[][] passImgSquares, String[][] passCheckersBoard, TextView passTextView, TextView passLoadingInfo, ProgressBar passLoadingWheel, ImageView passPlayerImage)
@@ -101,8 +91,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		xEnemyAxis = new ArrayList<Integer>();
 		yEnemyAxis = new ArrayList<Integer>();
 		xOfNewDest = 0;
-		yOfNewDest = 0;
-		erm = 0;	
+		yOfNewDest = 0;	
 		
 		// Helper ArrayLists that will hold the ArrayLists of coordinates.
 		isEnemyAdjacent = false;
@@ -126,12 +115,9 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		// Set the image of the player image.
 		playerImage.setImageResource(R.drawable.dark_brown_piece);
 		
-		// Keeps track of the number of pieces.
-		//noOfPiecesPlayerOne = 12;
-		//noOfPiecesPlayerTwo = 12;
-		// Initially and dynamically determines the number of pieces for each player...
+		// Keeps track of the number of pieces and...
+		// ...Initially and dynamically determines the number of pieces for each player...
 		updateNoOfPieces(strCheckersBoard);
-		
 		
 	
 		/*// I will test the code here.
