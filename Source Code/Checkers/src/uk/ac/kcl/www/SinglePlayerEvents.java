@@ -698,14 +698,13 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		public void run()
 		{		
 			// Run the Minimax algorithm within here.
-			// Debug purposes.
-			greatestMove = new Tree(new String[8][8]);
 			
-			System.out.println("The fact that the decisionTree is a leaf is " + decisionTree.isLeaf());
-			// A huge take on generating the states as we go along.
+			// This will later hold the node that yields the best value for alphabeta/minimax.
+			greatestMove = new Tree(new String[8][8]);
+			// Run the algorithm and store the value.
 			//double heuristicValue = minimax(decisionTree, 3, true, playerNo, opponentNo);
 			double heuristicValue = alphabeta(decisionTree, 3, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true, playerNo, opponentNo);
-			// Clarity
+			// Grab the state of the greatestMove node.
 			String[][] greatestMoveState = greatestMove.getValue();
 			// Debug purposes - it prints out 292 nodes for a depth of 3, which is correct and I will assume that the correct states are being created.
 			System.out.println("The size of the decisionTree after the minimax operation is " + sizeOfTree + " and the greatest move is ");		
@@ -717,96 +716,34 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			System.out.println("The contents of strCheckersBoard[][] before the Bot moved its piece is:");
 			printCheckersBoard(strCheckersBoard);
 			
-			// ---- The experiment will be from here...
-			
 			// Because we will be repainting the Views (i.e. the checkers pieces, checkersboard, etc.), we must do it on the UI thread.
-			// All UI repainting must be done on the UI thread. Seems to be working. Needs further testing...
-			// We will disable this for now...
+			// All UI repainting must be done on the UI thread, which it will do now...
 			
 			runOnUiThread(new Runnable()
 			{
 				public void run()
 				{
+					// Debug purposes.
 					System.out.println("Minimax is done. The bot will perform its move...");
-					// This print out gets printed out before the 'mt' thread starts running, aha.
-					// Whether, aha. Well, it is false, which makes sense because one the minimax() has finished performing, there would be...
-					// nothing left for 'mt' to do so, it gets garbage collected.
-					// Yup, a crap experiment.
+					// Grabs the state of the greatestMove node.
 					String[][] greatestMoveState = greatestMove.getValue();
-					// This is where the actual move is made by the bot... so, I need that runOnUiThread here, I think, aha.		
-					//determinePieceAndMove(greatestMove, greatestMoveState, playerNo, opponentNo, false);
-					
-					// An experiment
 					// Copy the contents of the greatest move into the current strCheckersboards (i.e. performs the move);
 					duplicateArray(greatestMoveState, strCheckersBoard);
-					// Re-paints the board based on the AI's greatest move...
+					// Re-paints the board based on the AI's greatest move... Which would visually appear as if the AI made his move.
 					SinglePlayerGame.populateBoard(strCheckersBoard);
 					
-					// An experiment - Success - I should hand over the player's turn here instead of within the determinePieceAndPiece() method.
-					// Works as I hoped it would.
 					// hand over its turn to the opponent (i.e. the human).
 					playerOneTurn = !playerOneTurn; 
-					// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
-					// displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
-				
-					// Debug.
+					// Debug purposes.
 					System.out.println("The contents of strCheckersBoard[][] after the Bot moved its piece is:");
 					printCheckersBoard(strCheckersBoard);
-					// We will hide the wheel on startup.
-					loadingWheel.setVisibility(View.INVISIBLE);
-					// Update the message of the AI bot.
-					
-					// Oh, I know why noOfPieces does not get decreased... Because we don't use movePiece() which decrements the noOfPieces values.
-					// I probably should write a function that counts the number of pieces left each time, blah de blah blah.
-					// Well, my hunch was correct. It display's the right information now.
+					// Updates variables that hold the number of pieces each player has on the board.
 					updateNoOfPieces(strCheckersBoard);
-					// We pass in false because the turn we are handing over to, is a human so, yeah.
+					// We pass in false because the turn we are handing over to, is a human so, yeah. This method will also print out the correct player
+					// information, hides the loading wheel, and whatnot.
 					switchToHumanFromBot(playerNo, opponentNo, false);
-					
-					/*
-					// If the opponent still has pieces on the board...
-					if(getNoOfPieces(opponentNo) > 0)
-					{
-						// Game is still going...
-						loadingInfo.setText("A.I.mee is waiting \nfor you to make \nyour move...");
-						
-						// We could check if the opponent (in this case, the human) has trapped pieces.
-						boolean isTrapped = isTrapped(strCheckersBoard, opponentNo, playerNo);
-						
-						if(isTrapped == true)
-						{
-							// The bot wins... Since, the opponent cannot make any legitimate moves.
-							loadingInfo.setText("A.I.mee says \n\"Well, looks like you're stuck.\"\nBetter luck next time.");
-							// Display it too.
-							playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
-							// Display the image of the winner... blah de blah blah.
-							// playerImage.setImageResource(R.drawable.light_brown_piece);
-							setPlayerImage(playerNo);
-						}
-						else
-						{
-							// Opponent info will go here...
-							setPlayerImage(opponentNo);
-							// Display's the opponent's information...
-							playerInfo.setText("Player " + opponentNo + "'s Turn");
-							// I think computerTurn("Will be called here, using the delayForBot() method.
-							// ___ Insert code here ___ //
-						}
-					}
-					else
-					{
-						// The bot wins because it captured all the opponent's pieces...
-						loadingInfo.setText("A.I.mee says \n\"Mission \nAccomplished.\"");
-						// Display it too.
-						playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
-						// Display the image of the winner... blah de blah blah.
-						// playerImage.setImageResource(R.drawable.light_brown_piece);
-						setPlayerImage(playerNo);	
-					}*/			
 				}
 			});
-			
-			// ...Until here.		
 		}
 	}
 	public void computerTurn(String playerNo, String opponentNo)
@@ -936,6 +873,8 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			{
 				// The bot wins... Since, the opponent cannot make any legitimate moves. 16 characters per line break! Well, that did it and trapped code works
 				loadingInfo.setText("Bot_" + playerNo + " says, \n\"Well, it looks \nlike you're \nstuck. Better \nluck next time.\"");
+				// Disable the loading wheel.
+				loadingWheel.setVisibility(View.INVISIBLE);
 				// Display it too.
 				playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
 				// Display the image of the winner... blah de blah blah.
@@ -945,10 +884,13 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			{
 				// Game is still going...
 				loadingInfo.setText("Bot_" + playerNo + " is waiting \nfor you to make \nyour move...");
+				// Disable the loading wheel.
+				loadingWheel.setVisibility(View.INVISIBLE);
 				// Opponent info will go here...
 				setPlayerImage(opponentNo);
 				// Display's the opponent's information...
 				playerInfo.setText("Player " + opponentNo + "'s Turn");
+				
 				// I think computerTurn("Will be called here, using the delayForBot() method.
 				if(isBotNext == true)
 				{
@@ -961,7 +903,9 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		{
 			// The bot wins because it captured all the opponent's pieces...
 			loadingInfo.setText("Bot_" + playerNo + " says, \n\"Mission \nAccomplished.\"");
-			// Display it too.
+			// Disable the loading wheel.
+			loadingWheel.setVisibility(View.INVISIBLE);
+			// Display it on the player information too.
 			playerInfo.setText("Game Over!\nBot_" + playerNo + " is\nthe Winner!");
 			// Display the image of the winner... blah de blah blah.
 			setPlayerImage(playerNo);	
