@@ -73,11 +73,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 	// Constructor
 	public SinglePlayerEvents(View[][] passSquares, ImageView[][] passImgSquares, String[][] passCheckersBoard, TextView passTextView, TextView passLoadingInfo, ProgressBar passLoadingWheel, ImageView passPlayerImage)
 	{
-		// The first turn goes to player two.
-		// After each turn a player makes, a boolean variable will determine when it is the others players turn.
-		// e.g. playerOne = true, playerTwo = false. Then after player one's turn, the variable will
-		// become playerOne = false, and playerTwo = true, and this will keep switching back-and-forth. I just realised,
-		// the computer will never ever be able to click this, lol.
+		// Player one will initially go first...
 		playerOneTurn = true;
 		isNewKing = false;
 		adjacentToEnemy = false;
@@ -118,44 +114,6 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		// Keeps track of the number of pieces and...
 		// ...Initially and dynamically determines the number of pieces for each player...
 		updateNoOfPieces(strCheckersBoard);
-		
-	
-		/*// I will test the code here.
-		String[][] testBoard = new String[][]{{"[]","0","[]","0","[]","0","[]","0"},
-																					{"0", "[]","0","[]","2","[]","0","[]"},
-																					{"[]","0","[]","1","[]","1","[]","0"},
-																					{"0", "[]","0","[]","0","[]","0","[]"},
-																					{"[]","1","[]","1","[]","1","[]","0"},
-																					{"0", "[]","0","[]","0","[]","0","[]"},
-																					{"[]","1","[]","1","[]","0","[]","0"},
-																					{"0", "[]","0","[]","0","[]","0","[]"}};
-	// Call the shoddy node
-	Tree<String[][]> testNode = new Tree(testBoard);
-	// Call highlight Squares. Opponent, Player
-	highlightSquares(testBoard, 1, 4, "1", "2");
-	
-	// Before we call the method, we must first duplicate the array at the parent node because if we modify 'testBoard' within consecutiveCaptures()
-	// It won't preserve the root state. Maybe, there's a way to handle this within the method itself...
-	String[][] duplicateBoard = new String[8][8];
-	duplicateArray(testBoard, duplicateBoard);
-	// Call the method.
-	consecutiveCaptures(testNode, testBoard, true, "2", "1");
-	ArrayList<Tree<String[][]>> children = testNode.children();
-	System.out.println("This is the root state:");
-	printCheckersBoard(testNode.getValue());
-	System.out.println("and the number of states the testNode has is " + children.size() + " and here are the contents of each state:");
-	for(Tree<String[][]> child : children)
-	{
-		printCheckersBoard(child.getValue());
-		System.out.println("|=============|");
-	}*/
-	// F**k it does not work.	It does now :)
-	// If my hunch is correct, it should transform into a king but, still perform a capture immediately. This is what we don't want.
-	// My hunch is correct so, I need a condition in there somewhere.
-	// There's a bug in the method. Initially, when there is an option for more than one capture, it generates the right states, and whatnot.
-	// However, when there is just one option, oh, hold on. I know why... Well, I think I do. OK, I don't. Basically, the node at the root state
-	// also gets modified but, really it should not do this. In order to tackle this, I must always pass in a duplicate of the state
-	// into the consecutiveCaptures() method! Okay, the method now does this automatically. Yup, everything seems to be working okay now.
 	}
 	public void performEnemyCapture(String[][] passState, int passX, int passY, String playerNo, String opponentNo, boolean forDecisionTree)
 	{
