@@ -963,20 +963,18 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		// We need these variables final because they will later be passed into an inner class.
 		final String playerNo = passPlayerNo;
 		final String opponentNo = passOpponentNo;
-		// Debug purposes.
-		System.out.println("There are no trapped pieces for the opponent so, the opponent can take his turn...");
 		// There are no trapped pieces so, we will let the opponent proceed as normal.
-		// Waits 200 milliseconds before the AI decides to move.
+		// It will wait 200 milliseconds before the AI decides to move.
 		new CountDownTimer(milliseconds, interval)
 		{
 			public void onTick(long millisUntilFinished)
 			{
 				// Debug purposes.
-				System.out.println("milliseconds remaining: " + millisUntilFinished);
+				// System.out.println("milliseconds remaining: " + millisUntilFinished);
 			}
 			public void onFinish()
 			{
-				// System.out.println("Now, it is time for Bot_" + playerNo + " to make its move...");
+				// It's time to call computerTurn();
 				computerTurn(opponentNo, playerNo);									
 			}
 		}.start();
