@@ -2050,10 +2050,10 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		xOfNewDest = 0;
 		yOfNewDest = 0;
 		
-		// An experiment...
 		// This will hold the hex addresses of the images for the corresponding player, which would be dynamically obtained.
 		int destinationImg = 0;
 		int destinationImgKing = 0;
+		// This will hold the value of either -1 or 1 determined by the playerNo, which will be dynamically obtained shortly...
 		int upOrDown;
 		
 		// Dynamically determine whether the piece should go up or down on the checkers board.
@@ -2076,15 +2076,14 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				destinationImgKing = R.drawable.king_light_brown_piece;
 			}
 		}
-		
-		// ...An experiment.
-		
-		// I need to implement this in a bit.
+				
+		// Grab the size of the selected coordinates.
 		int sizeOfPrev = passListOfRows.size();
 		int x = passX, y = passY;
+		// a.k.a the playerNo
 		String strSource;
 		
-		// An experiment...
+		// This will hold the coordinates of the enemy that is about to be captured.
 		int actualEnemyX = 0, actualEnemyY = 0;
 		
 		for(int mv = 1;mv < sizeOfPrev;mv++)
@@ -2097,24 +2096,18 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			int prevY = passListOfColumns.get(mv).intValue();
 
 			// If the selected piece is part of the highlighted neighbouring squares, then perform blah de blah blah.
-			//if(v.equals(squaresOfBoard[prevX][prevY]))
-			//if(squaresOfBoard[x][y].equals(squaresOfBoard[prevX][prevY]))
-			// x == prevX && y == prevY would be a better/safer condition.
-			// if(squaresOfBoard[x][y].equals(squaresOfBoard[prevX][prevY]) && passStrCheckersBoard[x][y] != opponentNo)
 			if((x == prevX && y == prevY) && passStrCheckersBoard[x][y] != opponentNo)
 			{
 				// Close the loop after this iteration.
 				mv = sizeOfPrev;
-				// Debug purposes.
-				// System.out.println("We successfully moved the piece :)");
 				// Temporary variable that will hold the value at the old location (i.e. the piece we wish to move).
 				strSource = passStrCheckersBoard[parentPrevX][parentPrevY];
 	
-				// If the parent square has a neighbouring enemy piece, then we determine which enemy piece it is.
+				// If the parent square has a neighbouring enemy piece, then we need to determine which enemy piece it is from the list of enemy coordinates.
 				if(passEnemyX.size() > 0)
 				{
 					// Assuming that the parent highlighted sqaure was neighbouring more than one enemy piece, we would need to find out the right enemy...
-					// Piece to get rid of.
+					// ...Piece to get rid of. We will loop until we find the correct enemy piece...
 					for(int e = 0; e < passEnemyX.size(); e++)
 					{
 						int enemyCoordinateX = passEnemyX.get(e).intValue();
@@ -2126,16 +2119,12 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						// We check the square below...
 						if(checkBelow == enemyCoordinateX && (prevY+1) == enemyCoordinateY)
 						{
-							// The enemy square is here. This works. Nice.
-							// Debug purposes.
-							// System.out.println("These are the correct coordinates of the enemy square checkBelow=" + checkBelow + " and checkY=" + (prevY+1));
+							// The enemy square is here...
 							// We clear the space i.e. take the piece.
 							passStrCheckersBoard[enemyCoordinateX][enemyCoordinateY] = "0";
 							// We will store the coordinates of the recently found enemy to later set the image for the right ImageView.
 							actualEnemyX = enemyCoordinateX;
 							actualEnemyY = enemyCoordinateY;
-							// We clear the space (visually) i.e. take the piece
-							// imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
@@ -2146,15 +2135,11 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						{
 							// Check the square below...
 							// The enemy square is here. This works. Nice.
-							// Debug purposes.
-							// System.out.println("These are the correct coordinates of the enemy square checkBelow=" + checkBelow + (prevY+1));
 							// We clear the space i.e. take the piece.
 							passStrCheckersBoard[enemyCoordinateX][enemyCoordinateY] = "0";
 							// We will store the coordinates of the recently found enemy to later set the image for the right ImageView.
 							actualEnemyX = enemyCoordinateX;
 							actualEnemyY = enemyCoordinateY;
-							// We clear the space (visually) i.e. take the piece
-							// imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
@@ -2164,15 +2149,11 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						{
 							// Check the square above...
 							// The enemy square is here. This works. Nice.
-							// Debug purposes.
-							// System.out.println("These are the correct coordinates of the enemy square checkAbove=" + checkAbove + " and checkY=" + (prevY+1));
 							// We clear the space i.e. take the piece.
 							passStrCheckersBoard[enemyCoordinateX][enemyCoordinateY] = "0";
 							// We will store the coordinates of the recently found enemy to later set the image for the right ImageView.
 							actualEnemyX = enemyCoordinateX;
 							actualEnemyY = enemyCoordinateY;
-							// We clear the space (visually) i.e. take the piece
-							// imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
@@ -2182,44 +2163,33 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 						{
 							// Check the square above...
 							// The enemy square is here. This works. Nice.
-							// Debug purposes.
-							// System.out.println("These are the correct coordinates of the enemy square checkAbove=" + checkAbove + (prevY+1));
 							// We clear the space i.e. take the piece.
 							passStrCheckersBoard[enemyCoordinateX][enemyCoordinateY] = "0";
 							// We will store the coordinates of the recently found enemy to later set the image for the right ImageView.
 							actualEnemyX = enemyCoordinateX;
 							actualEnemyY = enemyCoordinateY;
-							// We clear the space (visually) i.e. take the piece
-							// imageOfSquares[enemyCoordinateX][enemyCoordinateY].setImageResource(0);
 							// Makes this the last 'e' iteration.
 							e = passEnemyX.size();
 							// Will decrease the number of pieces the opponent has by 1.
 							if(strDest.contains("1") && forDecisionTree != true){--noOfPiecesPlayerTwo;}else if(strDest.contains("2") && forDecisionTree != true){--noOfPiecesPlayerOne;}
 						}					
 					}
-					// If this move is an actual move (not a potential move), then we set the corresponding square's new image.
+					// If this move is an actual move (not a potential move made by the minimax algorithm),
+					// then we set the corresponding square's new image to be empty, which indicates a capture...
 					if(forDecisionTree == false)
 					{
 						// We clear the space (visually) i.e. take the piece
 						imageOfSquares[actualEnemyX][actualEnemyY].setImageResource(0);			
 					}
-					else
-					{
-						// If this is for generating a state corresponding to a potential move, then there is no need to set the images since,
-						// since we will not need at the moment.
-					}
-					
+					// else if this is for generating a state corresponding to a potential move, then there is no need to set the images since,
+					// since we will not need at the moment.		
 				}
-				
-				// If a piece of player one reaches the last row, transform the piece into a king...
 				
 				// Creates the king string corresponding to the player number.
 				String strKing = "K" + strDest;
-				
+				// If a piece of player one reaches the last row (the topmost of the board), transform the piece into a king...
 				if(x == 0 && passStrCheckersBoard[parentPrevX][parentPrevY] == "1")
 				{
-					// Debug purposes.
-					// System.out.println("strSource does equal player one and let's output strKing=" + strKing);
 					// Now, the piece will now become a king at the new location.
 					passStrCheckersBoard[parentPrevX][parentPrevY] = strKing;
 					// This stops a new king from making a consecutive attack upon transformation.
@@ -2227,9 +2197,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					
 				}else if(x == 7 && passStrCheckersBoard[parentPrevX][parentPrevY] == "2")
 				{
-					// Debug purposes.
-					// System.out.println("strSource does equal player two and let's output strKing=" + strKing);
-					// If a piece of player two reaches the last row, transform the piece into a king.
+					// If a piece of player two reaches the last row (bottommost of the board), transform the piece into a king.
 					// Now, the piece will now become a king at the new location.
 					passStrCheckersBoard[parentPrevX][parentPrevY] = strKing;
 					// This stops a new king from making a consecutive attack upon transformation.
@@ -2237,12 +2205,12 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				}
 				else
 				{
-						// This stops a new king from making a consecutive attack upon transformation.
-						isNewKing = false;
+					// This stops a new king from making a consecutive attack upon transformation.
+					isNewKing = false;
 				}
 				
-				// If the piece that we wish to move/perform capture is a king then...
-				// if(passStrCheckersBoard[parentPrevX][parentPrevY] == strKing) never satisfies, regardless. == and mutated strings seem to cause problems.
+				// If the piece that we wish to move/or use to perform capture is a king, then we...
+				// Using .contains() works better than using == on mutated Strings. Why? I don't know.
 				if(passStrCheckersBoard[parentPrevX][parentPrevY].contains(strKing))
 				{
 					// Finally, we will clear the square of the checker piece's old location
@@ -2252,7 +2220,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					// If this is for the purposes of an actual move (not a potential move for the AI state tree...
 					if(forDecisionTree == false)
 					{
-						// Clear the image of the piece that occupied the location of the old square.
+						// Clear the image of the piece that occupied the square at the old location.
 						imageOfSquares[parentPrevX][parentPrevY].setImageResource(0);
 						// (Visually) Moves the checkers piece into the new location
 						imageOfSquares[x][y].setImageResource(destinationImgKing);	
@@ -2268,7 +2236,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					// If this is for the purposes of an actual move (not a potential move for the AI state tree...
 					if(forDecisionTree == false)
 					{			
-						// Clear the image of the piece that occupied the location of the old square.
+						// Clear the image of the piece that occupied the square at the old location.
 						imageOfSquares[parentPrevX][parentPrevY].setImageResource(0);	
 						// (Visually) Moves the checkers piece into the new location
 						imageOfSquares[x][y].setImageResource(destinationImg);
@@ -2289,24 +2257,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 					removeHighlights(passListOfRows, passListOfColumns);	
 				}
 				
-				
-				// --- Debug Purposes --- //
-				/*System.out.println("We have succesfully moved the piece. The values of the successful move were...");		
-				// Prints out the text representation of the checkers board 
-				printCheckersBoard(passStrCheckersBoard);
-				// --- Debug Purposes --- //
-				System.out.println("x= " + x + "and y= " + y + ". prevX= " + prevX + "and prevY= " + prevY);
-				System.out.println("===========================================================================================");*/
-				
-			}else
-			{
-				/*// Debug purposes.
-				System.out.println("We did not make a move because x and y did not equal prevX and prevY. Their values were...");
-				System.out.println("x= " + x + "and y= " + y + ". prevX= " + prevX + "and prevY= " + prevY);
-				System.out.println("===========================================================================================");
-				// Debug purposes.
-				// System.out.println("We do nothing because an opposing piece was clicked or it was an invalid move.");*/
-			}
+			}//else - We do nothing because an opposing piece was clicked or it was an invalid square clicked.
 		}							
 	}
 	public void playerTurn(String playerNo, String[][] passStrCheckersBoard, View v, int passX, int passY, String opponentNo)
