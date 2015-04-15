@@ -2264,8 +2264,6 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 	{	
 		// The coordinates of the currently selected square.
 		int x = passX, y = passY;
-		// The coordinates of the parent (root) square of highlight squares.
-		int rootX, rootY;
 		
 		// It will initially check for any compuslory captures...
 		if(arrayOfPrevCoordinatesX.size() <= 0)
@@ -2403,22 +2401,18 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		if(playerNo == "1")
 		{
 			return noOfPiecesPlayerOne;
-		}else // playerNo == "2"
+		}else // if playerNo == "2"
 		{
 			return noOfPiecesPlayerTwo;
 		}
 	}
 	public void performMoveAndCheckAdjacent(String[][] passStrCheckersBoard, int passX, int passY, String playerNo, String opponentNo)
 	{
-		// Debug purposes.
-		// System.out.println("arrayOfPrevCoordinatesX.size() > 0 if statement just ran. (using our new function)");
+		// The coordinates of the destination.
 		int x = passX, y = passY;
 
 		for(int i = 0 ; i < arrayOfPrevCoordinatesX.size(); i++)
 		{
-			// Debug purposes.
-			// System.out.println("The size of the arrayOfPrevCoordinates is equal to " + arrayOfPrevCoordinatesX.size());
-			
 			// Grab the coordinates of the highlighted squares and the enemy pieces, if there are any enemies. 
 			ArrayList<Integer> autoPrevX = arrayOfPrevCoordinatesX.get(i);
 			ArrayList<Integer> autoPrevY = arrayOfPrevCoordinatesY.get(i);
@@ -2441,94 +2435,68 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			// Moves the checkers piece to the new location - passing imageOfSquares into the method has not caused any problems.
 			movePiece(passStrCheckersBoard, x, y, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, false);
 			
-			// We need a way to check if it is at the new location.
-			
+			// Checks whether the piece is at the new location. x/yOfNewDest is generated only when a piece is moved within the movePiece() function.
 			if(x == xOfNewDest && y == yOfNewDest)
 			{
 				// If we have successfully moved the piece...
 				
-				// Debug purposes.
-				// System.out.println("We have moved the piece to the new location (via the auto generated highlight.");
-				
 				// Makes sure this is the last iteration as we have found which piece made the recent move.
 				i = arrayOfPrevCoordinatesX.size();
 					
-				// If a capture was made we check if there are neighbouring enemies at our new location...
+				// If a capture was made, we check if there are neighbouring enemies at our new location...
 				if(arrayOfEnemyCoordinatesX.size() > 0)
 				{
-					// I need to check if this piece has just been turned into a king... Well, this works.
+					// This will check if it is has also been transformed into a king...
 					// in the movePiece method there are 3 areas in the code where 'isNewKing' gets mutated so, remember to keep an eye out on those.
 					if(isNewKing == true)
 					{
-						// Debug purposes.
-						System.out.println("Hello, this is a new king so, no consecutive attacks for you.");
-						// This displays the message but, it still highlights a neighbouring enemy after we turn into a king :/
+						// It is true so, this will stop the piece from making any more captures during the remainder of its current turn.
 					}
 					else
 					{
-						// We can use this method to later check whether the piece at the new location is neighbouring an enemy.
+						// We will use this method to later check whether the piece at the new location is neighbouring an enemy.
 						highlightSquares(passStrCheckersBoard, xOfNewDest, yOfNewDest, opponentNo, playerNo);
-						// Debug purposes.
-						System.out.println("Hello, no new king here so, yaaaah.");
 					}
 					
 					// If the size of xEnemyAxis.size() == 0, then we can say no new enemies have been found using the 'highlightSquares()' method above.
 					if(xEnemyAxis.size() <= 0)
 					{
-						// Debug purposes.
-						// System.out.println("There are no potential captures that this piece can make from the new location so, we handover our turn to the opponent.");
 						// We will remove the remaining highlights... i.e. if there were two different pieces each neighbouring an enemy.
 						for(int rm = 0;rm<arrayOfPrevCoordinatesX.size();rm++)
 						{
 							// Gets rid of the rest of the highlights for the other pieces that had potential to capture enemy pieces.
-							// It works the way I hoped it to.
 							removeHighlights(arrayOfPrevCoordinatesX.get(rm), arrayOfPrevCoordinatesY.get(rm));
 						}
 						
-						// THIS IS A TEST - This should clear the master ArrayLists - ENABLE ABOVE CODE IF THIS DOESN'T WORK.
+						// Clears the master ArrayLists...
 						clearMasterLists();	
-						// I have just realised that I have not cleared xPrevAxis and yPrevAis ArrayList so, I'll do that now.
+						// Clears the standard helper ArrayLists.
 						clearHelperArrays();
-						// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
-						//displayTurn(playerTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
-						// Handover the turn to opponent.
-						//playerOneTurn = playerTurn;
-						
 						// hand over its turn to the opponent (i.e. the human).
 						playerOneTurn = !playerOneTurn; 
-						// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
-						// Display the player's turn.
-						// displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
-						// Since there are no adjacent enemies, we make it false.
+						// No more adjacent enemies so, yeah, it will now be false.
 						isEnemyAdjacent = false;
 						
-						// A huge experiment... This will check if the opponent pieces is trapped, and if not, it will hand over its to the opponent
-						// with a delay of 200ms, and it seems to be working okay. 
-						// validateAndSwitchPlayer(strCheckersBoard, playerNo, opponentNo);
-						
-						// An experiment... It is 'true' the bot is next up...
+						// It will check whether the opponent's pieces are trapped, and adds a delay of 200ms before handing over its turn to the bot.
+						// It also displays the correct player information, and whatnot.
 						switchToBotFromHuman(playerNo, opponentNo);
 						
 					}
 					else
 					{
-						// There is another neighbouring enemy at our new location so, next time this entire method is called again, thanks...
-						// ...To the isEnemyAdjacent == true, if statement.
-						// Debug purposes.
-						// System.out.println("There is another neighbouring enemy at the new location. So, we don't stop until a move is made.");
+						// There is another neighbouring enemy at our new location so, when this method is called again (which was now), it will...
+						// ...Run the code below...
 						
-						// Hopefully, this should sort out problem 3... Yup, it sorted problem 3 :)
+						// Hopefully, this should sort out problem 3... Yup, it sorted problem 3 specified in crappy_notes.txt file :)
 						for(int rm = 0;rm<arrayOfPrevCoordinatesX.size();rm++)
 						{
 							// Gets rid of the rest of the highlights for the other pieces that had potential to capture enemy pieces.
-							// It works the way I hoped it to.
 							removeHighlights(arrayOfPrevCoordinatesX.get(rm), arrayOfPrevCoordinatesY.get(rm));
 						}
-						//...Well, hopefully.
-
-						// This should clear the master ArrayLists
+						
+						// Clear the master ArrayLists
 						clearMasterLists();
-						// This should add the ArrayLists to the master ArrayLists 
+						// Adds the helper ArrayLists to the master ArrayLists 
 						addToMasterLists(xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis);	
 						// We apply the highlights to the eligable squares...
 						addHighlight(arrayOfPrevCoordinatesX.get(0), arrayOfPrevCoordinatesY.get(0));
@@ -2541,38 +2509,23 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				}else
 				{
 					// Just a standard move so, we  will clear all the ArrayLists and handover our turn to the opponent.	
-					// Debug purposes.
-					System.out.println("This is just a standard move.");	
-					// THIS IS A TEST - This should clear the master ArrayLists - ENABLE ABOVE CODE IF THIS DOESN'T WORK.
+					// Clear the master ArrayLists
 					clearMasterLists();	
 					// Clear the standard ArrayLists.
 					clearHelperArrays();
-					// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!;
-					//displayTurn(playerTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
-					// Handover the turn to opponent.
-					// playerOneTurn = playerTurn;
-					
 					// hand over its turn to the opponent (i.e. the human).
 					playerOneTurn = !playerOneTurn; 
-					// Display the player's turn.
-					// playerInfo.setText("Player " + opponentNo + "'s Turn") or game over!; 
-					// displayTurn(playerOneTurn, opponentNo); // for player one is playerTurn = false and player two is playerTurn = true;
-					// Erm, I am so lost.
+					// No more adjacent enemies so, yeah, it will now be false.
 					isEnemyAdjacent = false;
-					// I think I would need to remove the highlights too.
-					
-					// A huge experiment... This will check if the opponent pieces is trapped, and if not, it will hand over its to the opponent
-					// with a delay of 200ms, and it seems to be working okay. 
-					// validateAndSwitchPlayer(strCheckersBoard, playerNo, opponentNo);
-					
-					// An experiment... It is 'true' the bot is next up...
+					// It will check whether the opponent's pieces are trapped, and adds a delay of 200ms before handing over its turn to the bot.
+					// It also displays the correct player information, and whatnot.
 					switchToBotFromHuman(playerNo, opponentNo);
 								
 				}						
 			}else
 			{
 				// Debug purposes.
-				System.out.println("We have not moved the piece to the new location. (from auto-generated highlights section) so, we do nothing until then.");
+				// System.out.println("We have not moved the piece to the new location. (from auto-generated highlights section) so, we do nothing until then.");
 			}					
 		}
 	}
