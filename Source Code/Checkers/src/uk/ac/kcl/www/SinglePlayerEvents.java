@@ -115,44 +115,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		// ...Initially and dynamically determines the number of pieces for each player...
 		updateNoOfPieces(strCheckersBoard);
 	}
-	public void performEnemyCapture(String[][] passState, int passX, int passY, String playerNo, String opponentNo, boolean forDecisionTree)
-	{
-		// Store the coordinates in a more convenient variable, yup. I need to delete this entire method when I have time.
-		int destinationX = passX; int destinationY = passY;
-	}
-	// I need to get back to this.
-	public class CountDown extends CountDownTimer
-	{
-		public int destinationX;
-		public int destinationY;
-		public String[][] state;
-		public String playerNo, opponentNo;
-		public int destImg, imgOfKing;
-		public boolean forDecisionTree;
-		
-		public CountDown(long startTime, long interval, String[][] passState, int passX, int passY, String passPlayerNo, String passOpponentNo, boolean passForDecisionTree)
-		{
-			// Passes it into the base constructor of 'CountDownTimer'
-			super(startTime, interval);
-			// Properly store the coordinates.
-			destinationX = passX;
-			destinationY = passY;
-			state= passState;
-			playerNo = passPlayerNo; opponentNo = passOpponentNo;
-			forDecisionTree = passForDecisionTree;
-			
-		}
-		@Override
-		public void onTick(long millisUntilFinished)
-		{
-			System.out.println("seconds remaining: " + millisUntilFinished / 1000);
-		}
-		@Override
-		public void onFinish()
-		{
-		
-		}
-	}
+	
 	public void determinePieceAndMove(Tree<String[][]> passNode, String[][] state, String playerNo, String opponentNo, boolean forDecisionTree)
 	{
 		// This will find out which piece was actually moved.
