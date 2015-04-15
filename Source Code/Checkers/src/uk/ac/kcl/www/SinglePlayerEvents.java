@@ -1911,18 +1911,12 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		// If the selected piece is a king...
 		if(passStrCheckersBoard[x][y].contains(strKing))
 		{
-			// Debug purposes.
-			// System.out.println("Well, there is indeed a king!");
 			// If the piece selected is a king piece...
 			if(x >= 1 && x <= 7)
 			{
 				// When adding highlights to pieces above it...
-				// Debug purposes.
-				// System.out.println("if(x >= 1 && x <= 7) and strKing =" + strKing);
 				// Only perform a move if we are on/within row 7 to row 1... x >= 2
 				// Checks the left side and decides whether it should highlight the squre or not.
-				// .contains() is more optimable than checking both, for example [x][y] == K2 || [x][y] == 2 where we know,
-				// it will at least contain the number '2' ;)
 				prepareHighlight(passStrCheckersBoard, y >= 2 && x >= 2 && passStrCheckersBoard[x+(-1)][y-1].contains(opponentNo),
 												 y >= 1 && passStrCheckersBoard[x+(-1)][y-1] == "0", x, y, -1, -1);
 				// Checks the right side and decides whether it should highlight the square or not.
@@ -1932,8 +1926,6 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			if(x >= 0 && x <= 6)
 			{
 				// When adding highlights to pieces beneath it...
-				// Debug purposes.
-				// System.out.println("if(x >= 0 && x <= 6) and strKing =" + strKing);
 				// Only perform a move if we are on/within row 6 to row 0... x <= 5
 				// Checks the left side and decides whether it should highlight the squre or not.
 				prepareHighlight(passStrCheckersBoard, y >= 2 && x <= 5 && passStrCheckersBoard[x+(1)][y-1].contains(opponentNo),
@@ -1946,34 +1938,14 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		else if(passStrCheckersBoard[x][y] == playerNo && precondition)
 		{
 			// If it is just a standard piece then...
-			// Debug purposes.
-			// System.out.println("else if(passStrCheckersBoard[x][y] == playerNo && precondition) AND passStrCheckersBoard[" + x + "][" + y + "] = " + passStrCheckersBoard[x][y]);
-			// I think it works fine. I accidentally put a [y+2] and a [y-2] for both of the second conditions of the 'prepareHighlight'
 			// Checks the left side and decides whether it should highlight the squre or not.
 			prepareHighlight(passStrCheckersBoard, y >= 2 && attackConstraint && passStrCheckersBoard[x+(upOrDown)][y-1].contains(opponentNo),
 											 y >= 1 && passStrCheckersBoard[x+(upOrDown)][y-1] == "0", x, y, upOrDown, -1);
 			// Checks the right side and decides whether it should highlight the square or not.
 			prepareHighlight(passStrCheckersBoard, y <= 5 && attackConstraint && passStrCheckersBoard[x+(upOrDown)][y+1].contains(opponentNo),
 											 y >= 0 && y <= 6 && passStrCheckersBoard[x+(upOrDown)][y+1] == "0", x, y, upOrDown, 1);		
-			// Adds the highlights to the squares based on the result from the 'prepareHighlight' method.
-			//addHighlight();		// Uncomment if it breaks the application... Lol.
 		}
-		
-		/*
-		if(precondition)
-		{
-			// I think it works fine. I accidentally put a [y+2] and a [y-2] for both of the second conditions of the 'prepareHighlight'
-			// Checks the left side and decides whether it should highlight the squre or not.
-			prepareHighlight(passStrCheckersBoard, y >= 2 && attackConstraint && passStrCheckersBoard[x+(upOrDown)][y-1] == opponentNo,
-											 y >= 1 && passStrCheckersBoard[x+(upOrDown)][y-1] == "0", x, y, upOrDown, -1);
-			// Checks the right side and decides whether it should highlight the square or not.
-			prepareHighlight(passStrCheckersBoard, y <= 5 && attackConstraint && passStrCheckersBoard[x+(upOrDown)][y+1] == opponentNo,
-											 y >= 0 && y <= 6 && passStrCheckersBoard[x+(upOrDown)][y+1] == "0", x, y, upOrDown, 1);		
-			// We will add the highlights to the squares based on the result from the 'prepareHighlight' method later on.
-		}
-		*/
 	}
-	//public void addHighlight(int passX, int passY, int upOrDown, int leftOrRight)
 	public void addHighlight(ArrayList<Integer> passCoordinatesX, ArrayList<Integer> passCoordinatesY)
 	{
 		// Dynamicallly adds the visual highlights to the correct squares.
