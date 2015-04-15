@@ -2018,36 +2018,28 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 				int xHighlighted = passCoordinatesX.get(h).intValue();
 				int yHighlighted = passCoordinatesY.get(h).intValue();
 				
-				// Actually, it may be better to base these conditions on Strings instead of Views. That way the computer can work with the code a bit easier.
-				//if(squaresOfBoard[xHighlighted][yHighlighted].equals(v))
-				//if(squaresOfBoard[x][y].equals(squaresOfBoard[xHighlighted][yHighlighted]))
-				if(x == xHighlighted && y == yHighlighted) // This is safer to use, as in terms of an IndexOutOfBoundException, and less expensive.
+				// If the piece selected has been previously highlighted...
+				// It is more efficent to compare the two sets of coordinates this way, rather than comparing through an array,
+				// in terms of an IndexOutOfBoundException
+				if(x == xHighlighted && y == yHighlighted) 
 				{
 					// The selected square is part of the highlighted squares.
 					isHighlighted = true;
-					// Debug purposes.
-					// System.out.println("It is highlighted and xHighlighted=" + xHighlighted + " and yHighlighted=" + yHighlighted);
 					// Close the loop as soon as we speak the selected square (if) it is part of highlighted squares. 
 					h = sizeOfPrev;
 					
 				}else
 				{
-					// Closing the loop early fixed the problem because if x = 0 true, then x =1 is false, then isHighlighted == false will run.
 					// All we need is at least one x to be false in order for x1 && x2 && x3 to be false so, any other checks would cause harm.
 					// The selected square is not part of the highlighted squares.
 					isHighlighted = false;
-					// Debug purposes.
-					// System.out.println("It is not highlighted and xHighlighted=" + xHighlighted + " and yHighlighted=" + yHighlighted);
 				}
 			}
 		}else
 		{
-			// Since there are no highlighted squares to even check, we just say it is false.
+			// Since there are no highlighted squares to even check for, we simply assign it a value of 'false'
 			isHighlighted = false;
-			// Debug purposes.
-			// System.out.println("The size of highlight squares equals " + sizeOfPrev);
 		}
-		
 		// This will later be assigned to the global variable 'isHighlighted'
 		return isHighlighted;		
 	}
