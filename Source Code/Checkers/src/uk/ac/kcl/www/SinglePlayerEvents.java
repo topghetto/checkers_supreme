@@ -957,45 +957,6 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			setPlayerImage(playerNo);	
 		} 
 	}
-	public void validateAndSwitchPlayer(String[][] passStrCheckersBoard, String playerNo, String opponentNo)
-	{
-		// This will check whether the opponent has trapped pieces...
-		if(isTrapped(passStrCheckersBoard, opponentNo, playerNo) == false)
-		{
-			// Adds a delay of 200 milliseconds before the AI (the opponent) is handed its turn...
-			delayForBot(200, 100, playerNo, opponentNo);		
-		}
-		else
-		{
-			// Display Game Over message...
-			playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
-			// Set the image of the winning player.
-			if(playerNo == "1")
-			{
-				playerImage.setImageResource(R.drawable.dark_brown_piece);
-			}
-			else
-			{
-				playerImage.setImageResource(R.drawable.light_brown_piece);
-			}			
-			
-			// Grabs the number of pieces the opponent has left...
-			// If there are still pieces of player x, that it safe to assume this pieces are trapped pieces for the opponent so, we win, aha.
-			if(getNoOfPieces(opponentNo) > 0)
-			{
-				// Yup, A.I.mee is trapped.
-				loadingInfo.setText("A.I.mee is\ntrapped.");
-				// Debug purposes.
-				System.out.println("There are trapped pieces for the opponent so, player " + playerNo + " wins the game.");
-				// Display it too.
-			}
-			else
-			{
-				// This may not be needed... Okay, it is, aha.
-				loadingInfo.setText("A.I.mee says, she \nhas failed the \nones and zeros");
-			}
-		}
-	}
 	public void delayForBot(long milliseconds, long interval, String passPlayerNo, String passOpponentNo)
 	{
 		// This method seems to be working fine.
