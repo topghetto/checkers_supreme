@@ -1569,9 +1569,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 	// that it may cause a series of problems.
 	public synchronized void onClick(View v) 
 	{
-		// This will no longer work if when we start using the AI bot. The AI cannot click so, if we ran [x][y].equals(View v)... Will not run because
-		// like I said, it cannot click so, I will need to probably move the if(playerOneTurn == true) statement outside of the nested for-loop ;)
-		
+		// If it is player one's turn...
 		if(playerOneTurn == true)
 		{
 			// The code for player one (the human) will go here, aha.
@@ -1804,21 +1802,13 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		{
 			public void onTick(long millisUntilFinished)
 			{
+				// Debug purposes.
 				System.out.println("milliseconds remaining: " + millisUntilFinished);
-				// We will show the wheel to indicate it is the AI's turn.
-				// loadingWheel.setVisibility(View.VISIBLE);			
-				// Update the message of the AI bot.
-				// loadingInfo.setText("Bot_" + opponentNo + " is making \nits move...");
 			}
 			public void onFinish()
 			{
 				// System.out.println("Now, it is time for Bot_" + playerNo + " to make its move...");
-				computerTurn(opponentNo, playerNo);								
-				
-				// I tried using a Thread but, it caused some complexities because various sections within computerTurn() modifies
-				// the UI but, if we did this within another thread besides the UI thread, the application crashes.
-				// Problem sorted because I split the operations in computerTurn into two threads. minimax() runs on one thread,
-				// and the UI repainting is on done on the actual UI thread ;)
+				computerTurn(opponentNo, playerNo);									
 			}
 		}.start();
 	}
