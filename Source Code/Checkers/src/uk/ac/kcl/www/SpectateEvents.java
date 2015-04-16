@@ -759,7 +759,7 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 					updateNoOfPieces(strCheckersBoard);
 					// We pass in false because the turn we are handing over to, is a human so, yeah. This method will also print out the correct player
 					// information, hides the loading wheel, and whatnot.
-					switchToHumanFromBot(playerNo, opponentNo, true);
+					switchBot(playerNo, opponentNo);
 				}
 			});
 		}
@@ -795,12 +795,9 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 		// I need a better if statement though. Oh, I know, just disable the button after it is pressed, aha.
 		if(true)
 		{
-			// The button will not be able to clicked throughout the entire match ;)
+			// The button will not be clickable throughout the entire match ;)
 			startBtn.setClickable(false);
-			//switchToBotFromHuman("2", "1");
-			//switchToHumanFromBot("1", "2", true);
-			
-			// Ooooo, I have an idea. We will initially call computerTurn("1", "2").
+			// We will initially call computerTurn("1", "2") (i.e player one goes first.)
 			computerTurn("1", "2");
 			
 			
@@ -899,7 +896,7 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 		}
 	}
 	// I probably should modify this section for spectate mode.
-	public void switchToHumanFromBot(String playerNo, String opponentNo, boolean isBotNext)
+	public void switchBot(String playerNo, String opponentNo)
 	{
 		// If the opponent still has pieces on the board...
 		if(getNoOfPieces(opponentNo) > 0)
@@ -928,22 +925,16 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 				setPlayerImage(opponentNo);
 				// Display's the opponent's information...
 				playerInfo.setText("Player " + opponentNo + "'s Turn");
-				
-				// I think computerTurn("Will be called here, using the delayForBot() method.
-				if(isBotNext == true)
-				{
-					// If we are not playing against an human, we will call delayForBot() here...
-					// -- computerTurn will be called here, using the delayForBot() method. --//
-					// We will show the wheel to indicate it is the AI's turn.
-					loadingWheel.setVisibility(View.VISIBLE);
-					// Display the Bot's information...
-					loadingInfo.setText("Bot_" + opponentNo + " is making \nits move...");
-					// Adds a delay before we actually hand over the turn to the bot. This gives the computer time to repaint the UI in time...
-					// In this case, opponentNo == "2" ;)
-					delayForBot(2000, 1000, playerNo, opponentNo);
-					// ___ End of section where we hand over the turn to the bot. ___ //
-				}
-				// ___ Insert code here ___ //
+			
+				// -- computerTurn will be called here, using the delayForBot() method. --//
+				// We will show the wheel to indicate it is the AI's turn.
+				loadingWheel.setVisibility(View.VISIBLE);
+				// Display the Bot's information...
+				loadingInfo.setText("Bot_" + opponentNo + " is making \nits move...");
+				// Adds a delay before we actually hand over the turn to the bot. This gives the computer time to repaint the UI in time...
+				// In this case, opponentNo == "2" assuming the bot goes first.
+				delayForBot(2000, 1000, playerNo, opponentNo);
+				// ___ End of section where we hand over the turn to the bot. ___ //
 			}
 		}
 		else
