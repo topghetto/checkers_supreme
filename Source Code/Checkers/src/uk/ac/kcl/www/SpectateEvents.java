@@ -11,6 +11,7 @@ import android.app.ActionBar;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Random;
 
 import java.lang.Thread;
 import java.lang.Runnable;
@@ -66,7 +67,7 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 	// An experiment to return the move we should take.
 	public Tree<String[][]> greatestMove;
 	// Boolean helper variables... Which does what it says on the tin.	
-	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent, isNewKing, adjacentToEnemy;
+	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent, isNewKing, adjacentToEnemy, isFirstMove;
 	
 	// Keeps track of the new location of the recently moved piece.
 	public int xOfNewDest, yOfNewDest;
@@ -108,6 +109,8 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 		// We will hide the wheel on startup.
 		// Initialise...
 		startBtn = passStartBtn;
+		// This will determine whether we should randomly move the piece...
+		isFirstMove = true;
 		
 		// Display the player's turn. REMEMBER TO CHANGE THIS PARTICULAR SECTION WHEN I AUTOMATICALLY MAKE THE CODE DECIDE WHO GOES FIRST!!!
 		playerInfo.setText("Player " + 1 + "'s Turn");
@@ -128,7 +131,7 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 		int noOfPlayerTwo = 0;
 		// calculate how many pieces are close to becoming kings. The total number of pieces in 0,1,2 for player 1 and 5,6,&7 for player 2.
 		// Although, it seems to do well without this so, I may delete this in the future.
-		double playerOneOffense = 0, playerTwoOffense = 0;
+		// double playerOneOffense = 0, playerTwoOffense = 0;
 		
 		// Perform the evaluation.
 		for(int row = 0;row < 8; row++)
@@ -147,12 +150,12 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 						// If it is also a king, increase the heueristic even more...
 						noOfPlayerOne++;
 					}
-					// If the piece is close to becoming a king.
+					/*// If the piece is close to becoming a king.
 					if(row >= 0 && row <= 2)
 					{
 						// Increase the heuristic value.
 						playerOneOffense++;
-					}	
+					}*/
 				}
 				else if(state[row][column].contains("2"))
 				{
@@ -164,12 +167,12 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 						// If it is also a king, increase the heueristic even more...
 						noOfPlayerTwo++;
 					}
-					// If the piece is close to becoming a king.
+					/*// If the piece is close to becoming a king.
 					if(row >= 5 && row <= 7)
 					{
 						// Increase the heuristic value.
 						playerTwoOffense++;
-					}
+					}*/
 				}
 			}
 		}	
@@ -181,15 +184,11 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 			
 			// Subtract total of player two from player one
 			result = noOfPlayerOne - noOfPlayerTwo;
-			// This should stop the king from going back and forth.
-			result = result + (playerOneOffense - playerTwoOffense);
 		}
 		else{ //if playerNo == "2"
 			
 			// Subtract total of player one from player two.
 			result = noOfPlayerTwo - noOfPlayerOne;
-			// This should stop the king from going back and forth.
-			result = result + (playerTwoOffense - playerOneOffense);
 		}
 		return result;
 	}
@@ -719,9 +718,36 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 			
 			// This will later hold the node that yields the best value for alphabeta/minimax.
 			greatestMove = new Tree(new String[8][8]);
-			// Run the algorithm and store the value.
-			//double heuristicValue = minimax(decisionTree, 3, true, playerNo, opponentNo);
-			double heuristicValue = alphabeta(decisionTree, 3, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true, playerNo, opponentNo);
+			// Holds the result of the alphabeta/minimax operation...
+			double heuristicValue = 0;
+			
+			if(isFirstMove == true){
+				
+				// Randomly move the piece...
+				// Make sure this never runs for the rest of the game.
+				isFirstMove = false;
+				// Create the nodes...
+				createChildren(decisionTree, playerNo, opponentNo);
+				// Grab the children.
+				ArrayList<Tree<String[][]>> children = decisionTree.children();
+				// Create the random generator.
+				Random randomGen = new Random();
+				// Choose a number between 0 (inclusive) and the size of the decisionTree's children (exclusive). 
+				int randomIndex = randomGen.nextInt(children.size());
+				// Randomly grab a move and store it is as the greatestMove ;)
+				greatestMove = children.get(randomIndex);
+				// Debug purposes. Yup, this works, woop, woop.
+				System.out.println("The index generated is " + randomIndex);
+				
+				
+				
+			}else{ //if - We will run alphabeta as normal.
+				
+				// Run the algorithm and store the value.
+				//heuristicValue = minimax(decisionTree, 3, true, playerNo, opponentNo);
+				heuristicValue = alphabeta(decisionTree, 3, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true, playerNo, opponentNo);
+			}
+			
 			// Grab the state of the greatestMove node.
 			String[][] greatestMoveState = greatestMove.getValue();
 			// Debug purposes - it prints out 292 nodes for a depth of 3, which is correct and I will assume that the correct states are being created.
