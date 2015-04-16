@@ -27,7 +27,7 @@ import android.widget.ProgressBar;
 
 import 	android.graphics.drawable.ColorDrawable;
 
-public class MultiplayerEvents extends Activity implements View.OnClickListener
+public class SpectateEvents extends Activity implements View.OnClickListener
 {
 	// Member Variables
 	public int row, column;
@@ -42,6 +42,8 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 	public TextView loadingInfo;
 	// Loading wheel for AI.
 	public ProgressBar loadingWheel;
+	// Start button for spectating.
+	public Button startBtn;
 	
 	// Keeps track of the selected square.
 	public int sizeOfPrev;
@@ -70,7 +72,7 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 	public int xOfNewDest, yOfNewDest;
 	
 	// Constructor
-	public MultiplayerEvents(View[][] passSquares, ImageView[][] passImgSquares, String[][] passCheckersBoard, TextView passTextView, TextView passLoadingInfo, ProgressBar passLoadingWheel, ImageView passPlayerImage)
+	public SpectateEvents(View[][] passSquares, ImageView[][] passImgSquares, String[][] passCheckersBoard, TextView passTextView, TextView passLoadingInfo, ProgressBar passLoadingWheel, ImageView passPlayerImage, Button passStartBtn)
 	{
 		// Player one will initially go first...
 		playerOneTurn = true;
@@ -104,6 +106,8 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 		// Initialise the ProgressBar.		
 		loadingWheel = passLoadingWheel;
 		// We will hide the wheel on startup.
+		// Initialise...
+		startBtn = passStartBtn;
 		
 		// Display the player's turn. REMEMBER TO CHANGE THIS PARTICULAR SECTION WHEN I AUTOMATICALLY MAKE THE CODE DECIDE WHO GOES FIRST!!!
 		playerInfo.setText("Player " + 1 + "'s Turn");
@@ -144,11 +148,11 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 						noOfPlayerOne++;
 					}
 					// If the piece is close to becoming a king.
-					/*if(row >= 0 && row <= 2)
+					if(row >= 0 && row <= 2)
 					{
 						// Increase the heuristic value.
 						playerOneOffense++;
-					}*/	
+					}	
 				}
 				else if(state[row][column].contains("2"))
 				{
@@ -160,18 +164,33 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 						// If it is also a king, increase the heueristic even more...
 						noOfPlayerTwo++;
 					}
-					/*// If the piece is close to becoming a king.
+					// If the piece is close to becoming a king.
 					if(row >= 5 && row <= 7)
 					{
 						// Increase the heuristic value.
 						playerTwoOffense++;
-					}*/
+					}
 				}
 			}
 		}	
-		// Evaluate the difference and store it.
-		double result = noOfPlayerTwo - noOfPlayerOne;
-		// Return the heuristic value.
+		// Evaluate the difference and store it. 
+		// This will hold the result of the evaluation.
+		double result;
+		
+		if(playerNo == "1"){
+			
+			// Subtract total of player two from player one
+			result = noOfPlayerOne - noOfPlayerTwo;
+			// This should stop the king from going back and forth.
+			result = result + (playerOneOffense - playerTwoOffense);
+		}
+		else{ //if playerNo == "2"
+			
+			// Subtract total of player one from player two.
+			result = noOfPlayerTwo - noOfPlayerOne;
+			// This should stop the king from going back and forth.
+			result = result + (playerTwoOffense - playerOneOffense);
+		}
 		return result;
 	}
 	// -- Alpha-Beta Experiment -- //	
@@ -706,7 +725,7 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 			// Grab the state of the greatestMove node.
 			String[][] greatestMoveState = greatestMove.getValue();
 			// Debug purposes - it prints out 292 nodes for a depth of 3, which is correct and I will assume that the correct states are being created.
-			System.out.println("The size of the decisionTree after the minimax operation is " + sizeOfTree + " and the greatest move is ");		
+			System.out.println("Player " + playerNo + " - the size of the decisionTree after the minimax operation is " + sizeOfTree + " and the greatest move is ");		
 			// Debug purposes.
 			printCheckersBoard(greatestMoveState); // So far, it grabs the states at depth 3 (which are the states at the cut-off depth). 
 			System.out.println("The overall heuristic value of the minimax algorithm is: " + heuristicValue);
@@ -729,7 +748,7 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 					// Copy the contents of the greatest move into the current strCheckersboards (i.e. performs the move);
 					duplicateArray(greatestMoveState, strCheckersBoard);
 					// Re-paints the board based on the AI's greatest move... Which would visually appear as if the AI made his move.
-					CheckersGame.populateBoard(strCheckersBoard);
+					SpectateGame.populateBoard(strCheckersBoard);
 					
 					// hand over its turn to the opponent (i.e. the human).
 					playerOneTurn = !playerOneTurn; 
@@ -740,7 +759,7 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 					updateNoOfPieces(strCheckersBoard);
 					// We pass in false because the turn we are handing over to, is a human so, yeah. This method will also print out the correct player
 					// information, hides the loading wheel, and whatnot.
-					switchToHumanFromBot(playerNo, opponentNo, false);
+					switchToHumanFromBot(playerNo, opponentNo, true);
 				}
 			});
 		}
@@ -769,7 +788,26 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 	// that it may cause a series of problems.
 	public synchronized void onClick(View v) 
 	{
-		// If it is player one's turn...
+		
+		System.out.println("Start spectating...");
+		
+		// We do not even need that playerOneTurn boolean variable anymore.
+		// I need a better if statement though. Oh, I know, just disable the button after it is pressed, aha.
+		if(true)
+		{
+			// The button will not be able to clicked throughout the entire match ;)
+			startBtn.setClickable(false);
+			//switchToBotFromHuman("2", "1");
+			//switchToHumanFromBot("1", "2", true);
+			
+			// Ooooo, I have an idea. We will initially call computerTurn("1", "2").
+			computerTurn("1", "2");
+			
+			
+		}
+		
+		// We do not need the following code for this class...
+		/*// If it is player one's turn...
 		if(playerOneTurn == true)
 		{
 			// The code for player one (the human) will go here, aha.
@@ -790,7 +828,7 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 		}else
 		{
 			// We do not really need this here as we will be calling the computerTurn() method from within the playerTurn() method.
-		}
+		}*/
 		
 	}// End of 'onClick'
 	public boolean isTrapped(String[][] passStrCheckersBoard, String playerNo, String opponentNo)
@@ -860,6 +898,7 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 			playerImage.setImageResource(R.drawable.light_brown_piece);	
 		}
 	}
+	// I probably should modify this section for spectate mode.
 	public void switchToHumanFromBot(String playerNo, String opponentNo, boolean isBotNext)
 	{
 		// If the opponent still has pieces on the board...
@@ -894,6 +933,15 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 				if(isBotNext == true)
 				{
 					// If we are not playing against an human, we will call delayForBot() here...
+					// -- computerTurn will be called here, using the delayForBot() method. --//
+					// We will show the wheel to indicate it is the AI's turn.
+					loadingWheel.setVisibility(View.VISIBLE);
+					// Display the Bot's information...
+					loadingInfo.setText("Bot_" + opponentNo + " is making \nits move...");
+					// Adds a delay before we actually hand over the turn to the bot. This gives the computer time to repaint the UI in time...
+					// In this case, opponentNo == "2" ;)
+					delayForBot(2000, 1000, playerNo, opponentNo);
+					// ___ End of section where we hand over the turn to the bot. ___ //
 				}
 				// ___ Insert code here ___ //
 			}

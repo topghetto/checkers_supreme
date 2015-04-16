@@ -3,5 +3,7 @@
     <string name="app_name">Checkers Supreme</string>
     <string name="str_single_player">Single Player</string>
     <string name="str_multiplayer">Multiplayer</string>
+    <string name="str_spectate">Spectate</string>
     <string name="str_exit_game">Exit Game</string>
+    <string name="str_start">Start</string>
 </resources>

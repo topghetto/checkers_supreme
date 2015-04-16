@@ -41,7 +41,8 @@ public class CheckersGame extends Activity{
 	public TextView loadingInfo;
 	// Loading wheel for AI.
 	public ProgressBar loadingWheel;
-	
+	// Start button for specating (but, we won't need it here) - We just want to hide it.
+	public Button startBtn;
 	
 	
 	@Override
@@ -50,7 +51,7 @@ public class CheckersGame extends Activity{
 		// I need to create a different xml layout... Actually, I will do it now.
 		setContentView(R.layout.checkers_game);
 		// Grabs the layout of the checkersboard
-		 checkersBoardGL = (GridLayout) findViewById(R.id.checkersboard_gridlayout);
+		checkersBoardGL = (GridLayout) findViewById(R.id.checkersboard_gridlayout);
 		
 		// AN IMPORTANT NOTE ! IF I GET A PROBLEM WHENEVER I ADD A NEW VIEW IN THE XML
 		// COMMENT checkersBoardGL --> Compile --> Run --> Enable checkersBoardGL --> Complie --> Run.
@@ -76,6 +77,10 @@ public class CheckersGame extends Activity{
 		// We will hide the wheel on startup.
 		loadingWheel.setVisibility(View.INVISIBLE); 
 		
+		// Grab the start button.
+		startBtn = (Button) findViewById(R.id.start_btn);
+		// Make it invisible as we will not need this here...
+		startBtn.setVisibility(View.INVISIBLE);
 		
 		// Testing trapped pieces for player 1.
 		/*strCheckersBoard = new String[][]{{"[]","2","[]","2","[]","2","[]","2"},

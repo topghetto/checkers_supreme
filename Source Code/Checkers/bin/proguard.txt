@@ -7,9 +7,15 @@
 # view AndroidManifest.xml #generated:26
 -keep class uk.ac.kcl.www.SinglePlayerGame { <init>(...); }
 
-# onClick res/layout/main.xml #generated:22
+# view AndroidManifest.xml #generated:42
+-keep class uk.ac.kcl.www.SpectateGame { <init>(...); }
+
+# onClick res/layout/main.xml #generated:21
 -keepclassmembers class * { *** startMultiplayer(...); }
 
 # onClick res/layout/main.xml #generated:14
 -keepclassmembers class * { *** startSinglePlayer(...); }
+
+# onClick res/layout/main.xml #generated:27
+-keepclassmembers class * { *** startSpectate(...); }
 

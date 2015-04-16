@@ -23,7 +23,7 @@ import 	android.graphics.drawable.ColorDrawable;
 import android.widget.ProgressBar;
 
 // I forgot to declare the class as public, and in result, it could not load this activity from the main menu
-public class SinglePlayerGame extends Activity{
+public class SpectateGame extends Activity{
 	
 	public GridLayout checkersBoardGL;
 	public View inflateSquare;
@@ -32,7 +32,7 @@ public class SinglePlayerGame extends Activity{
 	// This will hold the String representation of the checkers board.
 	public String	strCheckersBoard[][];
   // Handles all the events.
-	public SinglePlayerEvents playerEvents;
+	public SpectateEvents playerEvents;
 	// Displays whose turn it is.
 	public TextView playerInfo;
 	// Image of the player's piece.
@@ -41,9 +41,9 @@ public class SinglePlayerGame extends Activity{
 	public TextView loadingInfo;
 	// Loading wheel for AI.
 	public ProgressBar loadingWheel;
-	// Start button for specating (but, we won't need it here) - We just want to hide it.
-	public Button startBtn;
 	
+	// Start button for spectating
+	public Button startBtn;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -79,8 +79,6 @@ public class SinglePlayerGame extends Activity{
 		
 		// Grab the start button.
 		startBtn = (Button) findViewById(R.id.start_btn);
-		// Make it invisible as we will not need this here...
-		startBtn.setVisibility(View.INVISIBLE);
 		
 		// Testing trapped pieces for player 1.
 		/*strCheckersBoard = new String[][]{{"[]","2","[]","2","[]","2","[]","2"},
@@ -113,17 +111,22 @@ public class SinglePlayerGame extends Activity{
 		
 		
 		// instantiate the event class
-		playerEvents = new SinglePlayerEvents(imageOfSquares, imageOfSquares, strCheckersBoard, playerInfo, loadingInfo, loadingWheel, playerImage);
+		playerEvents = new SpectateEvents(imageOfSquares, imageOfSquares, strCheckersBoard, playerInfo, loadingInfo, loadingWheel, playerImage, startBtn);
+		
+		// Add the listener to the button.
+		startBtn.setOnClickListener(playerEvents);
+		
 		// Add the blank ImageViews/Views to the board (i.e. the GridLayout).
 		addSquaresToBoard();
 		// Modify the ImageViews that are now part of the GridLayout based on the contents of 'strCheckersBoard' :).
 		populateBoard(strCheckersBoard);
-		// Assign the listeners for each square (ImageView) of the board (i.e the GridLayout).
-		assignEvents();
+		// Assign the listener for the start button.
+		// __Insert code here___ //
+		
 	}	
 	public static void populateBoard(String[][] passStrCheckersBoard)
 	{
-		// I made this particular method static so, we can also use this method in the SinglePlayerEvents java file.
+		// I made this particular method static so, we can also use this method in the SpectateEvents java file.
 		// This will update the look of the checkersboard depending on the contents of 'passStrCheckersBoard[][]'
 		
 		for(int row = 0; row < 8; row++)
@@ -186,18 +189,6 @@ public class SinglePlayerGame extends Activity{
 				imageOfSquares[row][column] = imageOfSquare;
 				// Adds the square to the checkers board (i.e the grid layout specified in the XML) :)
 				checkersBoardGL.addView(inflateSquare);		
-			}
-		}
-	}
-	public void assignEvents()
-	{
-		// Assigns an event for each usuable ImageView (i.e. an empty square or an occuped square.)
-		for(int row = 0; row < 8; row++)
-		{
-			for(int column=((row+1)%2); column<8; column+=2)
-			{
-				// Add an listener to each usuable square. Should be 32 squares in total.
-				imageOfSquares[row][column].setOnClickListener(playerEvents);
 			}
 		}
 	}

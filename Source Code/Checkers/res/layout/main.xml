@@ -18,14 +18,18 @@
 		android:text="@string/str_single_player"
     android:onClick="startSinglePlayer"
 	/>
-	
 	<Button
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:text="@string/str_multiplayer"
 		android:onClick="startMultiplayer"
 	/>
-	
+	<Button
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/str_spectate"
+		android:onClick="startSpectate"
+	/>
 	<Button
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"

@@ -56,6 +56,13 @@ public class MainActivity extends Activity
 				// Load the Multiplayer Activity.
 				startActivity(intent);
 		}
+		public void startSpectate(View view)
+		{
+				// Prepares the Intent for the Multiplayer Activity.
+				Intent intent = new Intent(this, SpectateGame.class);
+				// Load the Multiplayer Activity.
+				startActivity(intent);
+		}
 		// Just a test and shizz.
 		@Override
 		public boolean onCreateOptionsMenu(Menu menu) {

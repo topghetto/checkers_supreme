@@ -29,6 +29,14 @@
 				android:layout_gravity="center_horizontal"
 				android:background="#C0C0C0"/>
     
+    <Button android:id="@+id/start_btn"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+    android:layout_marginTop="50dp"
+    android:layout_gravity="center_horizontal"
+		android:text="@string/str_start"
+    />
+    
   </LinearLayout>
   
 	<!-- This colour green is perfect for this game. I randomly typed in random numbers and got this :) android:background="#80444411" --> 
