@@ -172,7 +172,7 @@ public class SinglePlayerGame extends Activity{
 			for(int column = 0; column < 8;column++)
 			{
 				// Inflates the 'View' with the layout of the given XML.
-				inflateSquare = inflater.inflate(R.layout.gridview_item, checkersBoardGL, false);
+				inflateSquare = inflater.inflate(R.layout.gridlayout_view, checkersBoardGL, false);
 				// Store the ImageView specified in the parsed XML layout, into a runtime ImageView for further modification.
 				ImageView imageOfSquare = (ImageView) inflateSquare.findViewById(R.id.image_square);
 				// Store the 'View' in the multidimensional array of views.
