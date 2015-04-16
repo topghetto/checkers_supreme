@@ -72,6 +72,9 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 	// Keeps track of the new location of the recently moved piece.
 	public int xOfNewDest, yOfNewDest;
 	
+	// This will hold the speed value.
+	public static int speed;
+	
 	// Constructor
 	public SpectateEvents(View[][] passSquares, ImageView[][] passImgSquares, String[][] passCheckersBoard, TextView passTextView, TextView passLoadingInfo, ProgressBar passLoadingWheel, ImageView passPlayerImage, Button passStartBtn)
 	{
@@ -117,6 +120,8 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 		// Set the image of the player image.
 		playerImage.setImageResource(R.drawable.dark_brown_piece);
 		
+		// Speed is initially 1 second per move.
+		speed = 1000;
 		// Keeps track of the number of pieces and...
 		// ...Initially and dynamically determines the number of pieces for each player...
 		updateNoOfPieces(strCheckersBoard);
@@ -959,7 +964,12 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 				loadingInfo.setText("Bot_" + opponentNo + " is making \nits move...");
 				// Adds a delay before we actually hand over the turn to the bot. This gives the computer time to repaint the UI in time...
 				// In this case, opponentNo == "2" assuming the bot goes first.
-				delayForBot(2000, 1000, playerNo, opponentNo);
+				
+				int duration = speed;
+				int interval = speed;
+				
+				delayForBot(duration, interval, playerNo, opponentNo);
+				//delayForBot(2000, 1000, playerNo, opponentNo);
 				// ___ End of section where we hand over the turn to the bot. ___ //
 			}
 		}

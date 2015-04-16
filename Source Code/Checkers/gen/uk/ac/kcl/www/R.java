@@ -19,13 +19,15 @@ public final class R {
         public static final int light_brown_piece=0x7f020005;
     }
     public static final class id {
+        public static final int adjust_speed=0x7f060007;
         public static final int checkersboard_gridlayout=0x7f060003;
-        public static final int image_square=0x7f060006;
+        public static final int image_square=0x7f060008;
         public static final int loading_info=0x7f060004;
         public static final int playerInfo=0x7f060000;
         public static final int player_image=0x7f060001;
         public static final int progress_bar_for_bot=0x7f060005;
-        public static final int single_player_btn=0x7f060007;
+        public static final int seekbar_info=0x7f060006;
+        public static final int single_player_btn=0x7f060009;
         public static final int start_btn=0x7f060002;
     }
     public static final class layout {

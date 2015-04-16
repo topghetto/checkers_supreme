@@ -13,6 +13,8 @@ import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ProgressBar;
+import android.widget.SeekBar;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +22,6 @@ import android.view.LayoutInflater;
 
 import 	android.graphics.drawable.ColorDrawable;
 
-import android.widget.ProgressBar;
 
 // I forgot to declare the class as public, and in result, it could not load this activity from the main menu
 public class CheckersGame extends Activity{
@@ -41,8 +42,13 @@ public class CheckersGame extends Activity{
 	public TextView loadingInfo;
 	// Loading wheel for AI.
 	public ProgressBar loadingWheel;
+	
 	// Start button for specating (but, we won't need it here) - We just want to hide it.
 	public Button startBtn;
+	// Information for the seekbar.
+	public TextView speedInfo;
+	// Progress bar.
+	public SeekBar adjustSpeedBar;
 	
 	
 	@Override
@@ -81,6 +87,15 @@ public class CheckersGame extends Activity{
 		startBtn = (Button) findViewById(R.id.start_btn);
 		// Make it invisible as we will not need this here...
 		startBtn.setVisibility(View.INVISIBLE);
+		// Grab the seekbar information.
+		speedInfo = (TextView) findViewById(R.id.seekbar_info);
+		// Hide it because we do not need it for this class.
+		speedInfo.setVisibility(View.INVISIBLE);
+		// Grab the seekbar...
+		adjustSpeedBar = (SeekBar) findViewById(R.id.adjust_speed);
+		// Hide it because we do not need it for this class.
+		adjustSpeedBar.setVisibility(View.INVISIBLE);
+		
 		
 		// Testing trapped pieces for player 1.
 		/*strCheckersBoard = new String[][]{{"[]","2","[]","2","[]","2","[]","2"},

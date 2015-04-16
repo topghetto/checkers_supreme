@@ -13,6 +13,9 @@ import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.ProgressBar;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +23,7 @@ import android.view.LayoutInflater;
 
 import 	android.graphics.drawable.ColorDrawable;
 
-import android.widget.ProgressBar;
+
 
 // I forgot to declare the class as public, and in result, it could not load this activity from the main menu
 public class SpectateGame extends Activity{
@@ -44,6 +47,10 @@ public class SpectateGame extends Activity{
 	
 	// Start button for spectating
 	public Button startBtn;
+	// Information for the seekbar.
+	public TextView speedInfo;
+	// Progress bar.
+	public SeekBar adjustSpeedBar;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -79,6 +86,54 @@ public class SpectateGame extends Activity{
 		
 		// Grab the start button.
 		startBtn = (Button) findViewById(R.id.start_btn);
+		// Grab the seekbar information.
+		speedInfo = (TextView) findViewById(R.id.seekbar_info);
+		// Grab the seekbar...
+		adjustSpeedBar = (SeekBar) findViewById(R.id.adjust_speed);
+		
+		
+		// Defaults the thumb in the bar to be in the center.
+		adjustSpeedBar.setProgress(4);
+		// Add the event for SeekBar for adjustSpeedBar
+		adjustSpeedBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
+		{	
+			// Initially 1 second.
+			int seconds = 1;
+			
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
+			{
+				// Yup, we want the minimum to be at least 1 - Proof (0 + 1 = 1).
+				seconds = progress + 1;
+				// Set the speed.
+				speedInfo.setText((4000/seconds) + "ms");
+				
+			}
+			public void onStartTrackingTouch(SeekBar seekBar)
+			{
+				// Set the speed.
+				//int progress = seekBar.getProgress();
+				// Set the speed.
+				//speedInfo.setText(SpectateEvents.speed + "ms");
+				// Yup, we want the minimum to be at least 1 - Proof (0 + 1 = 1).
+				//seconds = progress + 1;
+			}
+			public void onStopTrackingTouch(SeekBar seekBar)
+			{
+				// Only when we let go...
+				int duration = 4000 / seconds;
+				// Interval will be the same size as the duration.
+				int interval = duration;
+				
+				speedInfo.setText("Speed: " + (4000/seconds) + "ms");
+				// Only when the user has taken his hands off the bar, we will assign the value of speed.
+				SpectateEvents.speed = duration;
+				// Debug purposes. Well, that works fine.
+				System.out.println("Here are your current milliseconds: " + (4000/seconds));
+				
+				
+				System.out.println("Here is the current speed " + duration + " ms and a interval of " + interval);
+			}
+		});
 		
 		// Testing trapped pieces for player 1.
 		/*strCheckersBoard = new String[][]{{"[]","2","[]","2","[]","2","[]","2"},
