@@ -2,33 +2,20 @@ package uk.ac.kcl.www;
 
 import java.util.ArrayList;
 
-import android.util.Log;
-
 import android.app.Activity;
 import android.app.ActionBar;
-
 import android.os.Bundle;
+import android.content.Context;
+
 import android.widget.Button;
 import android.widget.TextView;
-import android.view.View;
-
-// These are all the GridView dependencies
-
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.AdapterView;
 import android.widget.GridLayout;
-import android.widget.BaseAdapter;
-import android.content.Context;
-import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Adapter;
-import android.widget.Toast;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import android.view.ViewGroup.*;
-import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.LayoutInflater;
 
 import 	android.graphics.drawable.ColorDrawable;
@@ -42,7 +29,7 @@ public class SinglePlayerGame extends Activity{
 	public View inflateSquare;
 	public static ImageView imageOfSquares[][];
 	public View squaresOfBoard[][];
-	// Later on, I will change this to a 'char' array instead.
+	// This will hold the String representation of the checkers board.
 	public String	strCheckersBoard[][];
   // Handles all the events.
 	public SinglePlayerEvents playerEvents;

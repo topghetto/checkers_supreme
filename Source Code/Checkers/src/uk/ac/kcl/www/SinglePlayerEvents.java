@@ -1,7 +1,12 @@
 package uk.ac.kcl.www;
 
 import android.os.CountDownTimer;
+import android.content.Context;
+import android.os.Bundle;
+
 import android.app.Activity;
+import android.app.Activity;
+import android.app.ActionBar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,23 +15,17 @@ import java.util.Arrays;
 import java.lang.Thread;
 import java.lang.Runnable;
 
-import android.app.Activity;
-import android.app.ActionBar;
-import android.content.Context;
-import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.LayoutInflater;
 
 import android.widget.Button;
 import android.widget.TextView;
-import android.view.View;
 import android.widget.GridLayout;
-import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.view.LayoutInflater;
-
-import 	android.graphics.drawable.ColorDrawable;
-
 import android.widget.ProgressBar;
 
+import 	android.graphics.drawable.ColorDrawable;
 
 public class SinglePlayerEvents extends Activity implements View.OnClickListener
 {
