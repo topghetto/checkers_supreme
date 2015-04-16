@@ -72,8 +72,6 @@ public class SinglePlayerGame extends Activity{
 		imageOfSquares = new ImageView[8][8];
 		// All the layouts of the squares of the checkers board will be stored in here.
 		squaresOfBoard = new ViewGroup[8][8];
-		// This will keep track of the entire board
-		//strCheckersBoard = new String[8][8];
 		// This will state whose turn it is to make a move.
 		playerInfo = (TextView) findViewById(R.id.playerInfo);
 		
@@ -91,65 +89,7 @@ public class SinglePlayerGame extends Activity{
 		// We will hide the wheel on startup.
 		loadingWheel.setVisibility(View.INVISIBLE); 
 		
-		// Create instiate the event class TextView passLoadingInfo, ProgressBar passLoadingWheel, ImageView passPlayerImage
-		// playerEvents = new SinglePlayerEvents(imageOfSquares, imageOfSquares, strCheckersBoard, playerInfo, loadingInfo, loadingWheel, playerImage);
 		
-		// It will populate the ImageViews, I guess.
-		//populateBoard(strCheckersBoard);
-		// Then add the squares 'squaresOfBoard' to the board
-		// addSquaresToBoard()
-		// Add listeners.
-		
-		
-		// ---- Initially Populates the Checkersboard and Adds the Events to the Squares ---- \\ 
-		// For each row of the checkersboard...
-		/*
-		for(int x = 0;x<8;x++)
-		{
-			final int loopX = x;
-			// Grabs the LayoutInflater, and stores it in a readily available variable
-			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			// Used to determine what checkers' will go where
-				
-			for(int y = 0;y<8;y++)
-			{		
-				final int loopY = y;
-				// Inflates the 'View' with the layout of the given XML.
-				inflateSquare = inflater.inflate(R.layout.gridview_item, checkersBoardGL, false);
-				// Store the ImageView specified in the parsed XML layout, into a runtime ImageView for further modification.
-				ImageView imageOfSquare = (ImageView) inflateSquare.findViewById(R.id.image_square);
-				
-				if(x < 3)
-				{
-					// For the first three rows, it will print light-brown checkers pieces - Add an extra param variable that represents the player number.
-					addSquares(R.drawable.light_brown_piece, x, y, imageOfSquare, checkersBoardGL,inflateSquare, "2");
-					
-				}else if(x > 4 && x < 8){
-					// For the last three rows, it will print dark-brown checkers pieces - Add an extra param variable that represents the player number.
-					addSquares(R.drawable.dark_brown_piece, x, y, imageOfSquare, checkersBoardGL, inflateSquare, "1");
-					
-				}else{
-					// For the two rows in the middle of the checkers board, it will print empty squares.
-					// It does not need to set any image resources so therefore, the first parameter variable is 0 as I still needed to pass
-					// in an integer due to the specification of this method - This 0 will not be used.
-					// I NEED TO MODIFY THIS SO, THAT WE CAN HELP CREATE THE HELPER ARRAY
-					addSquares(0, x, y, imageOfSquare, checkersBoardGL, inflateSquare, "0");
-				}
-				
-				// This will add events to the 32 (dark brown) squares of the checkersboard because these are the only usuable squares on the board.
-				// The other 32 sqaures are just for design.
-				if(x % 2 == 0 && y % 2 == 1){
-					// This will add the event to the square, which could be empty or occupying the checkers piece. 
-					imageOfSquares[loopX][loopY].setOnClickListener(playerEvents);
-					
-				}else if(x % 2 == 1 && y % 2 == 0){
-					// This will add the event to the square, which could be empty or occupying the checkers piece. 
-					imageOfSquares[loopX][loopY].setOnClickListener(playerEvents);
-				}			
-			}
-		}
-		*/
-	
 		// Testing trapped pieces for player 1.
 		/*strCheckersBoard = new String[][]{{"[]","2","[]","2","[]","2","[]","2"},
 																			{"2", "[]","2","[]","2","[]","2","[]"},
@@ -180,8 +120,7 @@ public class SinglePlayerGame extends Activity{
 																			{"1", "[]","1","[]","1","[]","1","[]"}};
 		
 		
-		// After testing the same exact code on the Multiplayer version, the correct layouts get created, and ImageViews are in the right place, yada.
-		// Create instiate the event class TextView passLoadingInfo, ProgressBar passLoadingWheel, ImageView passPlayerImage
+		// instantiate the event class
 		playerEvents = new SinglePlayerEvents(imageOfSquares, imageOfSquares, strCheckersBoard, playerInfo, loadingInfo, loadingWheel, playerImage);
 		// Add the blank ImageViews/Views to the board (i.e. the GridLayout).
 		addSquaresToBoard();
@@ -189,20 +128,6 @@ public class SinglePlayerGame extends Activity{
 		populateBoard(strCheckersBoard);
 		// Assign the listeners for each square (ImageView) of the board (i.e the GridLayout).
 		assignEvents();
-		
-		System.out.println("|----------|");
-		
-		for(int x = 0;x<8;x++)
-		{
-			for(int y=0;y<8;y++)
-			{
-				System.out.print(strCheckersBoard[x][y]);
-			}
-			System.out.println("");
-		}
-		
-		System.out.println("|----------|");
-		
 	}	
 	public static void populateBoard(String[][] passStrCheckersBoard)
 	{
