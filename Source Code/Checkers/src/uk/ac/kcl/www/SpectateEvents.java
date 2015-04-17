@@ -67,13 +67,17 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 	// An experiment to return the move we should take.
 	public Tree<String[][]> greatestMove;
 	// Boolean helper variables... Which does what it says on the tin.	
-	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent, isNewKing, adjacentToEnemy, isFirstMove, isPaused;
+	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent, isNewKing, adjacentToEnemy, isPaused;
 	
 	// Keeps track of the new location of the recently moved piece.
 	public int xOfNewDest, yOfNewDest;
 	
 	// Will later hold the speed of each play in milliseconds.
 	public static int speed;
+	// A variable that will hold the count of how many times the bots should perform random moves. In this case,
+	// each bot will initially perform their first move randomly...
+	public int firstMoveCount;
+	
 	
 	// Constructor
 	public SpectateEvents(View[][] passSquares, ImageView[][] passImgSquares, String[][] passCheckersBoard, TextView passTextView, TextView passLoadingInfo, ProgressBar passLoadingWheel, ImageView passPlayerImage, Button passStartBtn)
@@ -112,11 +116,14 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 		// We will hide the wheel on startup.
 		// Initialise...
 		startBtn = passStartBtn;
-		// This will determine whether we should randomly move the piece...
-		isFirstMove = true;
 		// Determines whether should start moving the bot pieces again.
 		isPaused = false;
 		
+		// Make it so that both of the bot's first move.
+		firstMoveCount = 0;
+		
+		// General Information.
+		loadingInfo.setText("Press the Start \nto Begin");
 		// Display the player's turn. REMEMBER TO CHANGE THIS PARTICULAR SECTION WHEN I AUTOMATICALLY MAKE THE CODE DECIDE WHO GOES FIRST!!!
 		playerInfo.setText("Player " + 1 + "'s Turn");
 		// Set the image of the player image.
@@ -728,11 +735,12 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 			// Holds the result of the alphabeta/minimax operation...
 			double heuristicValue = 0;
 			
-			if(isFirstMove == true){
+			// This ensure that the first initial move for each bot is randomly generated.
+			if(firstMoveCount < 2){
 				
 				// Randomly move the piece...
-				// Make sure this never runs for the rest of the game.
-				isFirstMove = false;
+				// Increment the count. This will run only twice (first move for each bot).
+				firstMoveCount++;
 				// Create the nodes...
 				createChildren(decisionTree, playerNo, opponentNo);
 				// Grab the children.
@@ -744,9 +752,7 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 				// Randomly grab a move and store it is as the greatestMove ;)
 				greatestMove = children.get(randomIndex);
 				// Debug purposes. Yup, this works, woop, woop.
-				System.out.println("The index generated is " + randomIndex);
-				
-				
+				System.out.println("The index generated for player " + playerNo + " is " + randomIndex);
 				
 			}else{ //if - We will run alphabeta as normal.
 				
