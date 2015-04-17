@@ -67,12 +67,12 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 	// An experiment to return the move we should take.
 	public Tree<String[][]> greatestMove;
 	// Boolean helper variables... Which does what it says on the tin.	
-	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent, isNewKing, adjacentToEnemy, isFirstMove;
+	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent, isNewKing, adjacentToEnemy, isFirstMove, isPaused;
 	
 	// Keeps track of the new location of the recently moved piece.
 	public int xOfNewDest, yOfNewDest;
 	
-	// This will hold the speed value.
+	// Will later hold the speed of each play in milliseconds.
 	public static int speed;
 	
 	// Constructor
@@ -114,6 +114,8 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 		startBtn = passStartBtn;
 		// This will determine whether we should randomly move the piece...
 		isFirstMove = true;
+		// Determines whether should start moving the bot pieces again.
+		isPaused = false;
 		
 		// Display the player's turn. REMEMBER TO CHANGE THIS PARTICULAR SECTION WHEN I AUTOMATICALLY MAKE THE CODE DECIDE WHO GOES FIRST!!!
 		playerInfo.setText("Player " + 1 + "'s Turn");
@@ -788,6 +790,10 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 					printCheckersBoard(strCheckersBoard);
 					// Updates variables that hold the number of pieces each player has on the board.
 					updateNoOfPieces(strCheckersBoard);
+					
+					// An experiment...
+					
+					// Get rid of the IF statement above if it does not work, and renable the code below :)
 					// We pass in false because the turn we are handing over to, is a human so, yeah. This method will also print out the correct player
 					// information, hides the loading wheel, and whatnot.
 					switchBot(playerNo, opponentNo);
@@ -815,12 +821,45 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 		minimaxThread.start();
 		
 	}
-	// I declared this method as synchronised hoping the code runs one at a time otherwise,if I clicked ib two buttons at the same time, I have a hunch
+	// I declared this method as synchronised hoping the code runs one at a time otherwise, if I clicked two buttons at the same time, I have a hunch
 	// that it may cause a series of problems.
 	public synchronized void onClick(View v) 
 	{
+		// Initially, isPaused will be false but, when we press the start button for the first time, it will change the value to true...
+		if(isPaused != true)
+		{
+			// Rename the button to 'pause'.
+			startBtn.setText("Pause");
+			// Also make isPaused true so, when this button is clicked again, it will not run this statement ;)
+			isPaused = true;
+			
+			if(playerOneTurn == true)
+			{
+				// Call computerTurn("1", "2") (i.e player one goes first.)
+				computerTurn("1", "2");			
+			}
+			else // if it's player two's turn...
+			{
+				// Call computerTurn("2", "1") (i.e player two goes first.)
+				computerTurn("2", "1");
+				
+			}	
+		}else
+		{
+			// If the paused button is clicked...
+			// Rename the button to resume...
+			startBtn.setText("Resume");
+			// We change isPaused back to false so, when we call this method (i.e. click the button again), it will run the code as normal :)
+			isPaused = false;
+			// Disable the loading wheel.
+			loadingWheel.setVisibility(View.INVISIBLE);
+			// Display some information.
+			loadingInfo.setText("The game has \nbeen paused.");
+		}
 		
-		System.out.println("Start spectating...");
+		
+		
+		/*System.out.println("Start spectating...");
 		
 		// We do not even need that playerOneTurn boolean variable anymore.
 		// I need a better if statement though. Oh, I know, just disable the button after it is pressed, aha.
@@ -832,32 +871,7 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 			computerTurn("1", "2");
 			
 			
-		}
-		
-		// We do not need the following code for this class...
-		/*// If it is player one's turn...
-		if(playerOneTurn == true)
-		{
-			// The code for player one (the human) will go here, aha.
-			for(int x = 0;x<8;x++)
-			{
-				// ((x+1)%2) will make it change back-and-forth from 1 to 0 after each 'x' iteration. This will allow a search for events through
-				// the 32 squares that would call an event instead of searching through 64 squares (where 32 will never ever call a event).
-				for(int y=((x+1)%2);y<8;y+=2)
-				{
-					// Firstly, we must find the row/column value of the square that initiated the event.
-					if(squaresOfBoard[x][y].equals(v))
-					{
-						// We move our pieces as normal.
-						playerTurn("1", strCheckersBoard, v, x, y, "2");		// Nice, it works.
-					}
-				}
-			}
-		}else
-		{
-			// We do not really need this here as we will be calling the computerTurn() method from within the playerTurn() method.
 		}*/
-		
 	}// End of 'onClick'
 	public boolean isTrapped(String[][] passStrCheckersBoard, String playerNo, String opponentNo)
 	{
@@ -949,28 +963,29 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 			else
 			{
 				// Game is still going...
-				loadingInfo.setText("Bot_" + playerNo + " is waiting \nfor you to make \nyour move...");
-				// Disable the loading wheel.
-				loadingWheel.setVisibility(View.INVISIBLE);
 				// Opponent info will go here...
 				setPlayerImage(opponentNo);
 				// Display's the opponent's information...
 				playerInfo.setText("Player " + opponentNo + "'s Turn");
-			
-				// -- computerTurn will be called here, using the delayForBot() method. --//
-				// We will show the wheel to indicate it is the AI's turn.
-				loadingWheel.setVisibility(View.VISIBLE);
-				// Display the Bot's information...
-				loadingInfo.setText("Bot_" + opponentNo + " is making \nits move...");
-				// Adds a delay before we actually hand over the turn to the bot. This gives the computer time to repaint the UI in time...
-				// In this case, opponentNo == "2" assuming the bot goes first.
+				// This is for clarity. This is all for not wanting to use more than one button, aha.
+				boolean isNotPaused = isPaused;
 				
-				int duration = speed;
-				int interval = speed;
-				
-				delayForBot(duration, interval, playerNo, opponentNo);
-				//delayForBot(2000, 1000, playerNo, opponentNo);
-				// ___ End of section where we hand over the turn to the bot. ___ //
+				// The game is not paused so, we proceed as normal...
+				if(isNotPaused == true){
+					
+					// -- computerTurn will be called here, using the delayForBot() method. --//
+					// We will show the wheel to indicate it is the AI's turn.
+					loadingWheel.setVisibility(View.VISIBLE);
+					// Display the Bot's information...
+					loadingInfo.setText("Bot_" + opponentNo + " is making \nits move...");
+					// Adds a delay before we actually hand over the turn to the bot. This gives the computer time to repaint the UI in time...
+					// In this case, opponentNo == "2" assuming the bot goes first.
+					// Made for clarity.
+					int duration = speed; int interval = speed;
+					delayForBot(duration, interval, playerNo, opponentNo);
+					//e.g. delayForBot(2000, 1000, playerNo, opponentNo);
+					// ___ End of section where we hand over the turn to the bot. ___ //
+				}
 			}
 		}
 		else
