@@ -52,7 +52,7 @@ public class MainActivity extends Activity
 		public void startMultiplayer(View view)
 		{
 				// Prepares the Intent for the Multiplayer Activity.
-				Intent intent = new Intent(this, CheckersGame.class);
+				Intent intent = new Intent(this, MultiplayerGame.class);
 				// Load the Multiplayer Activity.
 				startActivity(intent);
 		}
@@ -62,13 +62,5 @@ public class MainActivity extends Activity
 				Intent intent = new Intent(this, SpectateGame.class);
 				// Load the Multiplayer Activity.
 				startActivity(intent);
-		}
-		// Just a test and shizz.
-		@Override
-		public boolean onCreateOptionsMenu(Menu menu) {
-				// Inflate the menu items for use in the action bar
-				MenuInflater inflater = getMenuInflater();
-				inflater.inflate(R.menu.menu_item, menu);
-				return super.onCreateOptionsMenu(menu);
 		}
 }
