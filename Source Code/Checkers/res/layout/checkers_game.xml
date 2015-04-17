@@ -69,7 +69,7 @@
 						android:layout_marginTop="50dp"
             android:layout_gravity="center_horizontal"
 						android:textSize="15sp"
-						android:text="A.I.mee is \nwaiting for you..."/>
+						android:text=""/>
     
     <ProgressBar android:id="@+id/progress_bar_for_bot"
         style="@android:style/Widget.ProgressBar.Large"

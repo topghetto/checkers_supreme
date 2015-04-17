@@ -114,315 +114,6 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 		// ...Initially and dynamically determines the number of pieces for each player...
 		updateNoOfPieces(strCheckersBoard);
 	}
-	public double evaluateNode(Tree<String[][]> passNode, String playerNo, String opponentNo)
-	{
-		// Evaluation will be done within this method...
-		String[][] state = passNode.getValue();
-		// The number of pieces on the board that player one (the human) has ...
-		int noOfPlayerOne = 0;
-		// The number of pieces on the board that player two (the computer) has...
-		int noOfPlayerTwo = 0;
-		// calculate how many pieces are close to becoming kings. The total number of pieces in 0,1,2 for player 1 and 5,6,&7 for player 2.
-		// Although, it seems to do well without this so, I may delete this in the future.
-		double playerOneOffense = 0, playerTwoOffense = 0;
-		
-		// Perform the evaluation.
-		for(int row = 0;row < 8; row++)
-		{
-			for(int column=((row+1)%2); column<8; column+=2)
-			{
-				// 1. Counts the number of player two's (CPU) pieces to player one's (Human) piece,
-				// and also takes the number of kings into consideration.
-				if(state[row][column].contains("1"))
-				{
-					// If it is a standard piece, increase the heuristic.
-					noOfPlayerOne++;
-					
-					if(state[row][column].contains("K1"))
-					{
-						// If it is also a king, increase the heueristic even more...
-						noOfPlayerOne++;
-					}
-					// If the piece is close to becoming a king.
-					/*if(row >= 0 && row <= 2)
-					{
-						// Increase the heuristic value.
-						playerOneOffense++;
-					}*/	
-				}
-				else if(state[row][column].contains("2"))
-				{
-					// If it is a standard piece, increase the heuristic.
-					noOfPlayerTwo++;
-					
-					if(state[row][column].contains("K2"))
-					{
-						// If it is also a king, increase the heueristic even more...
-						noOfPlayerTwo++;
-					}
-					/*// If the piece is close to becoming a king.
-					if(row >= 5 && row <= 7)
-					{
-						// Increase the heuristic value.
-						playerTwoOffense++;
-					}*/
-				}
-			}
-		}	
-		// Evaluate the difference and store it.
-		double result = noOfPlayerTwo - noOfPlayerOne;
-		// Return the heuristic value.
-		return result;
-	}
-	// -- Alpha-Beta Experiment -- //	
-	public double alphabeta(Tree<String[][]> passNode, int depth, double alpha, double beta, boolean maximisingPlayer, String playerNo, String opponentNo)
-	{
-		if(depth == 0) 
-		{
-			// Calculate and return the heuristic value.
-			return evaluateNode(passNode, playerNo, opponentNo);
-		}
-		if(maximisingPlayer == true)
-		{
-			// Maximising player's turn... (i.e. it is a MAX node)...
-			// Initially negative infinity.
-			double bestValue = alpha;
-			// Generate the children - This will correspond to the root MAX node which will create MIN nodes... This works okay.
-			//createChildren(passNode, "2", "1");
-			createChildren(passNode, playerNo, opponentNo);
-			// Grab the children of the node passed in.
-			ArrayList<Tree<String[][]>> children = passNode.children();
-			
-			// If the node did generate children after calling 'createChildren()'... We, will loop through...
-			if(children.size() > 0)
-			{
-				// For each child of the (parent) node
-				for(Tree<String[][]> child : children)
-				{
-					// Recursion call, y'all.
-					double value = alphabeta(child, depth-1, alpha, beta, false, playerNo, opponentNo);
-					
-					// bestValue = Math.max(bestValue, value) is what the code below is technically doing...
-					if(value > bestValue)
-					{
-						// Updates the bestValue with the current value.
-						bestValue = value;
-							
-						if(passNode.isRoot())
-						{
-							// When we are at the root of the node passed in, store the actual node into a global Tree<String[][]> that we will later use...
-							greatestMove = child;	
-						}	
-					}
-					// We only update alpha if bestValue is greater than it...
-					if(bestValue > alpha)
-					{
-						// Update alpha.
-						alpha = bestValue;
-					}
-					// The pruning begins...
-					if(beta <= alpha)
-					{
-						// Prune...
-						break;
-					}
-				}
-			}else
-			{
-				// This call wiill evaluate the node passed in, earlier than expected because it no longer has any children.
-				bestValue = alphabeta(passNode, 0, alpha, beta, false, playerNo, opponentNo);
-			}			
-			// Return the overall result.
-			return bestValue;
-			
-		}else //if(maximisingPlayer = false)
-		{
-			// If it is the Minising Player (i.e. a MIN node)...
-			// beta will initially be positive infinity .
-			double bestValue = beta;
-			// Generate the children - the new states will be created in the method below. This corresponds to the MIN Nodes which will create MAX nodes.
-			// createChildren(passNode, "1", "2");
-			createChildren(passNode, opponentNo, playerNo);
-			// Grab the children of the node passed in.
-			ArrayList<Tree<String[][]>> children = passNode.children();
-			
-			// If the node did generate children after calling 'createChildren()'... We, will loop through...
-			if(children.size() > 0)
-			{
-				// For each child of the (parent) node
-				for(Tree<String[][]> child : children)
-				{
-					// A recursive call that will eventually assign the result of that call into 'value'.
-					double value = alphabeta(child, depth-1, alpha, beta, true, playerNo, opponentNo);
-					
-					// bestValue = Math.min(bestValue, value) is what the code below is technically doing...
-					if(value < bestValue)
-					{
-						// Update the bestValue with the new best value.
-						bestValue = value;
-						
-						if(passNode.isRoot())
-						{
-							// When we are at the root of the node passed in, store the actual node into a global Tree<String[][]> that we will later use...
-							greatestMove = child;	
-						}	
-					}
-					// Only updates beta when bestValue is less than beta
-					if(bestValue < beta)
-					{
-						// Updates beta.
-						beta = bestValue;
-					}
-					// Prune...
-					if(beta <= alpha)
-					{
-						// Pruning...
-						break;
-					}
-				}
-			}else
-			{
-				// Debug purposes. This is for the purpose of when the bot has only one piece left on the board, and it's cornered (about to be captured.)
-				// When it is MIN's turn and assuming a final capture happened beforehand (at MAX), Min would have no pieces to move, resulting in no
-				// children created so, because the game would be the won by the opponent, there are no more possible moves that can be made so,
-				// we evaluate earlier, which seems to be working well.
-				// System.out.println("We will evaluate passNode earlier than the cut-off depth because it has no children...");
-				// This call wiill evaluate the node passed in, earlier than expected because it no longer has any children.
-				bestValue = alphabeta(passNode, 0, alpha, beta, true, playerNo, opponentNo);
-			}
-			// Return the overall result.
-			return bestValue;
-		}
-	}
-	// --- End of Alpha-Beta Experiment -- //
-	public double minimax(Tree<String[][]> passNode, int depth, boolean maximisingPlayer, String playerNo, String opponentNo)
-	{
-		// Base case...
-		if(depth == 0) 
-		{
-			// Calculate and return the heuristic value.
-			return evaluateNode(passNode, playerNo, opponentNo);
-		}
-		if(maximisingPlayer == true)
-		{
-			// Debug purposes.
-			System.out.println("Maximising Player:"); 
-			// If it is a MAX node...
-			// An experiment
-			Tree<String[][]> bestMove = null;
-			// Initially negative infinity.
-			double bestValue = Double.NEGATIVE_INFINITY;
-			// Generate the children - This will correspond to the root MAX node which will create MIN nodes... This works okay.
-			//createChildren(passNode, "2", "1");
-			createChildren(passNode, playerNo, opponentNo);
-			// Grab the children of the node passed in.
-			ArrayList<Tree<String[][]>> children = passNode.children();
-			
-			// --- An experiment --- //
-			
-			if(children.size() > 0)
-			{
-				// For each child of the (parent) node
-				for(Tree<String[][]> child : children)
-				{
-					// Recursion call, y'all.
-					double value = minimax(child, depth-1, false, playerNo, opponentNo);
-					// Debug purposes.
-					System.out.println("The depth of the node ");
-					System.out.print("max(" + bestValue + ", ");
-					// If the new value obtained is larger than the previous bestValue, update the 'bestValue' with the new value.
-					// bestValue = Math.max(bestValue, value);
-					
-					if(value > bestValue)
-					{
-						bestValue = value;
-						// Store the best move... I hope. All this time I have been saving passNode not 'child'... Hopefully, it works now.	
-						// An experiment. using 'passNode' always picks the last moveable piece in the tree.		
-						if(passNode.isRoot())
-						{
-							// Well, it picks sometimes first child, and even second child. It may actually be working now. I'll run some more tests.
-							// It cleverly avoided the pieces when the CPU had only one piece left. Yup, this works :)
-							// Debug purposes.
-							System.out.println("This is the root node within in the minimax recursive stack and here are the contents of one child from root:");
-							// Print the board, yup.
-							printCheckersBoard(child.getValue());
-							// Store the greatest move.
-							greatestMove = child;	
-						}	
-					}
-					
-					// Debug purposes.
-					System.out.println(value + ") is " + bestValue);
-				}
-			}else
-			{
-				// Debug purposes. This is for the purpose of when the bot has only one piece left on the board, and it's cornered (about to be captured.)
-				System.out.println("We will evaluate passNode earlier than the cut-off depth because it has no children...");
-				// An attempt to evaluate the node early.
-				bestValue = minimax(passNode, 0, false, playerNo, opponentNo);
-			}
-			// Return the overall result.
-			return bestValue;
-			
-		}else //if(maximisingPlayer = false)
-		{
-			// If it is a MIN node...
-			// Debug purposes.
-			System.out.println("Minimising Player:"); 
-			// An experiment
-			Tree<String[][]> bestMove = null;
-			// Initially positive infinity.
-			double bestValue = Double.POSITIVE_INFINITY;
-			// Generate the children - the new states will be created in the method below. This corresponds to the MIN Nodes which will create MAX nodes.
-			// createChildren(passNode, "1", "2");
-			createChildren(passNode, opponentNo, playerNo);
-			// Grab the children of the node passed in.
-			ArrayList<Tree<String[][]>> children = passNode.children();
-			
-			if(children.size() > 0)
-			{
-				// For each child of the (parent) node
-				for(Tree<String[][]> child : children)
-				{
-					// A recursive call that will eventually assign the result of that call into 'value'.
-					double value = minimax(child, depth-1, true, playerNo, opponentNo);
-					// Debug purposes.
-					System.out.print("min(" + bestValue + ", ");
-					// If the new value obtained is smaller than the previous bestValue, update the 'bestValue' with the new value.
-					// bestValue = Math.min(bestValue, value);
-					
-					if(value < bestValue)
-					{
-						bestValue = value;
-						// Store the best move... I hope. Oh, shit, I think I am passing in the wrong node.
-						// An experiment. using 'passNode' always picks the last moveable piece in the tree.		
-						if(passNode.isRoot())
-						{
-							// Debug purposes.
-							System.out.println("This is the root node within in the minimax recursive stack and here are the contents of one child from root:");
-							// Print the board, yup.
-							printCheckersBoard(child.getValue());
-							// Store the greatest move.
-							greatestMove = child;	
-						}	
-					}
-					// Debug purposes.
-					System.out.println(value + ") is " + bestValue);
-				}
-			}else
-			{
-				// Debug purposes. This is for the purpose of when the bot has only one piece left on the board, and it's cornered (about to be captured.)
-				// When it is MIN's turn and assuming a final capture happened beforehand (at MAX), Min would have no pieces to move, resulting in no
-				// children created so, because the game would be the won by the opponent, there are no more possible moves that can be made so,
-				// we evaluate earlier, which seems to be working well.
-				System.out.println("We will evaluate passNode earlier than the cut-off depth because it has no children...");
-				// An attempt to evaluate the node early.
-				bestValue = minimax(passNode, 0, true, playerNo, opponentNo);
-			}
-			// Return the overall result.
-			return bestValue;
-		}
-	}
 	public void printCheckersBoard(String[][] passCheckersBoard)
 	{
 		// Debug Purposes - This will print out a text representation of the checkers board. 
@@ -451,223 +142,6 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 			highlightSquares(passStrCheckersBoard, row, column, opponentNo, playerNo);
 		}		
 	}
-	// The code for the AI will be written here...
-	public void createChildren(Tree<String[][]> passNode, String playerNo, String opponentNo)
-	{
-		// Gets the checkersboard of the (current) state.
-		String[][] theParentState = passNode.getValue();
-		
-		// Only run this when it is empty...
-		if(arrayOfPrevCoordinatesX.size() <= 0)
-		{	
-			// Prepares the correct string for playerX.
-			String strKing = "K" + playerNo;
-			
-			// Loop through each square of the board...
-			for(int row = 0; row < 8;row++)
-			{
-				for(int column=((row+1)%2); column<8; column+=2)
-				{
-					// Checks whether there are any pieces neighbouring any enemy pieces.
-					if(theParentState[row][column] == playerNo || theParentState[row][column].contains(strKing))
-					{
-						// checks which player's turn it is before calling the highlightSquares() method within in the method below.
-						checkPlayerAndAdd(theParentState, row, column, opponentNo, playerNo);
-						
-						// Check for adjacent enemies...					
-						if(xEnemyAxis.size() > 0)
-						{
-							// ...There is an adjacent enemy.
-							
-							// if no enemies have been seen yet, we clear the lists because we can only make captures from here on out...
-							if(arrayOfEnemyCoordinatesX.size() <= 0)
-							{
-								// Clear the master ArrayList.
-								clearMasterLists();
-								// Add the coordinates to the master ArrayLists
-								addToMasterLists(xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis);	
-								// Then clear the standard ArrayLists and repeat.
-								clearHelperArrays();
-								
-							}else if(arrayOfEnemyCoordinatesX.size() > 0)
-							{
-								// If there are exisiting enemies that other pieces are already adjacent to, we simply add our newly found coordinates to the list.
-								// Appends the coordinates to the master ArrayLists
-								addToMasterLists(xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis);	
-								// Then clear the standard ArrayLists and repeat.
-								clearHelperArrays();
-							}
-						}
-						else if(xPrevAxis.size() > 0 && arrayOfEnemyCoordinatesX.size() <= 0) 
-						{
-							// if we have not seen any enemies adjacent prior to this point, and if we can legitmately move the piece, we add its coordinates...
-							// ...To the master ArrayLists (i.e. a standard move).
-							addToMasterLists(xPrevAxis, yPrevAxis, xEnemyAxis, yEnemyAxis);	
-							// Clear the standard ArrayLists.
-							clearHelperArrays();
-						}	
-					}// else - A piece has not been seen at this location...	
-				}
-			}
-			
-			// Now, the nodes will be created here...
-			for(int m = 0;m < arrayOfPrevCoordinatesX.size();m++)
-			{
-				// Grab the coordinates of the highlighted squares and the enemy pieces, if there are any enemies. 
-				ArrayList<Integer> autoPrevX = arrayOfPrevCoordinatesX.get(m);
-				ArrayList<Integer> autoPrevY = arrayOfPrevCoordinatesY.get(m);
-				// This will be dynamically initalised shortly...
-				ArrayList<Integer> autoEnemyX;
-				ArrayList<Integer> autoEnemyY;
-				
-				// Using '==' instead of 'greater than' works better. No IndexOutOfBoundExceptions 
-				if(arrayOfEnemyCoordinatesX.size() == arrayOfPrevCoordinatesX.size())
-				{
-					autoEnemyX = arrayOfEnemyCoordinatesX.get(m);
-					autoEnemyY = arrayOfEnemyCoordinatesY.get(m);
-				}
-				else
-				{
-					// We will create a autoEnemyX/Y ArrayList and pass it in later but, the movePiece() function will not use it.
-					autoEnemyX = new ArrayList<Integer>();
-					autoEnemyY = new ArrayList<Integer>();
-				}
-				
-				for(int eachSquare = 1;eachSquare < autoPrevX.size();eachSquare++)
-				{
-					// Create a state for each move preserving the original state.
-					String[][] newLocationState = new String[8][8];
-					// Copy the contents of the parent state into 'newLocationState', preserving the parent state's original contents ;)
-					duplicateArray(theParentState, newLocationState);
-					
-					// This section is where each move made, it will then create a new state (node).
-					int xAxisOfDest = autoPrevX.get(eachSquare).intValue();
-					int yAxisOfDest = autoPrevY.get(eachSquare).intValue();
-					
-					// This will create the state with the potential move.
-					movePiece(newLocationState, xAxisOfDest, yAxisOfDest, autoPrevX, autoPrevY, autoEnemyX, autoEnemyY, playerNo, opponentNo, true);
-					
-					
-					// We only check for an consecutive capture if the piece previously made a capture, and if it did, it should also not be a newly
-					// transformed king... 
-					if(autoEnemyX.size() > 0 && isNewKing == false)
-					{
-						// We will use this later to check whether the piece at the new location is adjacent to another enemy.
-						highlightSquares(newLocationState, xAxisOfDest, yAxisOfDest, opponentNo, playerNo);
-						// We will clone the result, and immediately clear the x/yPrevAxis ArrayLists. This will keep the global ArrayLists preserved.
-						ArrayList<Integer> nextPrevAxisX = (ArrayList<Integer>) xPrevAxis.clone();
-						ArrayList<Integer> nextPrevAxisY = (ArrayList<Integer>) yPrevAxis.clone();
-						ArrayList<Integer> nextEnemyAxisX = (ArrayList<Integer>) xEnemyAxis.clone();
-						ArrayList<Integer> nextEnemyAxisY = (ArrayList<Integer>) yEnemyAxis.clone();
-						// clear the helper arrays.
-						clearHelperArrays();
-						
-						// If there is an enemy adjacent to the piece at the new location, we will recursively check...
-						// for consecutive captures from the current ocation...
-						if(nextEnemyAxisX.size() > 0)
-						{
-							// Debug purposes...
-							/*if(nextEnemyAxisX.size() > 1)
-							{
-								System.out.println("There are two options for the consecutive capture! Take 4!");
-							}*/
-							
-							// Recursively check for consecutive captures, and adds the states to 'passNode'.
-							consecutiveCaptures(passNode, newLocationState, true, playerNo, opponentNo, nextPrevAxisX, nextPrevAxisY, nextEnemyAxisX, nextEnemyAxisY);
-							
-						}else{
-							
-							// It was just a single capture we will add the state to the passNode...
-							// We add the state to passNode, making it a child of 'passNode'
-							passNode.addChild(new Tree(newLocationState));
-							// Increment the size of the tree by 1.
-							sizeOfTree++;	
-						}
-					}else{
-						
-						// It was just a standard move.
-						// We add the state to passNode, making it a child of 'passNode'
-						passNode.addChild(new Tree(newLocationState));
-						// Increment the size of the tree by 1.
-						sizeOfTree++;	
-					}
-				}
-			}
-			// Clears the Master ArrayLists.
-			clearMasterLists();			
-		}	// End of createChildren() method (except for consecutive captures)
-	}
-	public void consecutiveCaptures(Tree<String[][]> passNode, String[][] passState, boolean isAdjacent, String playerNo, String opponentNo,
-																	ArrayList<Integer> passPrevX, ArrayList<Integer> passPrevY, ArrayList<Integer> passEnemyX, ArrayList<Integer> passEnemyY)
-	{
-		// A recursive method checks for consecutive captures.
-		
-		// Base case.
-		if(isAdjacent == false){
-			
-			// Clear the helperArrays
-			clearHelperArrays();
-			// Add the state to the tree.
-			passNode.addChild(new Tree(passState));
-			// Increment the size of the tree too.
-			sizeOfTree++;
-		}
-		else{ // technically if(isAdjacent == true) 
-			
-			// Holds the number of enemies adjacent for each function call...
-			int noOfEnemies = passEnemyX.size();
-			
-			// Loop through...
-			for(int e = 0; e < noOfEnemies; e++)
-			{
-				// This will shortly hold a copy of the currentState. 
-				String[][] copyOfCurrentState = new String[8][8];
-				// Copy the contents of the state passed into this function using the function below.
-				duplicateArray(passState, copyOfCurrentState);
-				
-				// We obtain destinationX/Y from the copied ArrayLists.
-				int destinationX = passPrevX.get(e+1).intValue(); int destinationY = passPrevY.get(e+1).intValue();
-				// Move the piece (i.e. perform the capture).
-				movePiece(copyOfCurrentState, destinationX, destinationY, passPrevX, passPrevY, passEnemyX, passEnemyY, playerNo, opponentNo, true);
-				
-				// Update the new positon of the piece - This is mainly for clarity in reading.
-				int positionX = destinationX; int positionY = destinationY;
-				// Clear the orginal helper arrays.
-				clearHelperArrays();
-				// Now, we will use this method to generate the helper ArrayLists that we will later use to check whether there any adjacent enemies
-				// at the new location.
-				highlightSquares(copyOfCurrentState, positionX, positionY, opponentNo, playerNo);
-				// We will clone the result, and immediately clear the x/yPrevAxis ArrayLists.
-				ArrayList<Integer> nextPrevAxisX = (ArrayList<Integer>) xPrevAxis.clone();
-				ArrayList<Integer> nextPrevAxisY = (ArrayList<Integer>) yPrevAxis.clone();
-				ArrayList<Integer> nextEnemyAxisX = (ArrayList<Integer>) xEnemyAxis.clone();
-				ArrayList<Integer> nextEnemyAxisY = (ArrayList<Integer>) yEnemyAxis.clone();
-				// clear the helper arrays.
-				clearHelperArrays();
-				
-				// If the piece that moved to its new location just transformed to a king, we stop here...
-				if(isNewKing == true){
-				
-					// stop here by calling the function again but, it will immediately stop isAdjacent == false.
-					consecutiveCaptures(passNode, copyOfCurrentState, false, playerNo, opponentNo, nextPrevAxisX, nextPrevAxisY, nextEnemyAxisX, nextEnemyAxisY);
-					// We will make this loop the last iteration, even though it is not needed. I say it is not needed because in order for
-					// it to become a king, a square on the last row must be empty so, at most, it will be adjacent to only one enemy piece
-					// upon its transformation ;)
-					e = noOfEnemies; 
-				}
-				else if(nextEnemyAxisX.size() > 0){
-					
-					// Perform the recursive call to repeat this process again - 'true' because it is adjacent to an enemy at the new location.
-					consecutiveCaptures(passNode, copyOfCurrentState, true, playerNo, opponentNo, nextPrevAxisX, nextPrevAxisY, nextEnemyAxisX, nextEnemyAxisY);
-					
-				}else{
-					
-					// to the tree... I hope. - 'false' because the piece at the new location is not adjacent to an enemy piece.
-					consecutiveCaptures(passNode, copyOfCurrentState, false, playerNo, opponentNo, nextPrevAxisX, nextPrevAxisY, nextEnemyAxisX, nextEnemyAxisY);
-				}
-			}
-		}
-	}
 	public void duplicateArray(String[][] source, String[][] destination)
 	{
 		// When simply copying an array by re-assigning it to a new copy (theorectically, it would copy the contents) but, really it...
@@ -681,89 +155,6 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 				destination[a][b] = source[a][b];
 			}
 		}
-	}
-	public class MinimaxThread extends Thread
-	{
-		// Member variables.
-		public String playerNo, opponentNo;
-		
-		// Constructor
-		public MinimaxThread(String passPlayerNo, String passOpponentNo)
-		{
-			// Initialise the member variables.
-			playerNo = passPlayerNo;
-			opponentNo = passOpponentNo;
-		}
-		public void run()
-		{		
-			// Run the Minimax algorithm within here.
-			
-			// This will later hold the node that yields the best value for alphabeta/minimax.
-			greatestMove = new Tree(new String[8][8]);
-			// Run the algorithm and store the value.
-			//double heuristicValue = minimax(decisionTree, 3, true, playerNo, opponentNo);
-			double heuristicValue = alphabeta(decisionTree, 3, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true, playerNo, opponentNo);
-			// Grab the state of the greatestMove node.
-			String[][] greatestMoveState = greatestMove.getValue();
-			// Debug purposes - it prints out 292 nodes for a depth of 3, which is correct and I will assume that the correct states are being created.
-			System.out.println("The size of the decisionTree after the minimax operation is " + sizeOfTree + " and the greatest move is ");		
-			// Debug purposes.
-			printCheckersBoard(greatestMoveState); // So far, it grabs the states at depth 3 (which are the states at the cut-off depth). 
-			System.out.println("The overall heuristic value of the minimax algorithm is: " + heuristicValue);
-			
-			// Debug.
-			System.out.println("The contents of strCheckersBoard[][] before the Bot moved its piece is:");
-			printCheckersBoard(strCheckersBoard);
-			
-			// Because we will be repainting the Views (i.e. the checkers pieces, checkersboard, etc.), we must do it on the UI thread.
-			// All UI repainting must be done on the UI thread, which it will do now...
-			
-			runOnUiThread(new Runnable()
-			{
-				public void run()
-				{
-					// Debug purposes.
-					System.out.println("Minimax is done. The bot will perform its move...");
-					// Grabs the state of the greatestMove node.
-					String[][] greatestMoveState = greatestMove.getValue();
-					// Copy the contents of the greatest move into the current strCheckersboards (i.e. performs the move);
-					duplicateArray(greatestMoveState, strCheckersBoard);
-					// Re-paints the board based on the AI's greatest move... Which would visually appear as if the AI made his move.
-					CheckersGame.populateBoard(strCheckersBoard);
-					
-					// hand over its turn to the opponent (i.e. the human).
-					playerOneTurn = !playerOneTurn; 
-					// Debug purposes.
-					System.out.println("The contents of strCheckersBoard[][] after the Bot moved its piece is:");
-					printCheckersBoard(strCheckersBoard);
-					// Updates variables that hold the number of pieces each player has on the board.
-					updateNoOfPieces(strCheckersBoard);
-					// We pass in false because the turn we are handing over to, is a human so, yeah. This method will also print out the correct player
-					// information, hides the loading wheel, and whatnot.
-					switchToHumanFromBot(playerNo, opponentNo, false);
-				}
-			});
-		}
-	}
-	public void computerTurn(String playerNo, String opponentNo)
-	{
-		// This will later hold a copy of the current state.
-		String[][] currentState = new String[8][8];
-		// Copy the contents of the checkers board into a temporary array which corresponds to the current state.
-		duplicateArray(strCheckersBoard, currentState);
-		// Using a different Tree data structure - I am assuming this initialises the tree with the current state as the root.
-		decisionTree = new Tree(currentState);
-		// This will hold the number of nodes.
-		sizeOfTree = 1;
-
-		// The tree will be generated within the MiniMaxThread	
-		// Initialise the greatestMove node.
-		greatestMove = new Tree(new String[8][8]);
-		// Making the actual object final does not result in non-mutable variables used within the object ;)
-		final MinimaxThread minimaxThread = new MinimaxThread(playerNo, opponentNo);
-		// Load the minimax algorithm in a new thread.
-		minimaxThread.start();
-		
 	}
 	// I declared this method as synchronised hoping the code runs one at a time otherwise,if I clicked ib two buttons at the same time, I have a hunch
 	// that it may cause a series of problems.
@@ -787,9 +178,21 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 					}
 				}
 			}
-		}else
+		}else // if playerOneTurn == false (i.e. player two's turn)
 		{
-			// We do not really need this here as we will be calling the computerTurn() method from within the playerTurn() method.
+			for(int x = 0;x<8;x++)
+			{
+				// Loop until we a find the piece that initiated the event.
+				for(int y=((x+1)%2);y<8;y+=2)
+				{
+					// Firstly, we must find the row/column value of the square that initiated the event.
+					if(squaresOfBoard[x][y].equals(v))
+					{
+						// We move our pieces as normal.
+						playerTurn("2", strCheckersBoard, v, x, y, "1");		// Nice, it works.
+					}
+				}
+			}
 		}
 		
 	}// End of 'onClick'
@@ -860,7 +263,7 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 			playerImage.setImageResource(R.drawable.light_brown_piece);	
 		}
 	}
-	public void switchToHumanFromBot(String playerNo, String opponentNo, boolean isBotNext)
+	public void switchHuman(String playerNo, String opponentNo)
 	{
 		// If the opponent still has pieces on the board...
 		if(getNoOfPieces(opponentNo) > 0)
@@ -871,9 +274,7 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 			if(isTrapped == true)
 			{
 				// The bot wins... Since, the opponent cannot make any legitimate moves. 16 characters per line break! Well, that did it and trapped code works
-				loadingInfo.setText("Bot_" + playerNo + " says, \n\"Well, it looks \nlike you're \nstuck. Better \nluck next time.\"");
-				// Disable the loading wheel.
-				loadingWheel.setVisibility(View.INVISIBLE);
+				loadingInfo.setText("Player " + playerNo + " says, \n\"Well, it looks \nlike you're \nstuck. Better \nluck next time.\"");
 				// Display it too.
 				playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
 				// Display the image of the winner... blah de blah blah.
@@ -881,102 +282,21 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 			}
 			else
 			{
-				// Game is still going...
-				loadingInfo.setText("Bot_" + playerNo + " is waiting \nfor you to make \nyour move...");
-				// Disable the loading wheel.
-				loadingWheel.setVisibility(View.INVISIBLE);
 				// Opponent info will go here...
 				setPlayerImage(opponentNo);
 				// Display's the opponent's information...
 				playerInfo.setText("Player " + opponentNo + "'s Turn");
 				
-				// I think computerTurn("Will be called here, using the delayForBot() method.
-				if(isBotNext == true)
-				{
-					// If we are not playing against an human, we will call delayForBot() here...
-				}
-				// ___ Insert code here ___ //
+				// Nothing will go here as we are playing against a human so, the human can simply perform his move by also clicking the screen :)
 			}
 		}
 		else
 		{
-			// The bot wins because it captured all the opponent's pieces...
-			loadingInfo.setText("Bot_" + playerNo + " says, \n\"Mission \nAccomplished.\"");
-			// Disable the loading wheel.
-			loadingWheel.setVisibility(View.INVISIBLE);
 			// Display it on the player information too.
-			playerInfo.setText("Game Over!\nBot_" + playerNo + " is\nthe Winner!");
-			// Display the image of the winner... blah de blah blah.
-			setPlayerImage(playerNo);	
-		} 
-	}
-	public void switchToBotFromHuman(String playerNo, String opponentNo)
-	{
-		// If the opponent still has pieces on the board...
-		if(getNoOfPieces(opponentNo) > 0)
-		{
-			// We could check if the opponent (in this case, the human) has trapped pieces.
-			boolean isTrapped = isTrapped(strCheckersBoard, opponentNo, playerNo);
-			
-			if(isTrapped == true)
-			{
-				// The bot wins... Since, the opponent cannot make any legitimate moves. 16 characters per line break! Well, this works too and trapped code works too.
-				loadingInfo.setText("Bot_" + opponentNo + " says, \"I \nam stuck. How \ncould have this \nhappened?!\"");
-				// Display it too.
-				playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
-				// Display the image of the winner... blah de blah blah.
-				setPlayerImage(playerNo);
-			}
-			else
-			{
-				// Game is still going... so, we will make it blaaah
-				// Opponent info will go here...
-				setPlayerImage(opponentNo);
-				// Display's the opponent's information...
-				playerInfo.setText("Player " + opponentNo + "'s Turn");
-				
-				// -- computerTurn will be called here, using the delayForBot() method. --//
-				// We will show the wheel to indicate it is the AI's turn.
-				loadingWheel.setVisibility(View.VISIBLE);
-				// Display the Bot's information...
-				loadingInfo.setText("Bot_" + opponentNo + " is making \nits move...");
-				// Adds a delay before we actually hand over the turn to the bot. This gives the computer time to repaint the UI in time...
-				// In this case, opponentNo == "2" ;)
-				delayForBot(200, 100, playerNo, opponentNo);
-				// ___ End of section where we hand over the turn to the bot. ___ //
-			}
-		}
-		else
-		{
-			// The bot wins because it captured all the opponent's pieces...
-			loadingInfo.setText("Bot_" + opponentNo + " says \n\"Mission \nFailed.\"");
-			// Display it too.
 			playerInfo.setText("Game Over!\nPlayer " + playerNo + " is\nthe Winner!");
 			// Display the image of the winner... blah de blah blah.
 			setPlayerImage(playerNo);	
 		} 
-	}
-	public void delayForBot(long milliseconds, long interval, String passPlayerNo, String passOpponentNo)
-	{
-		// This method seems to be working fine.
-		// We need these variables final because they will later be passed into an inner class.
-		final String playerNo = passPlayerNo;
-		final String opponentNo = passOpponentNo;
-		// There are no trapped pieces so, we will let the opponent proceed as normal.
-		// It will wait 200 milliseconds before the AI decides to move.
-		new CountDownTimer(milliseconds, interval)
-		{
-			public void onTick(long millisUntilFinished)
-			{
-				// Debug purposes.
-				// System.out.println("milliseconds remaining: " + millisUntilFinished);
-			}
-			public void onFinish()
-			{
-				// It's time to call computerTurn();
-				computerTurn(opponentNo, playerNo);									
-			}
-		}.start();
 	}
 	public void addCoordinatesToLists(int passX, int passY, int upOrDown, int leftOrRight)
 	{
@@ -1645,7 +965,7 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 						
 						// It will check whether the opponent's pieces are trapped, and adds a delay of 200ms before handing over its turn to the bot.
 						// It also displays the correct player information, and whatnot.
-						switchToBotFromHuman(playerNo, opponentNo);
+						switchHuman(playerNo, opponentNo);
 						
 					}
 					else
@@ -1685,7 +1005,7 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 					isEnemyAdjacent = false;
 					// It will check whether the opponent's pieces are trapped, and adds a delay of 200ms before handing over its turn to the bot.
 					// It also displays the correct player information, and whatnot.
-					switchToBotFromHuman(playerNo, opponentNo);
+					switchHuman(playerNo, opponentNo);
 								
 				}						
 			}else

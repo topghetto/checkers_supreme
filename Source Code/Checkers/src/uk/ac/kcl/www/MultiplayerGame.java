@@ -24,7 +24,7 @@ import 	android.graphics.drawable.ColorDrawable;
 
 
 // I forgot to declare the class as public, and in result, it could not load this activity from the main menu
-public class CheckersGame extends Activity{
+public class MultiplayerGame extends Activity{
 	
 	public GridLayout checkersBoardGL;
 	public View inflateSquare;

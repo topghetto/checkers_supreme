@@ -31,7 +31,7 @@
            <!-- I don't need an intent-filter tag for reasons explained on a screenshot placed on my desktop.
            Well, this application will not be opening any other installed applications so, there is no need for it -->     
         </activity>
-        <activity android:name="CheckersGame"
+        <activity android:name="MultiplayerGame"
                   android:label="@string/str_multiplayer"
                   android:parentActivityName="uk.ac.kcl.www.MainActivity"
                   android:screenOrientation="landscape"
