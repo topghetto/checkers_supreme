@@ -758,7 +758,7 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 				
 				// Run the algorithm and store the value.
 				//heuristicValue = minimax(decisionTree, 3, true, playerNo, opponentNo);
-				heuristicValue = alphabeta(decisionTree, 3, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true, playerNo, opponentNo);
+				heuristicValue = alphabeta(decisionTree, 7, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true, playerNo, opponentNo);
 			}
 			
 			// Grab the state of the greatestMove node.
@@ -853,6 +853,9 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 		}else
 		{
 			// If the paused button is clicked...
+			
+			
+			
 			// Rename the button to resume...
 			startBtn.setText("Resume");
 			// We change isPaused back to false so, when we call this method (i.e. click the button again), it will run the code as normal :)
