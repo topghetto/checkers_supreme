@@ -757,7 +757,7 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 			}else{ //if - We will run alphabeta as normal.
 				
 				// Run the algorithm and store the value.
-				//heuristicValue = minimax(decisionTree, 3, true, playerNo, opponentNo);
+				//heuristicValue = minimax(decisionTree, 3, true, playerNo, opponentNo); // a depth of 5 is the happy medium.
 				heuristicValue = alphabeta(decisionTree, 5, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true, playerNo, opponentNo);
 			}
 			
