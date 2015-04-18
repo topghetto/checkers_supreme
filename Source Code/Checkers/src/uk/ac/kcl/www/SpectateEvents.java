@@ -758,7 +758,7 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 				
 				// Run the algorithm and store the value.
 				//heuristicValue = minimax(decisionTree, 3, true, playerNo, opponentNo);
-				heuristicValue = alphabeta(decisionTree, 7, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true, playerNo, opponentNo);
+				heuristicValue = alphabeta(decisionTree, 5, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true, playerNo, opponentNo);
 			}
 			
 			// Grab the state of the greatestMove node.
@@ -853,34 +853,41 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 		}else
 		{
 			// If the paused button is clicked...
-			
-			
-			
 			// Rename the button to resume...
 			startBtn.setText("Resume");
+			// Disable the button for around second.
+			startBtn.setClickable(false);
 			// We change isPaused back to false so, when we call this method (i.e. click the button again), it will run the code as normal :)
 			isPaused = false;
 			// Disable the loading wheel.
 			loadingWheel.setVisibility(View.INVISIBLE);
 			// Display some information.
 			loadingInfo.setText("The game has \nbeen paused.");
+			
+			// We will 800ms before we renable the button - This will prevent the user from crashing the application by
+			// bashing the button repeatedly...
+			new CountDownTimer(800, 800)
+			{
+				public void onTick(long millisUntilFinished)
+				{
+					// While we wait for a second run the following code!			
+				}
+				public void onFinish()
+				{
+					// We will now enable button so, it can be pressed again.
+					startBtn.setClickable(true);
+				}
+			}.start();
+			
+			/*// Rename the button to resume...
+			startBtn.setText("Resume");
+			// We change isPaused back to false so, when we call this method (i.e. click the button again), it will run the code as normal :)
+			isPaused = false;
+			// Disable the loading wheel.
+			loadingWheel.setVisibility(View.INVISIBLE);
+			// Display some information.
+			loadingInfo.setText("The game has \nbeen paused.");*/
 		}
-		
-		
-		
-		/*System.out.println("Start spectating...");
-		
-		// We do not even need that playerOneTurn boolean variable anymore.
-		// I need a better if statement though. Oh, I know, just disable the button after it is pressed, aha.
-		if(true)
-		{
-			// The button will not be clickable throughout the entire match ;)
-			startBtn.setClickable(false);
-			// We will initially call computerTurn("1", "2") (i.e player one goes first.)
-			computerTurn("1", "2");
-			
-			
-		}*/
 	}// End of 'onClick'
 	public boolean isTrapped(String[][] passStrCheckersBoard, String playerNo, String opponentNo)
 	{
