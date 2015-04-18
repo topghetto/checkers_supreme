@@ -6,4 +6,9 @@
     <string name="str_spectate">Spectate</string>
     <string name="str_exit_game">Exit Game</string>
     <string name="str_start">Start</string>
+    <string name="str_difficulty">Select Difficulty</string>
+    <string name="str_easy">Easy</string>
+    <string name="str_normal">Normal</string>
+    <string name="str_hard">Hard</string>
+    <string name="str_extremely_hard">Extremely Hard</string>
 </resources>

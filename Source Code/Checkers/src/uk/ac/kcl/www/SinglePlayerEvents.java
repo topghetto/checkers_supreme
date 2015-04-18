@@ -1,7 +1,9 @@
 package uk.ac.kcl.www;
 
-import android.os.CountDownTimer;
 import android.content.Context;
+import android.content.Intent;
+
+import android.os.CountDownTimer;
 import android.os.Bundle;
 
 import android.app.Activity;
@@ -69,6 +71,9 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 	// Keeps track of the new location of the recently moved piece.
 	public int xOfNewDest, yOfNewDest;
 	
+	// This will hold the depth value.
+	public static int gameDepth;
+	
 	// Constructor
 	public SinglePlayerEvents(View[][] passSquares, ImageView[][] passImgSquares, String[][] passCheckersBoard, TextView passTextView, TextView passLoadingInfo, ProgressBar passLoadingWheel, ImageView passPlayerImage)
 	{
@@ -113,6 +118,15 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 		// Keeps track of the number of pieces and...
 		// ...Initially and dynamically determines the number of pieces for each player...
 		updateNoOfPieces(strCheckersBoard);
+		
+		
+		// Grab the the String representation of the depth
+		//String strDepth = intent.getStringExtra(SelectDifficulty.DIFFICULTY_MODE); // DIFFICULTY_MODE
+		// Convert the string representation of the depth into an integer.
+		//int depth = Integer.parseInt(strDepth);
+		// Debug purposes.
+		//System.out.println("The depth selected is " + depth);
+		
 	}
 	public double evaluateNode(Tree<String[][]> passNode, String playerNo, String opponentNo)
 	{
@@ -702,7 +716,7 @@ public class SinglePlayerEvents extends Activity implements View.OnClickListener
 			greatestMove = new Tree(new String[8][8]);
 			// Run the algorithm and store the value.
 			//double heuristicValue = minimax(decisionTree, 3, true, playerNo, opponentNo);
-			double heuristicValue = alphabeta(decisionTree, 3, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true, playerNo, opponentNo);
+			double heuristicValue = alphabeta(decisionTree, gameDepth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true, playerNo, opponentNo);
 			// Grab the state of the greatestMove node.
 			String[][] greatestMoveState = greatestMove.getValue();
 			// Debug purposes - it prints out 292 nodes for a depth of 3, which is correct and I will assume that the correct states are being created.

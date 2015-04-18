@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.os.Bundle;
 import android.content.Context;
+import android.content.Intent;
 
 import android.widget.Button;
 import android.widget.TextView;
@@ -60,6 +61,17 @@ public class SinglePlayerGame extends Activity{
 		
 		// AN IMPORTANT NOTE ! IF I GET A PROBLEM WHENEVER I ADD A NEW VIEW IN THE XML
 		// COMMENT checkersBoardGL --> Compile --> Run --> Enable checkersBoardGL --> Complie --> Run.
+		
+		// Grab the intent that started this activity.
+		final Intent intent = getIntent();
+		// Grab the the String representation of the depth
+		String strDepth = intent.getStringExtra(SelectDifficulty.DIFFICULTY_MODE); // DIFFICULTY_MODE
+		// Convert the string representation of the depth into an integer and store it in the SinglePlayerEvents.gameDepth variable
+		SinglePlayerEvents.gameDepth = Integer.parseInt(strDepth);
+		// Debug purposes. Sweet, got the depth.
+		System.out.println("The depth selected is " + SinglePlayerEvents.gameDepth);
+		// Store the depth in the global static variable of the SinglePlayerEvents class.
+		
 		
 		// All the images of the squares of the checkers board will be stored in here.
 		imageOfSquares = new ImageView[8][8];
@@ -133,6 +145,7 @@ public class SinglePlayerGame extends Activity{
 		populateBoard(strCheckersBoard);
 		// Assign the listeners for each square (ImageView) of the board (i.e the GridLayout).
 		assignEvents();
+				
 	}	
 	public static void populateBoard(String[][] passStrCheckersBoard)
 	{

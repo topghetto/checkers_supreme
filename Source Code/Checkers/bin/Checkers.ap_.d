@@ -17,6 +17,7 @@
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/layout/checkers_game.xml \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/layout/gridlayout_view.xml \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/layout/main.xml \
+/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/layout/select_difficulty.xml \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/values/strings.xml \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-hdpi/ic_launcher.png \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-ldpi/ic_launcher.png \

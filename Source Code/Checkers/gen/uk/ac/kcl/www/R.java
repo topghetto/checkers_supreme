@@ -21,8 +21,12 @@ public final class R {
     public static final class id {
         public static final int adjust_speed=0x7f050007;
         public static final int checkersboard_gridlayout=0x7f050003;
+        public static final int easy_btn=0x7f05000a;
+        public static final int extremely_hard_btn=0x7f05000d;
+        public static final int hard_btn=0x7f05000c;
         public static final int image_square=0x7f050008;
         public static final int loading_info=0x7f050004;
+        public static final int normal_btn=0x7f05000b;
         public static final int playerInfo=0x7f050000;
         public static final int player_image=0x7f050001;
         public static final int progress_bar_for_bot=0x7f050005;
@@ -34,11 +38,17 @@ public final class R {
         public static final int checkers_game=0x7f030000;
         public static final int gridlayout_view=0x7f030001;
         public static final int main=0x7f030002;
+        public static final int select_difficulty=0x7f030003;
     }
     public static final class string {
         public static final int app_name=0x7f040000;
+        public static final int str_difficulty=0x7f040006;
+        public static final int str_easy=0x7f040007;
         public static final int str_exit_game=0x7f040004;
+        public static final int str_extremely_hard=0x7f04000a;
+        public static final int str_hard=0x7f040009;
         public static final int str_multiplayer=0x7f040002;
+        public static final int str_normal=0x7f040008;
         public static final int str_single_player=0x7f040001;
         public static final int str_spectate=0x7f040003;
         public static final int str_start=0x7f040005;
