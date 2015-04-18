@@ -13,6 +13,9 @@
 # view AndroidManifest.xml #generated:42
 -keep class uk.ac.kcl.www.SpectateGame { <init>(...); }
 
+# onClick res/layout/main.xml #generated:26
+-keepclassmembers class * { *** exitGame(...); }
+
 # onClick res/layout/select_difficulty.xml #generated:7
 -keepclassmembers class * { *** startEasy(...); }
 

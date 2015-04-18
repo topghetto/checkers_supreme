@@ -68,7 +68,7 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 	public Tree<String[][]> greatestMove;
 	// Boolean helper variables... Which does what it says on the tin.	
 	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent, isNewKing, adjacentToEnemy;
-	// Yup.
+	// We will also use this variable within SpectateGame.java to stop the minimax() from still running when the user returns to the menu.
 	public static boolean isPaused;
 	
 	// Keeps track of the new location of the recently moved piece.

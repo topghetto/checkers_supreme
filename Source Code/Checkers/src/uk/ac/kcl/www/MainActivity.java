@@ -38,4 +38,9 @@ public class MainActivity extends Activity
 				// Load the Multiplayer Activity.
 				startActivity(intent);
 		}
+		public void exitGame(View view)
+		{
+				// Closes the entire game.
+				finish();
+		}
 }
