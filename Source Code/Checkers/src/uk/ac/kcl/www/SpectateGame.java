@@ -52,6 +52,17 @@ public class SpectateGame extends Activity{
 	// Progress bar.
 	public SeekBar adjustSpeedBar;
 	
+	
+	@Override
+	public void onStop()
+	{
+		super.onStop();	
+		System.out.println("The Activity has now stopped");
+		
+		// This will stop the Thread from running when we spontaneously return to the main menu.
+		SpectateEvents.isPaused = false;
+		
+	}
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);

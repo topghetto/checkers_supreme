@@ -51,6 +51,7 @@ public class SinglePlayerGame extends Activity{
 	// Progress bar.
 	public SeekBar adjustSpeedBar;
 	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);

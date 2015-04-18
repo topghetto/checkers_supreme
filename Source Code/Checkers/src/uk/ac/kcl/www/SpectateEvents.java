@@ -67,7 +67,9 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 	// An experiment to return the move we should take.
 	public Tree<String[][]> greatestMove;
 	// Boolean helper variables... Which does what it says on the tin.	
-	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent, isNewKing, adjacentToEnemy, isPaused;
+	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent, isNewKing, adjacentToEnemy;
+	// Yup.
+	public static boolean isPaused;
 	
 	// Keeps track of the new location of the recently moved piece.
 	public int xOfNewDest, yOfNewDest;
