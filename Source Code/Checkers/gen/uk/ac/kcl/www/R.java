@@ -11,9 +11,9 @@ public final class R {
     public static final class attr {
     }
     public static final class drawable {
-        public static final int app_icon=0x7f020000;
-        public static final int checkers_board=0x7f020001;
-        public static final int dark_brown_piece=0x7f020002;
+        public static final int checkers_board=0x7f020000;
+        public static final int dark_brown_piece=0x7f020001;
+        public static final int ic_checkers_logo=0x7f020002;
         public static final int ic_launcher=0x7f020003;
         public static final int king_dark_brown_piece=0x7f020004;
         public static final int king_light_brown_piece=0x7f020005;

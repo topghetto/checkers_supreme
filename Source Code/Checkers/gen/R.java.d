@@ -1,17 +1,15 @@
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/gen/uk/ac/kcl/www/R.java \
- : /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/drawable-hdpi/app_icon.png \
-/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/drawable-hdpi/ic_launcher.png \
-/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/drawable-mdpi/app_icon.png \
-/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/drawable-mdpi/ic_launcher.png \
-/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/drawable-xhdpi/app_icon.png \
-/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/drawable-xxhdpi/app_icon.png \
+ : /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/drawable-hdpi/ic_checkers_logo.png \
+/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/drawable-mdpi/ic_checkers_logo.png \
+/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/drawable-xhdpi/ic_checkers_logo.png \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/drawable-xxhdpi/checkers_board.png \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/drawable-xxhdpi/dark_brown_piece.png \
+/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/drawable-xxhdpi/ic_checkers_logo.png \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/drawable-xxhdpi/ic_launcher.png \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/drawable-xxhdpi/king_dark_brown_piece.png \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/drawable-xxhdpi/king_light_brown_piece.png \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/drawable-xxhdpi/light_brown_piece.png \
-/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/drawable-xxxhdpi/app_icon.png \
+/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/drawable-xxxhdpi/ic_checkers_logo.png \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/layout/checkers_game.xml \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/layout/gridlayout_view.xml \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/layout/main.xml \
@@ -21,17 +19,15 @@
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/layout-xlarge/main.xml \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/layout-xlarge/select_difficulty.xml \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/res/values/strings.xml \
-/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-hdpi/app_icon.png \
-/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-hdpi/ic_launcher.png \
-/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-mdpi/app_icon.png \
-/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-mdpi/ic_launcher.png \
-/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-xhdpi/app_icon.png \
-/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-xxhdpi/app_icon.png \
+/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-hdpi/ic_checkers_logo.png \
+/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-mdpi/ic_checkers_logo.png \
+/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-xhdpi/ic_checkers_logo.png \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-xxhdpi/checkers_board.png \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-xxhdpi/dark_brown_piece.png \
+/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-xxhdpi/ic_checkers_logo.png \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-xxhdpi/ic_launcher.png \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-xxhdpi/king_dark_brown_piece.png \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-xxhdpi/king_light_brown_piece.png \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-xxhdpi/light_brown_piece.png \
-/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-xxxhdpi/app_icon.png \
+/Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/res/drawable-xxxhdpi/ic_checkers_logo.png \
 /Users/topghetto/Google Drive/Computer Science/KCL Third Year/Semester 1/6CCS3PRJ - 3rd Year Individual Project/Checkers_Project/Source Code/Checkers/bin/AndroidManifest.xml \
