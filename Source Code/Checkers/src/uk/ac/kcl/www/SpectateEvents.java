@@ -125,7 +125,7 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 		firstMoveCount = 0;
 		
 		// General Information.
-		loadingInfo.setText("Press the Start \nButton to Begin");
+		loadingInfo.setText("Spectate Mode. \nPress the Start \nButton to Begin");
 		// Display the player's turn. REMEMBER TO CHANGE THIS PARTICULAR SECTION WHEN I AUTOMATICALLY MAKE THE CODE DECIDE WHO GOES FIRST!!!
 		playerInfo.setText("Player " + 1 + "'s Turn");
 		// Set the image of the player image.

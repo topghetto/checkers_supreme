@@ -109,6 +109,8 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 		playerInfo.setText("Player " + 1 + "'s Turn");
 		// Set the image of the player image.
 		playerImage.setImageResource(R.drawable.dark_brown_piece);
+		// Loading information.
+		loadingInfo.setText("Multiplayer Mode");
 		
 		// Keeps track of the number of pieces and...
 		// ...Initially and dynamically determines the number of pieces for each player...
