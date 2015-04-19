@@ -2,17 +2,17 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-		android:background="#80444411"
-    >
-  
+    android:background="#80206DB4">
+    
   <!-- Remember the disable the colour for the LinearLayout below -->
   <!-- The left side of the screen -->
+  <!-- android:background="#80206DB4" that nice blue colour -->
+  <!-- android:background="#80444411" that okayish green colour -->
   <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
     android:layout_width="125dp"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:layout_alignParentLeft="true"
-    android:background="#80206DB4">
+    android:layout_alignParentLeft="true">
     
     <TextView android:id="@+id/playerInfo"
 						android:layout_width="wrap_content"
@@ -27,7 +27,7 @@
 				android:layout_width="43dp"
         android:layout_height="39.375dp"
 				android:layout_gravity="center_horizontal"
-				android:background="#C0C0C0"/>
+				/>
         
     <Button android:id="@+id/start_btn"
 		android:layout_width="wrap_content"
@@ -53,14 +53,13 @@
 	
 	</GridLayout>
 	
-  <!-- Remember the disable the colour for the LinearLayout below -->
+  <!-- Remember the disable the colour for the LinearLayout below. Done -->
   <!-- The right side of the screen -->
   <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
     android:layout_width="125dp"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:layout_alignParentRight="true"
-    android:background="#806699FF">
+    android:layout_alignParentRight="true">
     
     <!-- Change the layout_height of this attribute later on. -->
     <TextView android:id="@+id/loading_info"
@@ -80,7 +79,7 @@
     <TextView android:id="@+id/seekbar_info"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginTop="10dp"
+    android:layout_marginTop="20dp"
     android:layout_gravity="center_horizontal"
     android:text="Adjust the Speed"
     />

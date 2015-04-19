@@ -82,7 +82,7 @@
     <TextView android:id="@+id/seekbar_info"
     android:layout_width="wrap_content"
     android:layout_height="48dp"
-    android:layout_marginTop="30.42dp"
+    android:layout_marginTop="40.42dp"
     android:layout_gravity="center_horizontal"
     android:textSize="30.63sp"
     android:text="Adjust the Speed"
