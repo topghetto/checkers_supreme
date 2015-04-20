@@ -67,7 +67,7 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 	// An experiment to return the move we should take.
 	public Tree<String[][]> greatestMove;
 	// Boolean helper variables... Which does what it says on the tin.	
-	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent, isNewKing, adjacentToEnemy;
+	public boolean isHighlighted, playerOneTurn, isNewKing, adjacentToEnemy;
 	// We will also use this variable within SpectateGame.java to stop the minimax() from still running when the user returns to the menu.
 	public static boolean isPaused;
 	
@@ -101,7 +101,6 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 		yOfNewDest = 0;	
 		
 		// Helper ArrayLists that will hold the ArrayLists of coordinates.
-		isEnemyAdjacent = false;
 		arrayOfPrevCoordinatesX = new ArrayList<ArrayList<Integer>>();
 		arrayOfPrevCoordinatesY = new ArrayList<ArrayList<Integer>>();
 		arrayOfEnemyCoordinatesX = new ArrayList<ArrayList<Integer>>();
@@ -166,12 +165,6 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 						// If it is also a king, increase the heueristic even more...
 						noOfPlayerOne++;
 					}
-					/*// If the piece is close to becoming a king.
-					if(row >= 0 && row <= 2)
-					{
-						// Increase the heuristic value.
-						playerOneOffense++;
-					}*/
 				}
 				else if(state[row][column].contains("2"))
 				{
@@ -183,12 +176,6 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 						// If it is also a king, increase the heueristic even more...
 						noOfPlayerTwo++;
 					}
-					/*// If the piece is close to becoming a king.
-					if(row >= 5 && row <= 7)
-					{
-						// Increase the heuristic value.
-						playerTwoOffense++;
-					}*/
 				}
 			}
 		}	
@@ -323,135 +310,6 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 				// System.out.println("We will evaluate passNode earlier than the cut-off depth because it has no children...");
 				// This call wiill evaluate the node passed in, earlier than expected because it no longer has any children.
 				bestValue = alphabeta(passNode, 0, alpha, beta, true, playerNo, opponentNo);
-			}
-			// Return the overall result.
-			return bestValue;
-		}
-	}
-	// --- End of Alpha-Beta Experiment -- //
-	public double minimax(Tree<String[][]> passNode, int depth, boolean maximisingPlayer, String playerNo, String opponentNo)
-	{
-		// Base case...
-		if(depth == 0) 
-		{
-			// Calculate and return the heuristic value.
-			return evaluateNode(passNode, playerNo, opponentNo);
-		}
-		if(maximisingPlayer == true)
-		{
-			// Debug purposes.
-			System.out.println("Maximising Player:"); 
-			// If it is a MAX node...
-			// An experiment
-			Tree<String[][]> bestMove = null;
-			// Initially negative infinity.
-			double bestValue = Double.NEGATIVE_INFINITY;
-			// Generate the children - This will correspond to the root MAX node which will create MIN nodes... This works okay.
-			//createChildren(passNode, "2", "1");
-			createChildren(passNode, playerNo, opponentNo);
-			// Grab the children of the node passed in.
-			ArrayList<Tree<String[][]>> children = passNode.children();
-			
-			// --- An experiment --- //
-			
-			if(children.size() > 0)
-			{
-				// For each child of the (parent) node
-				for(Tree<String[][]> child : children)
-				{
-					// Recursion call, y'all.
-					double value = minimax(child, depth-1, false, playerNo, opponentNo);
-					// Debug purposes.
-					System.out.println("The depth of the node ");
-					System.out.print("max(" + bestValue + ", ");
-					// If the new value obtained is larger than the previous bestValue, update the 'bestValue' with the new value.
-					// bestValue = Math.max(bestValue, value);
-					
-					if(value > bestValue)
-					{
-						bestValue = value;
-						// Store the best move... I hope. All this time I have been saving passNode not 'child'... Hopefully, it works now.	
-						// An experiment. using 'passNode' always picks the last moveable piece in the tree.		
-						if(passNode.isRoot())
-						{
-							// Well, it picks sometimes first child, and even second child. It may actually be working now. I'll run some more tests.
-							// It cleverly avoided the pieces when the CPU had only one piece left. Yup, this works :)
-							// Debug purposes.
-							System.out.println("This is the root node within in the minimax recursive stack and here are the contents of one child from root:");
-							// Print the board, yup.
-							printCheckersBoard(child.getValue());
-							// Store the greatest move.
-							greatestMove = child;	
-						}	
-					}
-					
-					// Debug purposes.
-					System.out.println(value + ") is " + bestValue);
-				}
-			}else
-			{
-				// Debug purposes. This is for the purpose of when the bot has only one piece left on the board, and it's cornered (about to be captured.)
-				System.out.println("We will evaluate passNode earlier than the cut-off depth because it has no children...");
-				// An attempt to evaluate the node early.
-				bestValue = minimax(passNode, 0, false, playerNo, opponentNo);
-			}
-			// Return the overall result.
-			return bestValue;
-			
-		}else //if(maximisingPlayer = false)
-		{
-			// If it is a MIN node...
-			// Debug purposes.
-			System.out.println("Minimising Player:"); 
-			// An experiment
-			Tree<String[][]> bestMove = null;
-			// Initially positive infinity.
-			double bestValue = Double.POSITIVE_INFINITY;
-			// Generate the children - the new states will be created in the method below. This corresponds to the MIN Nodes which will create MAX nodes.
-			// createChildren(passNode, "1", "2");
-			createChildren(passNode, opponentNo, playerNo);
-			// Grab the children of the node passed in.
-			ArrayList<Tree<String[][]>> children = passNode.children();
-			
-			if(children.size() > 0)
-			{
-				// For each child of the (parent) node
-				for(Tree<String[][]> child : children)
-				{
-					// A recursive call that will eventually assign the result of that call into 'value'.
-					double value = minimax(child, depth-1, true, playerNo, opponentNo);
-					// Debug purposes.
-					System.out.print("min(" + bestValue + ", ");
-					// If the new value obtained is smaller than the previous bestValue, update the 'bestValue' with the new value.
-					// bestValue = Math.min(bestValue, value);
-					
-					if(value < bestValue)
-					{
-						bestValue = value;
-						// Store the best move... I hope. Oh, shit, I think I am passing in the wrong node.
-						// An experiment. using 'passNode' always picks the last moveable piece in the tree.		
-						if(passNode.isRoot())
-						{
-							// Debug purposes.
-							System.out.println("This is the root node within in the minimax recursive stack and here are the contents of one child from root:");
-							// Print the board, yup.
-							printCheckersBoard(child.getValue());
-							// Store the greatest move.
-							greatestMove = child;	
-						}	
-					}
-					// Debug purposes.
-					System.out.println(value + ") is " + bestValue);
-				}
-			}else
-			{
-				// Debug purposes. This is for the purpose of when the bot has only one piece left on the board, and it's cornered (about to be captured.)
-				// When it is MIN's turn and assuming a final capture happened beforehand (at MAX), Min would have no pieces to move, resulting in no
-				// children created so, because the game would be the won by the opponent, there are no more possible moves that can be made so,
-				// we evaluate earlier, which seems to be working well.
-				System.out.println("We will evaluate passNode earlier than the cut-off depth because it has no children...");
-				// An attempt to evaluate the node early.
-				bestValue = minimax(passNode, 0, true, playerNo, opponentNo);
 			}
 			// Return the overall result.
 			return bestValue;
@@ -600,12 +458,6 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 						// for consecutive captures from the current ocation...
 						if(nextEnemyAxisX.size() > 0)
 						{
-							// Debug purposes...
-							/*if(nextEnemyAxisX.size() > 1)
-							{
-								System.out.println("There are two options for the consecutive capture! Take 4!");
-							}*/
-							
 							// Recursively check for consecutive captures, and adds the states to 'passNode'.
 							consecutiveCaptures(passNode, newLocationState, true, playerNo, opponentNo, nextPrevAxisX, nextPrevAxisY, nextEnemyAxisX, nextEnemyAxisY);
 							
@@ -758,22 +610,21 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 				
 			}else{ //if - We will run alphabeta as normal.
 				
-				// Run the algorithm and store the value.
-				//heuristicValue = minimax(decisionTree, 3, true, playerNo, opponentNo); // a depth of 5 is the happy medium.
+				// a depth of 5 is the happy medium.
 				heuristicValue = alphabeta(decisionTree, 5, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true, playerNo, opponentNo);
 			}
 			
 			// Grab the state of the greatestMove node.
 			String[][] greatestMoveState = greatestMove.getValue();
 			// Debug purposes - it prints out 292 nodes for a depth of 3, which is correct and I will assume that the correct states are being created.
-			System.out.println("Player " + playerNo + " - the size of the decisionTree after the minimax operation is " + sizeOfTree + " and the greatest move is ");		
+			// System.out.println("Player " + playerNo + " - the size of the decisionTree after the minimax operation is " + sizeOfTree + " and the greatest move is ");		
 			// Debug purposes.
-			printCheckersBoard(greatestMoveState); // So far, it grabs the states at depth 3 (which are the states at the cut-off depth). 
-			System.out.println("The overall heuristic value of the minimax algorithm is: " + heuristicValue);
+			// printCheckersBoard(greatestMoveState); // So far, it grabs the states at depth 3 (which are the states at the cut-off depth). 
+			// System.out.println("The overall heuristic value of the minimax algorithm is: " + heuristicValue);
 			
 			// Debug.
-			System.out.println("The contents of strCheckersBoard[][] before the Bot moved its piece is:");
-			printCheckersBoard(strCheckersBoard);
+			// System.out.println("The contents of strCheckersBoard[][] before the Bot moved its piece is:");
+			// printCheckersBoard(strCheckersBoard);
 			
 			// Because we will be repainting the Views (i.e. the checkers pieces, checkersboard, etc.), we must do it on the UI thread.
 			// All UI repainting must be done on the UI thread, which it will do now...
@@ -782,8 +633,6 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 			{
 				public void run()
 				{
-					// Debug purposes.
-					System.out.println("Minimax is done. The bot will perform its move...");
 					// Grabs the state of the greatestMove node.
 					String[][] greatestMoveState = greatestMove.getValue();
 					// Copy the contents of the greatest move into the current strCheckersboards (i.e. performs the move);
@@ -794,14 +643,11 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 					// hand over its turn to the opponent (i.e. the human).
 					playerOneTurn = !playerOneTurn; 
 					// Debug purposes.
-					System.out.println("The contents of strCheckersBoard[][] after the Bot moved its piece is:");
-					printCheckersBoard(strCheckersBoard);
+					// System.out.println("The contents of strCheckersBoard[][] after the Bot moved its piece is:");
+					// printCheckersBoard(strCheckersBoard);
 					// Updates variables that hold the number of pieces each player has on the board.
 					updateNoOfPieces(strCheckersBoard);
 					
-					// An experiment...
-					
-					// Get rid of the IF statement above if it does not work, and renable the code below :)
 					// We pass in false because the turn we are handing over to, is a human so, yeah. This method will also print out the correct player
 					// information, hides the loading wheel, and whatnot.
 					switchBot(playerNo, opponentNo);
@@ -880,15 +726,6 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 					startBtn.setClickable(true);
 				}
 			}.start();
-			
-			/*// Rename the button to resume...
-			startBtn.setText("Resume");
-			// We change isPaused back to false so, when we call this method (i.e. click the button again), it will run the code as normal :)
-			isPaused = false;
-			// Disable the loading wheel.
-			loadingWheel.setVisibility(View.INVISIBLE);
-			// Display some information.
-			loadingInfo.setText("The game has \nbeen paused.");*/
 		}
 	}// End of 'onClick'
 	public boolean isTrapped(String[][] passStrCheckersBoard, String playerNo, String opponentNo)
@@ -908,7 +745,7 @@ public class SpectateEvents extends Activity implements View.OnClickListener
 					// We then check (if we can add coordinates), and if so, add the coordinates of the possible moves that piece at[row][column] can make...
 					highlightSquares(passStrCheckersBoard, row, column, opponentNo, playerNo);
 					// We then check if it can make at least one move. If we do, we stop searching because we only need to find at least one.
-					if(xPrevAxis.size() > 0) // arrayOfPrevCoordinatesX is not needed.
+					if(xPrevAxis.size() > 0) 
 					{
 						// We update the value.
 						isTrapped = false;

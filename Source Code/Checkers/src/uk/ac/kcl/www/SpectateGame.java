@@ -138,11 +138,8 @@ public class SpectateGame extends Activity{
 				speedInfo.setText("Speed: " + (4000/seconds) + "ms");
 				// Only when the user has taken his hands off the bar, we will assign the value of speed.
 				SpectateEvents.speed = duration;
-				// Debug purposes. Well, that works fine.
-				System.out.println("Here are your current milliseconds: " + (4000/seconds));
-				
-				
-				System.out.println("Here is the current speed " + duration + " ms and a interval of " + interval);
+				// Debug purposes.
+				// System.out.println("Here is the current speed " + duration + " ms and a interval of " + interval);
 			}
 		});
 		
