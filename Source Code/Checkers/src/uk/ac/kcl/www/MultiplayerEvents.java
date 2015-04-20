@@ -5,8 +5,6 @@ import android.content.Context;
 import android.os.Bundle;
 
 import android.app.Activity;
-import android.app.Activity;
-import android.app.ActionBar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,14 +55,9 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 	// Keeps track of the neighbouring enemies to the highlight checkers piece.
 	public ArrayList<Integer> xEnemyAxis, yEnemyAxis;
 	
-	// The Tree of possible states that the AI can go to.
-	public Tree<String[][]> decisionTree;
-	// Keeps track of the number of nodes in the tree
-	public int sizeOfTree;
-	// An experiment to return the move we should take.
-	public Tree<String[][]> greatestMove;
+
 	// Boolean helper variables... Which does what it says on the tin.	
-	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent, isNewKing, adjacentToEnemy;
+	public boolean isHighlighted, playerOneTurn, isEnemyAdjacent, isNewKing;
 	
 	// Keeps track of the new location of the recently moved piece.
 	public int xOfNewDest, yOfNewDest;
@@ -75,7 +68,6 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 		// Player one will initially go first...
 		playerOneTurn = true;
 		isNewKing = false;
-		adjacentToEnemy = false;
 		
 		strCheckersBoard = passCheckersBoard;
 		squaresOfBoard = passSquares;

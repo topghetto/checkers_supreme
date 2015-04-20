@@ -7,7 +7,6 @@ import android.os.CountDownTimer;
 import android.os.Bundle;
 
 import android.app.Activity;
-import android.app.Activity;
 import android.app.ActionBar;
 
 import java.util.ArrayList;
