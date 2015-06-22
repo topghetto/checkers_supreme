@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+	<Button android:id="@+id/easy_btn"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/str_easy"
+    android:onClick="startEasy"
+	/>
+	<Button android:id="@+id/normal_btn"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/str_normal"
+		android:onClick="startNormal"
+	/>
+	<Button android:id="@+id/hard_btn"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/str_hard"
+		android:onClick="startHard"
+	/>
+	<Button android:id="@+id/extremely_hard_btn"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/str_extremely_hard"
+    android:onClick="startExtremelyHard"
+	/>
+	
+	
+</LinearLayout>
+

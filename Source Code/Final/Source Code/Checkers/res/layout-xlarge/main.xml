@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+	<Button
+		android:id="@+id/single_player_btn"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/str_single_player"
+    android:onClick="startSinglePlayer"
+	/>
+	<Button
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/str_multiplayer"
+		android:onClick="startMultiplayer"
+	/>
+	<Button
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/str_spectate"
+		android:onClick="startSpectate"
+	/>
+	<Button
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/str_exit_game"
+    android:onClick="exitGame"
+	/>
+	
+	
+</LinearLayout>
+

@@ -90,7 +90,7 @@ public class MultiplayerEvents extends Activity implements View.OnClickListener
 		// Initialise.
 		playerInfo = passTextView;
 		// Initialise the TextView for the display additional information with the loading wheel.
-    loadingInfo = passLoadingInfo;
+    	loadingInfo = passLoadingInfo;
 		// Initialise the ImageView
 		playerImage = passPlayerImage;
 		// Initialise the ProgressBar.		

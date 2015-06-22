@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Checkers Supreme</string>
+    <string name="str_single_player">Single Player</string>
+    <string name="str_multiplayer">Multiplayer (on the Same Screen)</string>
+    <string name="str_spectate">Spectate</string>
+    <string name="str_exit_game">Exit Game</string>
+    <string name="str_start">Start</string>
+    <string name="str_difficulty">Select Difficulty</string>
+    <string name="str_easy">Easy</string>
+    <string name="str_normal">Normal</string>
+    <string name="str_hard">Hard</string>
+    <string name="str_extremely_hard">Extremely Hard</string>
+</resources>

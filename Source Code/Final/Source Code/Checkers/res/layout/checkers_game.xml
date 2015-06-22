@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#80206DB4">
+    
+  <!-- Remember the disable the colour for the LinearLayout below -->
+  <!-- The left side of the screen -->
+  <!-- android:background="#80206DB4" that nice blue colour -->
+  <!-- android:background="#80444411" that okayish green colour -->
+  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:layout_width="125dp"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_alignParentLeft="true">
+    
+    <TextView android:id="@+id/playerInfo"
+						android:layout_width="wrap_content"
+						android:layout_height="90dp"
+						android:layout_marginTop="50dp"
+            android:layout_marginBottom="-20dp"
+						android:layout_gravity="center_horizontal"
+						android:textSize="15sp"
+						android:text="Player Information"/>
+    
+    <ImageView android:id="@+id/player_image"
+				android:layout_width="43dp"
+        android:layout_height="39.375dp"
+				android:layout_gravity="center_horizontal"
+				/>
+        
+    <Button android:id="@+id/start_btn"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+    android:layout_marginTop="50dp"
+    android:layout_gravity="center_horizontal"
+		android:text="@string/str_start"
+    />
+    
+  </LinearLayout>
+  
+	<!-- This colour green is perfect for this game. I randomly typed in random numbers and got this :) android:background="#80444411" --> 
+  <!-- The checkers board -->	
+	<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:id="@+id/checkersboard_gridlayout"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_weight="2"
+		android:layout_centerInParent="true"
+		android:rowCount="8"
+		android:columnCount="8"
+		android:background="@drawable/checkers_board">
+	
+	</GridLayout>
+	
+  <!-- Remember the disable the colour for the LinearLayout below. Done -->
+  <!-- The right side of the screen -->
+  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:layout_width="125dp"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_alignParentRight="true">
+    
+    <!-- Change the layout_height of this attribute later on. -->
+    <TextView android:id="@+id/loading_info"
+						android:layout_width="wrap_content"
+						android:layout_height="75dp"
+						android:layout_marginTop="50dp"
+            android:layout_gravity="center_horizontal"
+						android:textSize="15sp"
+						android:text=""/>
+    
+    <ProgressBar android:id="@+id/progress_bar_for_bot"
+        style="@android:style/Widget.ProgressBar.Large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"/>
+    
+    <TextView android:id="@+id/seekbar_info"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="20dp"
+    android:layout_gravity="center_horizontal"
+    android:text="Adjust the Speed"
+    />
+    
+    <SeekBar android:id="@+id/adjust_speed"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_marginTop="10dp"
+             android:layout_gravity="center_horizontal"
+             android:max="19"/>
+    
+  </LinearLayout>
+	
+</RelativeLayout>

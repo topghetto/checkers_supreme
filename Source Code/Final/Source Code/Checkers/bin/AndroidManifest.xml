@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="uk.ac.kcl.www"
+      android:versionCode="1"
+      android:versionName="1.0">
+    <uses-sdk android:minSdkVersion="16" android:maxSdkVersion="21"/>
+    <!-- android:theme="@android:style/Theme.Holo in <application... > makes the application looks as if it was runnning on JellyBean :) -->
+    <application android:label="@string/app_name" android:icon="@drawable/my_checkers_logo" android:theme="@android:style/Theme.Holo">
+        <activity android:name="MainActivity"
+                  android:label="@string/app_name"
+                  android:screenOrientation="landscape"
+                  android:configChanges="keyboardHidden|orientation|screenSize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+         <activity android:name="SelectDifficulty"
+                  android:label="@string/str_difficulty"
+                  android:parentActivityName="uk.ac.kcl.www.MainActivity"
+                  android:screenOrientation="landscape"
+                  android:configChanges="keyboardHidden|orientation|screenSize">
+           <!-- I don't need an intent-filter tag for reasons explained on a screenshot placed on my desktop.
+           Well, this application will not be opening any other installed applications so, there is no need for it -->     
+        </activity>
+        <activity android:name="SinglePlayerGame"
+                  android:label="@string/str_single_player"
+                  android:parentActivityName="uk.ac.kcl.www.MainActivity"
+                  android:screenOrientation="landscape"
+                  android:configChanges="keyboardHidden|orientation|screenSize">
+           <!-- I don't need an intent-filter tag for reasons explained on a screenshot placed on my desktop.
+           Well, this application will not be opening any other installed applications so, there is no need for it -->     
+        </activity>
+        <activity android:name="MultiplayerGame"
+                  android:label="@string/str_multiplayer"
+                  android:parentActivityName="uk.ac.kcl.www.MainActivity"
+                  android:screenOrientation="landscape"
+                  android:configChanges="keyboardHidden|orientation|screenSize">
+           <!-- I don't need an intent-filter tag for reasons explained on a screenshot placed on my desktop.
+           Well, this application will not be opening any other installed applications so, there is no need for it -->     
+        </activity>
+        <activity android:name="SpectateGame"
+                  android:label="@string/str_spectate"
+                  android:parentActivityName="uk.ac.kcl.www.MainActivity"
+                  android:screenOrientation="landscape"
+                  android:configChanges="keyboardHidden|orientation|screenSize">
+           <!-- I don't need an intent-filter tag for reasons explained on a screenshot placed on my desktop.
+           Well, this application will not be opening any other installed applications so, there is no need for it -->     
+        </activity>
+    </application>
+</manifest>
